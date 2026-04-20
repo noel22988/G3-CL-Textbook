@@ -1,0 +1,880 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>快捷华文 · 电子课文 — Express Chinese Reader</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --ink-muted: #6b7280;
+    --ink-faint: #9ca3af;
+    --accent: #2f7d4f;
+    --accent-soft: #e6f1ea;
+    --accent-dark: #26663f;
+    --rule: #e5e7eb;
+    --rule-soft: #f1f0ec;
+    --bg: #fafaf8;
+    --surface: #ffffff;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink); line-height: 1.6;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  }
+  .chinese { font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Source Han Sans SC", "Noto Sans CJK SC", sans-serif; }
+  a { color: var(--accent); text-decoration: none; }
+  ruby rt { font-size: 11px; color: var(--accent); font-weight: 400; letter-spacing: 0.02em; padding-bottom: 4px; }
+
+  /* Hero */
+  .hero {
+    max-width: 1100px; margin: 0 auto;
+    padding: 4rem 2rem 3rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .hero .eyebrow {
+    font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--accent); font-weight: 500; margin-bottom: 1rem;
+  }
+  .hero h1 {
+    margin: 0 0 0.75rem;
+    font-size: 48px; font-weight: 500; line-height: 1.3;
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.75rem;
+  }
+  .hero h1 .zh { color: var(--ink); line-height: 2.2; }
+  .hero h1 .en { color: var(--ink-muted); font-weight: 400; font-size: 26px; }
+  .hero h1 .zh ruby rt { font-size: 14px; }
+  .hero .lede {
+    max-width: 620px; font-size: 17px; line-height: 1.7;
+    color: var(--ink-muted); margin: 1.5rem 0 2rem;
+  }
+  .hero .stats {
+    display: flex; gap: 2.5rem; flex-wrap: wrap;
+    padding: 1.25rem 0; margin-top: 1rem;
+    border-top: 1px solid var(--rule-soft);
+  }
+  .stat .num { font-size: 22px; font-weight: 500; color: var(--ink); }
+  .stat .num .total { color: var(--ink-faint); font-weight: 400; }
+  .stat .label { font-size: 13px; color: var(--ink-muted); margin-top: 2px; }
+
+  /* Level navigator — sticky tabs */
+  .level-nav {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(250, 250, 248, 0.95); backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--rule);
+  }
+  .level-nav .inner {
+    max-width: 1100px; margin: 0 auto; padding: 0 2rem;
+    display: flex; gap: 0; overflow-x: auto;
+  }
+  .level-nav a {
+    padding: 16px 20px; font-size: 14px; color: var(--ink-muted);
+    border-bottom: 2px solid transparent;
+    white-space: nowrap; transition: all 0.15s;
+  }
+  .level-nav a:hover { color: var(--ink); }
+  .level-nav a.current { color: var(--accent); border-bottom-color: var(--accent); font-weight: 500; }
+
+  /* Level sections */
+  main { max-width: 1100px; margin: 0 auto; padding: 3rem 2rem 6rem; }
+  .level-section { padding-top: 2rem; margin-bottom: 4rem; scroll-margin-top: 60px; }
+  .level-header {
+    display: flex; align-items: baseline; gap: 1rem; flex-wrap: wrap;
+    padding-bottom: 0.5rem;
+  }
+  .level-header h2 {
+    margin: 0; font-size: 32px; font-weight: 500;
+    display: flex; align-items: baseline; gap: 0.75rem;
+  }
+  .level-header h2 .zh { color: var(--ink); }
+  .level-header h2 .en { color: var(--ink-muted); font-size: 18px; font-weight: 400; }
+  .level-header .progress-dot {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 13px; color: var(--ink-muted);
+    padding: 4px 10px; background: var(--surface); border: 1px solid var(--rule);
+    border-radius: 14px; margin-left: auto;
+  }
+  .level-header .progress-dot .dot {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--ink-faint);
+  }
+  .level-header .progress-dot.has-live .dot { background: var(--accent); }
+  .level-blurb { color: var(--ink-muted); font-size: 14px; margin: 0.5rem 0 2rem; max-width: 620px; }
+
+  /* Unit grid — 2 column on desktop, 1 col on mobile */
+  .unit-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  .unit {
+    background: var(--surface); border: 1px solid var(--rule);
+    border-radius: 12px; padding: 1.25rem 1.5rem;
+    transition: border-color 0.15s;
+  }
+  .unit.has-live { border-color: var(--accent); border-width: 1px; box-shadow: 0 0 0 1px var(--accent); }
+  .unit-head {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 1rem;
+    margin-bottom: 0.75rem; padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  .unit-num {
+    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--ink-faint); font-weight: 500;
+  }
+  .unit-title {
+    font-size: 18px; font-weight: 500; margin: 0 0 2px;
+    font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
+  }
+  .unit-status {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--ink-faint); font-weight: 500;
+    white-space: nowrap;
+  }
+  .unit-status.live { color: var(--accent); }
+
+  .text-list { list-style: none; padding: 0; margin: 0; }
+  .text-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 0;
+    font-size: 14px;
+  }
+  .text-item + .text-item { border-top: 1px solid var(--rule-soft); }
+  .text-item .cat-pill {
+    font-size: 10px; font-weight: 500; letter-spacing: 0.04em;
+    padding: 2px 8px; border-radius: 8px;
+    color: var(--ink-muted); background: var(--rule-soft);
+    white-space: nowrap; flex-shrink: 0;
+    width: 72px; text-align: center;
+  }
+  .text-item.live .cat-pill { color: var(--accent); background: var(--accent-soft); }
+  .text-item .text-title-zh {
+    flex: 1; color: var(--ink-muted); font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .text-item.live .text-title-zh { color: var(--ink); }
+  .text-item a.text-title-zh:hover { color: var(--accent); }
+  .text-item .soon-tag {
+    font-size: 10px; color: var(--ink-faint); letter-spacing: 0.04em; text-transform: uppercase;
+    flex-shrink: 0;
+  }
+  .text-item .arrow { color: var(--ink-faint); font-size: 13px; flex-shrink: 0; transition: transform 0.15s; }
+  .text-item.live:hover .arrow { transform: translateX(2px); color: var(--accent); }
+  .unit-view-all {
+    display: inline-block; margin-top: 0.75rem;
+    font-size: 13px; color: var(--accent); font-weight: 500;
+  }
+  .unit-view-all:hover { text-decoration: underline; }
+
+  footer {
+    max-width: 1100px; margin: 2rem auto 0; padding: 2rem 2rem 3rem;
+    border-top: 1px solid var(--rule);
+    font-size: 13px; color: var(--ink-muted); line-height: 1.7;
+  }
+  footer p { margin: 0.25rem 0; }
+  footer a { color: var(--accent); }
+
+  @media (max-width: 720px) {
+    .hero { padding: 2.5rem 1.25rem 2rem; }
+    .hero h1 { font-size: 32px; }
+    .hero h1 .en { font-size: 18px; }
+    .hero .lede { font-size: 15px; }
+    .hero .stats { gap: 1.5rem; }
+    .level-nav .inner { padding: 0 1.25rem; }
+    main { padding: 2rem 1.25rem 4rem; }
+    .level-header h2 { font-size: 24px; }
+    .level-header h2 .en { font-size: 14px; }
+    .level-header .progress-dot { margin-left: 0; width: 100%; justify-content: center; }
+    .unit-grid { grid-template-columns: 1fr; }
+    .text-item .cat-pill { width: 60px; font-size: 9px; }
+  }
+</style>
+</head>
+<body>
+  <section class="hero">
+    <div class="eyebrow">Singapore Secondary Chinese · 电子课文</div>
+    <h1>
+      <span class="zh chinese"><ruby>快<rt>kuài</rt></ruby><ruby>捷<rt>jié</rt></ruby><ruby>华<rt>huá</rt></ruby><ruby>文<rt>wén</rt></ruby></span>
+      <span class="en">Express Chinese Reader</span>
+    </h1>
+    <p class="lede">
+      A free companion reader for the Singapore 快捷华文 textbook series.
+      Every passage comes with togglable hanyu pinyin, English translations, and audio playback —
+      to help students read on their own, at their own pace.
+    </p>
+    <div class="stats">
+      <div class="stat"><div class="num">3<span class="total"> / 69</span></div><div class="label">passages available</div></div>
+      <div class="stat"><div class="num">4</div><div class="label">levels · 中一 to 中四</div></div>
+      <div class="stat"><div class="num">23</div><div class="label">units</div></div>
+    </div>
+  </section>
+
+  <nav class="level-nav">
+    <div class="inner">
+      <a href="#level-y1" class="level-link">Secondary 1</a>
+      <a href="#level-y2" class="level-link">Secondary 2</a>
+      <a href="#level-y3" class="level-link">Secondary 3</a>
+      <a href="#level-y4" class="level-link">Secondary 4</a>
+    </div>
+  </nav>
+
+  <main>
+    
+  <section class="level-section" id="level-y1">
+    <header class="level-header">
+      <h2><span class="zh chinese"><ruby>中<rt>zhōng</rt></ruby><ruby>一<rt>yī</rt></ruby></span><span class="en">Secondary 1</span></h2>
+      <span class="progress-dot has-live"><span class="dot"></span>3 of 18 texts available</span>
+    </header>
+    <p class="level-blurb">First year — new classmates, family reunions, and exploring Singapore</p>
+    <div class="unit-grid">
+    <article class="unit has-live">
+      <header class="unit-head">
+        <div>
+          <div class="unit-num">Unit 1</div>
+          <h3 class="unit-title">新同学 新鲜事</h3>
+        </div>
+        <span class="unit-status live">3/3 live</span>
+      </header>
+      <ul class="text-list">
+        <li class="text-item live">
+          <span class="cat-pill">Daily Life</span>
+          <a class="text-title-zh" href="y1/y1-s1-u1-daily-xintongxue.html">《我的新同学》</a>
+          <span class="arrow">→</span>
+        </li>
+        <li class="text-item live">
+          <span class="cat-pill">Core</span>
+          <a class="text-title-zh" href="y1/y1-s1-u1-core-yigedan.html">《一个蛋两个蛋三个蛋》</a>
+          <span class="arrow">→</span>
+        </li>
+        <li class="text-item live">
+          <span class="cat-pill">Consolidation</span>
+          <a class="text-title-zh" href="y1/y1-s1-u1-cons-shenan.html">《张老师“审案”》</a>
+          <span class="arrow">→</span>
+        </li>
+      </ul>
+    </article>
+    <article class="unit ">
+      <header class="unit-head">
+        <div>
+          <div class="unit-num">Unit 2</div>
+          <h3 class="unit-title">团圆</h3>
+        </div>
+        <span class="unit-status">Coming soon</span>
+      </header>
+      <ul class="text-list">
+        <li class="text-item ">
+          <span class="cat-pill">Daily Life</span>
+          <span class="text-title-zh">《世界各地的新年风俗》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+        <li class="text-item ">
+          <span class="cat-pill">Core</span>
+          <span class="text-title-zh">《团圆饭》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+        <li class="text-item ">
+          <span class="cat-pill">Consolidation</span>
+          <span class="text-title-zh">《幸运饺子》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+      </ul>
+    </article>
+    <article class="unit ">
+      <header class="unit-head">
+        <div>
+          <div class="unit-num">Unit 3</div>
+          <h3 class="unit-title">相约狮城</h3>
+        </div>
+        <span class="unit-status">Coming soon</span>
+      </header>
+      <ul class="text-list">
+        <li class="text-item ">
+          <span class="cat-pill">Daily Life</span>
+          <span class="text-title-zh">《走街串巷逛狮城》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+        <li class="text-item ">
+          <span class="cat-pill">Core</span>
+          <span class="text-title-zh">《魅力四射  星耀樟宜》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+        <li class="text-item ">
+          <span class="cat-pill">Consolidation</span>
+          <span class="text-title-zh">《国家美术馆探秘》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+      </ul>
+    </article>
+    <article class="unit ">
+      <header class="unit-head">
+        <div>
+          <div class="unit-num">Unit 4</div>
+          <h3 class="unit-title">习惯的力量</h3>
+        </div>
+        <span class="unit-status">Coming soon</span>
+      </header>
+      <ul class="text-list">
+        <li class="text-item ">
+          <span class="cat-pill">Daily Life</span>
+          <span class="text-title-zh">《培养好习惯》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+        <li class="text-item ">
+          <span class="cat-pill">Core</span>
+          <span class="text-title-zh">《迟到》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+        <li class="text-item ">
+          <span class="cat-pill">Consolidation</span>
+          <span class="text-title-zh">《差不多先生》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+      </ul>
+    </article>
+    <article class="unit ">
+      <header class="unit-head">
+        <div>
+          <div class="unit-num">Unit 5</div>
+          <h3 class="unit-title">创新与改变</h3>
+        </div>
+        <span class="unit-status">Coming soon</span>
+      </header>
+      <ul class="text-list">
+        <li class="text-item ">
+          <span class="cat-pill">Daily Life</span>
+          <span class="text-title-zh">《我是创新王》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+        <li class="text-item ">
+          <span class="cat-pill">Core</span>
+          <span class="text-title-zh">《海底牧场游记》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+        <li class="text-item ">
+          <span class="cat-pill">Consolidation</span>
+          <span class="text-title-zh">《难忘的建筑之旅》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+      </ul>
+    </article>
+    <article class="unit ">
+      <header class="unit-head">
+        <div>
+          <div class="unit-num">Unit 6</div>
+          <h3 class="unit-title">小人物 大贡献</h3>
+        </div>
+        <span class="unit-status">Coming soon</span>
+      </header>
+      <ul class="text-list">
+        <li class="text-item ">
+          <span class="cat-pill">Daily Life</span>
+          <span class="text-title-zh">《我们的无名英雄》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+        <li class="text-item ">
+          <span class="cat-pill">Core</span>
+          <span class="text-title-zh">《我为狮城做贡献——走访地铁维修人员》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+        <li class="text-item ">
+          <span class="cat-pill">Consolidation</span>
+          <span class="text-title-zh">《小人物的心声“一人一首新谣”专题系列报道》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+      </ul>
+    </article>
+    </div>
+  </section>
+  <section class="level-section" id="level-y2">
+    <header class="level-header">
+      <h2><span class="zh chinese"><ruby>中<rt>zhōng</rt></ruby><ruby>二<rt>èr</rt></ruby></span><span class="en">Secondary 2</span></h2>
+      <span class="progress-dot "><span class="dot"></span>0 of 18 texts available</span>
+    </header>
+    <p class="level-blurb">Second year — expressing love, caring for animals, and green living</p>
+    <div class="unit-grid">
+    <article class="unit ">
+      <header class="unit-head">
+        <div>
+          <div class="unit-num">Unit 1</div>
+          <h3 class="unit-title">爱的表达</h3>
+        </div>
+        <span class="unit-status">Coming soon</span>
+      </header>
+      <ul class="text-list">
+        <li class="text-item ">
+          <span class="cat-pill">Daily Life</span>
+          <span class="text-title-zh">《我想对您说》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+        <li class="text-item ">
+          <span class="cat-pill">Core</span>
+          <span class="text-title-zh">《把爱说出来》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+        <li class="text-item ">
+          <span class="cat-pill">Consolidation</span>
+          <span class="text-title-zh">《放风筝》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+      </ul>
+    </article>
+    <article class="unit ">
+      <header class="unit-head">
+        <div>
+          <div class="unit-num">Unit 2</div>
+          <h3 class="unit-title">关爱动物</h3>
+        </div>
+        <span class="unit-status">Coming soon</span>
+      </header>
+      <ul class="text-list">
+        <li class="text-item ">
+          <span class="cat-pill">Daily Life</span>
+          <span class="text-title-zh">《助养野生动物》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+        <li class="text-item ">
+          <span class="cat-pill">Core</span>
+          <span class="text-title-zh">《猫》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+        <li class="text-item ">
+          <span class="cat-pill">Consolidation</span>
+          <span class="text-title-zh">《山中奇遇》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+      </ul>
+    </article>
+    <article class="unit ">
+      <header class="unit-head">
+        <div>
+          <div class="unit-num">Unit 3</div>
+          <h3 class="unit-title">绿色生活</h3>
+        </div>
+        <span class="unit-status">Coming soon</span>
+      </header>
+      <ul class="text-list">
+        <li class="text-item ">
+          <span class="cat-pill">Daily Life</span>
+          <span class="text-title-zh">《水都去哪儿了？》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+        <li class="text-item ">
+          <span class="cat-pill">Core</span>
+          <span class="text-title-zh">《人类最糟糕的发明》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+        <li class="text-item ">
+          <span class="cat-pill">Consolidation</span>
+          <span class="text-title-zh">《手机被丢弃之后》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+      </ul>
+    </article>
+    <article class="unit ">
+      <header class="unit-head">
+        <div>
+          <div class="unit-num">Unit 4</div>
+          <h3 class="unit-title">成长的足迹</h3>
+        </div>
+        <span class="unit-status">Coming soon</span>
+      </header>
+      <ul class="text-list">
+        <li class="text-item ">
+          <span class="cat-pill">Daily Life</span>
+          <span class="text-title-zh">《心情手账》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+        <li class="text-item ">
+          <span class="cat-pill">Core</span>
+          <span class="text-title-zh">《恐怖事件》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+        <li class="text-item ">
+          <span class="cat-pill">Consolidation</span>
+          <span class="text-title-zh">《最美的姿势》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+      </ul>
+    </article>
+    <article class="unit ">
+      <header class="unit-head">
+        <div>
+          <div class="unit-num">Unit 5</div>
+          <h3 class="unit-title">心系家园</h3>
+        </div>
+        <span class="unit-status">Coming soon</span>
+      </header>
+      <ul class="text-list">
+        <li class="text-item ">
+          <span class="cat-pill">Daily Life</span>
+          <span class="text-title-zh">《组屋：新加坡一道美丽的风景线》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+        <li class="text-item ">
+          <span class="cat-pill">Core</span>
+          <span class="text-title-zh">《雨树》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+        <li class="text-item ">
+          <span class="cat-pill">Consolidation</span>
+          <span class="text-title-zh">《如果走散了》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+      </ul>
+    </article>
+    <article class="unit ">
+      <header class="unit-head">
+        <div>
+          <div class="unit-num">Unit 6</div>
+          <h3 class="unit-title">与世界相连</h3>
+        </div>
+        <span class="unit-status">Coming soon</span>
+      </header>
+      <ul class="text-list">
+        <li class="text-item ">
+          <span class="cat-pill">Daily Life</span>
+          <span class="text-title-zh">《新加坡与世界的联系》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+        <li class="text-item ">
+          <span class="cat-pill">Core</span>
+          <span class="text-title-zh">《多元而开放的新加坡》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+        <li class="text-item ">
+          <span class="cat-pill">Consolidation</span>
+          <span class="text-title-zh">《别上假信息的当》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+      </ul>
+    </article>
+    </div>
+  </section>
+  <section class="level-section" id="level-y3">
+    <header class="level-header">
+      <h2><span class="zh chinese"><ruby>中<rt>zhōng</rt></ruby><ruby>三<rt>sān</rt></ruby></span><span class="en">Secondary 3</span></h2>
+      <span class="progress-dot "><span class="dot"></span>0 of 18 texts available</span>
+    </header>
+    <p class="level-blurb">Third year — relationships, health, community, and lifelong learning</p>
+    <div class="unit-grid">
+    <article class="unit ">
+      <header class="unit-head">
+        <div>
+          <div class="unit-num">Unit 1</div>
+          <h3 class="unit-title">有你做伴</h3>
+        </div>
+        <span class="unit-status">Coming soon</span>
+      </header>
+      <ul class="text-list">
+        <li class="text-item ">
+          <span class="cat-pill">Daily Life</span>
+          <span class="text-title-zh">《如何建立良好的人际关系》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+        <li class="text-item ">
+          <span class="cat-pill">Core</span>
+          <span class="text-title-zh">《谢谢你的沉默》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+        <li class="text-item ">
+          <span class="cat-pill">Consolidation</span>
+          <span class="text-title-zh">《饼干罐的秘密》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+      </ul>
+    </article>
+    <article class="unit ">
+      <header class="unit-head">
+        <div>
+          <div class="unit-num">Unit 2</div>
+          <h3 class="unit-title">健康生活</h3>
+        </div>
+        <span class="unit-status">Coming soon</span>
+      </header>
+      <ul class="text-list">
+        <li class="text-item ">
+          <span class="cat-pill">Daily Life</span>
+          <span class="text-title-zh">《健康生活系列广告》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+        <li class="text-item ">
+          <span class="cat-pill">Core</span>
+          <span class="text-title-zh">《吃茶 喝茶 品茶》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+        <li class="text-item ">
+          <span class="cat-pill">Consolidation</span>
+          <span class="text-title-zh">《街舞》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+      </ul>
+    </article>
+    <article class="unit ">
+      <header class="unit-head">
+        <div>
+          <div class="unit-num">Unit 3</div>
+          <h3 class="unit-title">走进社区</h3>
+        </div>
+        <span class="unit-status">Coming soon</span>
+      </header>
+      <ul class="text-list">
+        <li class="text-item ">
+          <span class="cat-pill">Daily Life</span>
+          <span class="text-title-zh">《我的社区节》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+        <li class="text-item ">
+          <span class="cat-pill">Core</span>
+          <span class="text-title-zh">《远亲不如近邻》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+        <li class="text-item ">
+          <span class="cat-pill">Consolidation</span>
+          <span class="text-title-zh">《社区网络群组  让邻里感情更深厚》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+      </ul>
+    </article>
+    <article class="unit ">
+      <header class="unit-head">
+        <div>
+          <div class="unit-num">Unit 4</div>
+          <h3 class="unit-title">沟通你我他</h3>
+        </div>
+        <span class="unit-status">Coming soon</span>
+      </header>
+      <ul class="text-list">
+        <li class="text-item ">
+          <span class="cat-pill">Daily Life</span>
+          <span class="text-title-zh">《成为演说高手》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+        <li class="text-item ">
+          <span class="cat-pill">Core</span>
+          <span class="text-title-zh">《沟通面面观》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+        <li class="text-item ">
+          <span class="cat-pill">Consolidation</span>
+          <span class="text-title-zh">《社交媒体  拉近你我他》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+      </ul>
+    </article>
+    <article class="unit ">
+      <header class="unit-head">
+        <div>
+          <div class="unit-num">Unit 5</div>
+          <h3 class="unit-title">学无止境</h3>
+        </div>
+        <span class="unit-status">Coming soon</span>
+      </header>
+      <ul class="text-list">
+        <li class="text-item ">
+          <span class="cat-pill">Daily Life</span>
+          <span class="text-title-zh">《你在学什么》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+        <li class="text-item ">
+          <span class="cat-pill">Core</span>
+          <span class="text-title-zh">《学然后知不足》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+        <li class="text-item ">
+          <span class="cat-pill">Consolidation</span>
+          <span class="text-title-zh">《终身学习》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+      </ul>
+    </article>
+    <article class="unit ">
+      <header class="unit-head">
+        <div>
+          <div class="unit-num">Unit 6</div>
+          <h3 class="unit-title">发现真善美</h3>
+        </div>
+        <span class="unit-status">Coming soon</span>
+      </header>
+      <ul class="text-list">
+        <li class="text-item ">
+          <span class="cat-pill">Daily Life</span>
+          <span class="text-title-zh">《真善美摄影展》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+        <li class="text-item ">
+          <span class="cat-pill">Core</span>
+          <span class="text-title-zh">《父亲和鱼》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+        <li class="text-item ">
+          <span class="cat-pill">Consolidation</span>
+          <span class="text-title-zh">《唯一的听众》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+      </ul>
+    </article>
+    </div>
+  </section>
+  <section class="level-section" id="level-y4">
+    <header class="level-header">
+      <h2><span class="zh chinese"><ruby>中<rt>zhōng</rt></ruby><ruby>四<rt>sì</rt></ruby></span><span class="en">Secondary 4</span></h2>
+      <span class="progress-dot "><span class="dot"></span>0 of 15 texts available</span>
+    </header>
+    <p class="level-blurb">Fourth year — compassion, literature, balance, and pursuing dreams</p>
+    <div class="unit-grid">
+    <article class="unit ">
+      <header class="unit-head">
+        <div>
+          <div class="unit-num">Unit 1</div>
+          <h3 class="unit-title">心手相连</h3>
+        </div>
+        <span class="unit-status">Coming soon</span>
+      </header>
+      <ul class="text-list">
+        <li class="text-item ">
+          <span class="cat-pill">Daily Life</span>
+          <span class="text-title-zh">《&lt;关怀满人间&gt;——慈善团体简介》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+        <li class="text-item ">
+          <span class="cat-pill">Core</span>
+          <span class="text-title-zh">《坦然走过乞丐》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+        <li class="text-item ">
+          <span class="cat-pill">Consolidation</span>
+          <span class="text-title-zh">《给善良插上翅膀》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+      </ul>
+    </article>
+    <article class="unit ">
+      <header class="unit-head">
+        <div>
+          <div class="unit-num">Unit 2</div>
+          <h3 class="unit-title">文学世界</h3>
+        </div>
+        <span class="unit-status">Coming soon</span>
+      </header>
+      <ul class="text-list">
+        <li class="text-item ">
+          <span class="cat-pill">Daily Life</span>
+          <span class="text-title-zh">《戏剧中的人生百态》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+        <li class="text-item ">
+          <span class="cat-pill">Core</span>
+          <span class="text-title-zh">《林黛玉进贾府》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+        <li class="text-item ">
+          <span class="cat-pill">Consolidation</span>
+          <span class="text-title-zh">《三顾茅庐》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+      </ul>
+    </article>
+    <article class="unit ">
+      <header class="unit-head">
+        <div>
+          <div class="unit-num">Unit 3</div>
+          <h3 class="unit-title">平衡之道</h3>
+        </div>
+        <span class="unit-status">Coming soon</span>
+      </header>
+      <ul class="text-list">
+        <li class="text-item ">
+          <span class="cat-pill">Daily Life</span>
+          <span class="text-title-zh">《被破坏的生态平衡》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+        <li class="text-item ">
+          <span class="cat-pill">Core</span>
+          <span class="text-title-zh">《对抗气候变化的超级英雄——红树林》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+        <li class="text-item ">
+          <span class="cat-pill">Consolidation</span>
+          <span class="text-title-zh">《狼鹿效应》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+      </ul>
+    </article>
+    <article class="unit ">
+      <header class="unit-head">
+        <div>
+          <div class="unit-num">Unit 4</div>
+          <h3 class="unit-title">知己知彼</h3>
+        </div>
+        <span class="unit-status">Coming soon</span>
+      </header>
+      <ul class="text-list">
+        <li class="text-item ">
+          <span class="cat-pill">Daily Life</span>
+          <span class="text-title-zh">《亚细安知多少》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+        <li class="text-item ">
+          <span class="cat-pill">Core</span>
+          <span class="text-title-zh">《自知之明》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+        <li class="text-item ">
+          <span class="cat-pill">Consolidation</span>
+          <span class="text-title-zh">《小国更需要合作》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+      </ul>
+    </article>
+    <article class="unit ">
+      <header class="unit-head">
+        <div>
+          <div class="unit-num">Unit 5</div>
+          <h3 class="unit-title">勇于逐梦</h3>
+        </div>
+        <span class="unit-status">Coming soon</span>
+      </header>
+      <ul class="text-list">
+        <li class="text-item ">
+          <span class="cat-pill">Daily Life</span>
+          <span class="text-title-zh">《追逐梦想——为梦想加油点赞》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+        <li class="text-item ">
+          <span class="cat-pill">Core</span>
+          <span class="text-title-zh">《江城子 · 密州出猎》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+        <li class="text-item ">
+          <span class="cat-pill">Consolidation</span>
+          <span class="text-title-zh">《在山的那边》</span>
+          <span class="soon-tag">Soon</span>
+        </li>
+      </ul>
+    </article>
+    </div>
+  </section>
+  </main>
+
+  <footer>
+    <p>A free, open resource. No account required. Works offline after first load.</p>
+    <p>Content adapted from 2021 快捷华文电子课文. This site is a reading companion and is not affiliated with Singapore's Ministry of Education.</p>
+  </footer>
+
+<script>
+  // Highlight current level in the sticky nav as user scrolls
+  const links = document.querySelectorAll('.level-link');
+  const sections = Array.from(document.querySelectorAll('.level-section'));
+  function updateCurrent() {
+    const offset = 100;
+    let current = sections[0].id;
+    for (const s of sections) {
+      if (s.getBoundingClientRect().top <= offset) current = s.id;
+    }
+    links.forEach(a => a.classList.toggle('current', a.getAttribute('href') === '#' + current));
+  }
+  window.addEventListener('scroll', updateCurrent, {passive: true});
+  updateCurrent();
+</script>
+</body>
+</html>
