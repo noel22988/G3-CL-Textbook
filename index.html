@@ -68,6 +68,7 @@
   .level-nav .inner {
     max-width: 1100px; margin: 0 auto; padding: 0 2rem;
     display: flex; gap: 0; overflow-x: auto;
+    align-items: center;
   }
   .level-nav a {
     padding: 16px 20px; font-size: 14px; color: var(--ink-muted);
@@ -76,6 +77,15 @@
   }
   .level-nav a:hover { color: var(--ink); }
   .level-nav a.current { color: var(--accent); border-bottom-color: var(--accent); font-weight: 500; }
+  .level-nav .nav-spacer { flex: 1; }
+  .level-nav .pinyin-toggle {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 14px; margin-left: 8px;
+    font-size: 13px; color: var(--ink-muted); cursor: pointer; user-select: none;
+    white-space: nowrap;
+  }
+  .level-nav .pinyin-toggle input { accent-color: var(--accent); width: 15px; height: 15px; }
+  .level-nav .pinyin-toggle input:checked + span { color: var(--accent); font-weight: 500; }
 
   /* Level sections */
   main { max-width: 1100px; margin: 0 auto; padding: 3rem 2rem 6rem; }
@@ -114,7 +124,7 @@
   }
   .unit.has-live { border-color: var(--accent); border-width: 1px; box-shadow: 0 0 0 1px var(--accent); }
   .unit-head {
-    display: flex; align-items: baseline; justify-content: space-between; gap: 1rem;
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem;
     margin-bottom: 0.75rem; padding-bottom: 0.75rem;
     border-bottom: 1px solid var(--rule-soft);
   }
@@ -122,44 +132,75 @@
     font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
     color: var(--ink-faint); font-weight: 500;
   }
+  .unit-title-group {
+    margin-top: 2px;
+  }
   .unit-title {
-    font-size: 18px; font-weight: 500; margin: 0 0 2px;
+    font-size: 18px; font-weight: 500; margin: 0;
     font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
+    line-height: 2;
+    display: block;
+  }
+  .unit-title-en {
+    display: block;
+    font-size: 13px; color: var(--ink-muted); font-weight: 400;
+    margin-top: 2px;
   }
   .unit-status {
     font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em;
     color: var(--ink-faint); font-weight: 500;
     white-space: nowrap;
+    margin-top: 6px;
   }
   .unit-status.live { color: var(--accent); }
 
   .text-list { list-style: none; padding: 0; margin: 0; }
   .text-item {
     display: flex; align-items: center; gap: 10px;
-    padding: 8px 0;
+    padding: 10px 0;
     font-size: 14px;
   }
   .text-item + .text-item { border-top: 1px solid var(--rule-soft); }
   .text-item .cat-pill {
-    font-size: 10px; font-weight: 500; letter-spacing: 0.04em;
-    padding: 2px 8px; border-radius: 8px;
+    font-size: 10px; font-weight: 500; letter-spacing: 0.02em;
+    padding: 6px 10px; border-radius: 8px;
     color: var(--ink-muted); background: var(--rule-soft);
     white-space: nowrap; flex-shrink: 0;
-    width: 72px; text-align: center;
+    width: 100px; text-align: center; line-height: 1.3;
   }
+  .text-item .cat-pill .cat-zh { display: block; font-family: "PingFang SC", "Hiragino Sans GB", sans-serif; font-size: 11px; }
+  .text-item .cat-pill .cat-en { display: block; font-size: 9px; opacity: 0.8; margin-top: 2px; }
   .text-item.live .cat-pill { color: var(--accent); background: var(--accent-soft); }
+  .text-item .text-col { flex: 1; min-width: 0; }
   .text-item .text-title-zh {
-    flex: 1; color: var(--ink-muted); font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    color: var(--ink-muted); font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
+    line-height: 2;
+    display: block;
   }
   .text-item.live .text-title-zh { color: var(--ink); }
   .text-item a.text-title-zh:hover { color: var(--accent); }
+  .text-item .text-title-en {
+    display: block;
+    font-size: 12px; color: var(--ink-muted);
+    line-height: 1.4;
+    margin-top: 2px;
+  }
   .text-item .soon-tag {
     font-size: 10px; color: var(--ink-faint); letter-spacing: 0.04em; text-transform: uppercase;
     flex-shrink: 0;
   }
   .text-item .arrow { color: var(--ink-faint); font-size: 13px; flex-shrink: 0; transition: transform 0.15s; }
   .text-item.live:hover .arrow { transform: translateX(2px); color: var(--accent); }
+
+  /* Ruby pinyin for dashboard — subtler than on reader pages */
+  ruby rt {
+    font-size: 10px; color: var(--accent);
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-weight: 400; letter-spacing: 0.02em;
+    padding-bottom: 3px;
+    transition: opacity 0.15s;
+  }
+  body.pinyin-off ruby rt { opacity: 0; }
   .unit-view-all {
     display: inline-block; margin-top: 0.75rem;
     font-size: 13px; color: var(--accent); font-weight: 500;
@@ -186,11 +227,13 @@
     .level-header h2 .en { font-size: 14px; }
     .level-header .progress-dot { margin-left: 0; width: 100%; justify-content: center; }
     .unit-grid { grid-template-columns: 1fr; }
-    .text-item .cat-pill { width: 60px; font-size: 9px; }
+    .text-item .cat-pill { width: 80px; font-size: 9px; }
+    .text-item .cat-pill .cat-zh { font-size: 10px; }
+    .text-item .cat-pill .cat-en { font-size: 8px; }
   }
 </style>
 </head>
-<body>
+<body class="pinyin-off">
   <section class="hero">
     <div class="eyebrow">Singapore Secondary Chinese · 电子课文</div>
     <h1>
@@ -203,7 +246,7 @@
       to help students read on their own, at their own pace.
     </p>
     <div class="stats">
-      <div class="stat"><div class="num">6<span class="total"> / 69</span></div><div class="label">passages available</div></div>
+      <div class="stat"><div class="num">9<span class="total"> / 69</span></div><div class="label">passages available</div></div>
       <div class="stat"><div class="num">4</div><div class="label">levels · 中一 to 中四</div></div>
       <div class="stat"><div class="num">23</div><div class="label">units</div></div>
     </div>
@@ -215,6 +258,8 @@
       <a href="#level-y2" class="level-link">Secondary 2</a>
       <a href="#level-y3" class="level-link">Secondary 3</a>
       <a href="#level-y4" class="level-link">Secondary 4</a>
+      <span class="nav-spacer"></span>
+      <label class="pinyin-toggle"><input type="checkbox" id="toggle-pinyin"><span>显示汉语拼音 Show pinyin</span></label>
     </div>
   </nav>
 
@@ -223,7 +268,7 @@
   <section class="level-section" id="level-y1">
     <header class="level-header">
       <h2><span class="zh chinese"><ruby>中<rt>zhōng</rt></ruby><ruby>一<rt>yī</rt></ruby></span><span class="en">Secondary 1</span></h2>
-      <span class="progress-dot has-live"><span class="dot"></span>6 of 18 texts available</span>
+      <span class="progress-dot has-live"><span class="dot"></span>9 of 18 texts available</span>
     </header>
     <p class="level-blurb">First year — new classmates, family reunions, and exploring Singapore</p>
     <div class="unit-grid">
@@ -231,24 +276,27 @@
       <header class="unit-head">
         <div>
           <div class="unit-num">Unit 1</div>
-          <h3 class="unit-title">新同学 新鲜事</h3>
+          <div class="unit-title-group">
+            <h3 class="unit-title"><ruby>新<rt>xīn</rt></ruby><ruby>同<rt>tóng</rt></ruby><ruby>学<rt>xué</rt></ruby> <ruby>新<rt>xīn</rt></ruby><ruby>鲜<rt>xiān</rt></ruby><ruby>事<rt>shì</rt></ruby></h3>
+            <span class="unit-title-en">New Classmates, New Stories</span>
+          </div>
         </div>
         <span class="unit-status live">3/3 live</span>
       </header>
       <ul class="text-list">
         <li class="text-item live">
-          <span class="cat-pill">Daily Life</span>
-          <a class="text-title-zh" href="y1/y1-s1-u1-daily-xintongxue.html">《我的新同学》</a>
+          <span class="cat-pill"><span class="cat-zh">生活空间</span><span class="cat-en">Daily Life</span></span>
+          <div class="text-col"><a class="text-title-zh" href="y1/y1-s1-u1-daily-xintongxue.html">《<ruby>我<rt>wǒ</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>新<rt>xīn</rt></ruby><ruby>同<rt>tóng</rt></ruby><ruby>学<rt>xué</rt></ruby>》</a><span class="text-title-en">My New Classmates</span></div>
           <span class="arrow">→</span>
         </li>
         <li class="text-item live">
-          <span class="cat-pill">Core</span>
-          <a class="text-title-zh" href="y1/y1-s1-u1-core-yigedan.html">《一个蛋两个蛋三个蛋》</a>
+          <span class="cat-pill"><span class="cat-zh">核心</span><span class="cat-en">Core</span></span>
+          <div class="text-col"><a class="text-title-zh" href="y1/y1-s1-u1-core-yigedan.html">《<ruby>一<rt>yí</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>蛋<rt>dàn</rt></ruby><ruby>两<rt>liǎng</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>蛋<rt>dàn</rt></ruby><ruby>三<rt>sān</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>蛋<rt>dàn</rt></ruby>》</a><span class="text-title-en">One Egg, Two Eggs, Three Eggs</span></div>
           <span class="arrow">→</span>
         </li>
         <li class="text-item live">
-          <span class="cat-pill">Consolidation</span>
-          <a class="text-title-zh" href="y1/y1-s1-u1-cons-shenan.html">《张老师“审案”》</a>
+          <span class="cat-pill"><span class="cat-zh">巩固</span><span class="cat-en">Consolidation</span></span>
+          <div class="text-col"><a class="text-title-zh" href="y1/y1-s1-u1-cons-shenan.html">《<ruby>张<rt>zhāng</rt></ruby><ruby>老<rt>lǎo</rt></ruby><ruby>师<rt>shī</rt></ruby>“<ruby>审<rt>shěn</rt></ruby><ruby>案<rt>àn</rt></ruby>”》</a><span class="text-title-en">Teacher Zhang&#x27;s &quot;Courtroom&quot;</span></div>
           <span class="arrow">→</span>
         </li>
       </ul>
@@ -257,51 +305,57 @@
       <header class="unit-head">
         <div>
           <div class="unit-num">Unit 2</div>
-          <h3 class="unit-title">团圆</h3>
+          <div class="unit-title-group">
+            <h3 class="unit-title"><ruby>团<rt>tuán</rt></ruby><ruby>圆<rt>yuán</rt></ruby></h3>
+            <span class="unit-title-en">Reunion</span>
+          </div>
         </div>
         <span class="unit-status live">3/3 live</span>
       </header>
       <ul class="text-list">
         <li class="text-item live">
-          <span class="cat-pill">Daily Life</span>
-          <a class="text-title-zh" href="y1/y1-s1-u2-daily-xinnianfengsu.html">《世界各地的新年风俗》</a>
+          <span class="cat-pill"><span class="cat-zh">生活空间</span><span class="cat-en">Daily Life</span></span>
+          <div class="text-col"><a class="text-title-zh" href="y1/y1-s1-u2-daily-xinnianfengsu.html">《<ruby>世<rt>shì</rt></ruby><ruby>界<rt>jiè</rt></ruby><ruby>各<rt>gè</rt></ruby><ruby>地<rt>dì</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>新<rt>xīn</rt></ruby><ruby>年<rt>nián</rt></ruby><ruby>风<rt>fēng</rt></ruby><ruby>俗<rt>sú</rt></ruby>》</a><span class="text-title-en">New Year Customs Around the World</span></div>
           <span class="arrow">→</span>
         </li>
         <li class="text-item live">
-          <span class="cat-pill">Core</span>
-          <a class="text-title-zh" href="y1/y1-s1-u2-core-tuanyuanfan.html">《团圆饭》</a>
+          <span class="cat-pill"><span class="cat-zh">核心</span><span class="cat-en">Core</span></span>
+          <div class="text-col"><a class="text-title-zh" href="y1/y1-s1-u2-core-tuanyuanfan.html">《<ruby>团<rt>tuán</rt></ruby><ruby>圆<rt>yuán</rt></ruby><ruby>饭<rt>fàn</rt></ruby>》</a><span class="text-title-en">The Reunion Dinner</span></div>
           <span class="arrow">→</span>
         </li>
         <li class="text-item live">
-          <span class="cat-pill">Consolidation</span>
-          <a class="text-title-zh" href="y1/y1-s1-u2-cons-xingyunjiaozi.html">《幸运饺子》</a>
+          <span class="cat-pill"><span class="cat-zh">巩固</span><span class="cat-en">Consolidation</span></span>
+          <div class="text-col"><a class="text-title-zh" href="y1/y1-s1-u2-cons-xingyunjiaozi.html">《<ruby>幸<rt>xìng</rt></ruby><ruby>运<rt>yùn</rt></ruby><ruby>饺<rt>jiǎo</rt></ruby><ruby>子<rt>zi</rt></ruby>》</a><span class="text-title-en">The Lucky Dumpling</span></div>
           <span class="arrow">→</span>
         </li>
       </ul>
     </article>
-    <article class="unit ">
+    <article class="unit has-live">
       <header class="unit-head">
         <div>
           <div class="unit-num">Unit 3</div>
-          <h3 class="unit-title">相约狮城</h3>
+          <div class="unit-title-group">
+            <h3 class="unit-title"><ruby>相<rt>xiāng</rt></ruby><ruby>约<rt>yuē</rt></ruby><ruby>狮<rt>shī</rt></ruby><ruby>城<rt>chéng</rt></ruby></h3>
+            <span class="unit-title-en">Meeting the Lion City</span>
+          </div>
         </div>
-        <span class="unit-status">Coming soon</span>
+        <span class="unit-status live">3/3 live</span>
       </header>
       <ul class="text-list">
-        <li class="text-item ">
-          <span class="cat-pill">Daily Life</span>
-          <span class="text-title-zh">《走街串巷逛狮城》</span>
-          <span class="soon-tag">Soon</span>
+        <li class="text-item live">
+          <span class="cat-pill"><span class="cat-zh">生活空间</span><span class="cat-en">Daily Life</span></span>
+          <div class="text-col"><a class="text-title-zh" href="y1/y1-s1-u3-daily-zoujiechuanxiang.html">《<ruby>走<rt>zǒu</rt></ruby><ruby>街<rt>jiē</rt></ruby><ruby>串<rt>chuàn</rt></ruby><ruby>巷<rt>xiàng</rt></ruby><ruby>逛<rt>guàng</rt></ruby><ruby>狮<rt>shī</rt></ruby><ruby>城<rt>chéng</rt></ruby>》</a><span class="text-title-en">Exploring the Lion City</span></div>
+          <span class="arrow">→</span>
         </li>
-        <li class="text-item ">
-          <span class="cat-pill">Core</span>
-          <span class="text-title-zh">《魅力四射  星耀樟宜》</span>
-          <span class="soon-tag">Soon</span>
+        <li class="text-item live">
+          <span class="cat-pill"><span class="cat-zh">核心</span><span class="cat-en">Core</span></span>
+          <div class="text-col"><a class="text-title-zh" href="y1/y1-s1-u3-core-xingyaochangyi.html">《<ruby>魅<rt>mèi</rt></ruby><ruby>力<rt>lì</rt></ruby><ruby>四<rt>sì</rt></ruby><ruby>射<rt>shè</rt></ruby>  <ruby>星<rt>xīng</rt></ruby><ruby>耀<rt>yào</rt></ruby><ruby>樟<rt>zhāng</rt></ruby><ruby>宜<rt>yí</rt></ruby>》</a><span class="text-title-en">Dazzling Jewel Changi</span></div>
+          <span class="arrow">→</span>
         </li>
-        <li class="text-item ">
-          <span class="cat-pill">Consolidation</span>
-          <span class="text-title-zh">《国家美术馆探秘》</span>
-          <span class="soon-tag">Soon</span>
+        <li class="text-item live">
+          <span class="cat-pill"><span class="cat-zh">巩固</span><span class="cat-en">Consolidation</span></span>
+          <div class="text-col"><a class="text-title-zh" href="y1/y1-s1-u3-cons-guojiameishuguan.html">《<ruby>国<rt>guó</rt></ruby><ruby>家<rt>jiā</rt></ruby><ruby>美<rt>měi</rt></ruby><ruby>术<rt>shù</rt></ruby><ruby>馆<rt>guǎn</rt></ruby><ruby>探<rt>tàn</rt></ruby><ruby>秘<rt>mì</rt></ruby>》</a><span class="text-title-en">Secrets of the National Gallery</span></div>
+          <span class="arrow">→</span>
         </li>
       </ul>
     </article>
@@ -309,24 +363,27 @@
       <header class="unit-head">
         <div>
           <div class="unit-num">Unit 4</div>
-          <h3 class="unit-title">习惯的力量</h3>
+          <div class="unit-title-group">
+            <h3 class="unit-title"><ruby>习<rt>xí</rt></ruby><ruby>惯<rt>guàn</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>力<rt>lì</rt></ruby><ruby>量<rt>liàng</rt></ruby></h3>
+            <span class="unit-title-en">The Power of Habit</span>
+          </div>
         </div>
         <span class="unit-status">Coming soon</span>
       </header>
       <ul class="text-list">
         <li class="text-item ">
-          <span class="cat-pill">Daily Life</span>
-          <span class="text-title-zh">《培养好习惯》</span>
+          <span class="cat-pill"><span class="cat-zh">生活空间</span><span class="cat-en">Daily Life</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>培<rt>péi</rt></ruby><ruby>养<rt>yǎng</rt></ruby><ruby>好<rt>hǎo</rt></ruby><ruby>习<rt>xí</rt></ruby><ruby>惯<rt>guàn</rt></ruby>》</span><span class="text-title-en">Building Good Habits</span></div>
           <span class="soon-tag">Soon</span>
         </li>
         <li class="text-item ">
-          <span class="cat-pill">Core</span>
-          <span class="text-title-zh">《迟到》</span>
+          <span class="cat-pill"><span class="cat-zh">核心</span><span class="cat-en">Core</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>迟<rt>chí</rt></ruby><ruby>到<rt>dào</rt></ruby>》</span><span class="text-title-en">Late</span></div>
           <span class="soon-tag">Soon</span>
         </li>
         <li class="text-item ">
-          <span class="cat-pill">Consolidation</span>
-          <span class="text-title-zh">《差不多先生》</span>
+          <span class="cat-pill"><span class="cat-zh">巩固</span><span class="cat-en">Consolidation</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>差<rt>chà</rt></ruby><ruby>不<rt>bu</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>先<rt>xiān</rt></ruby><ruby>生<rt>shēng</rt></ruby>》</span><span class="text-title-en">Mr. Close-Enough</span></div>
           <span class="soon-tag">Soon</span>
         </li>
       </ul>
@@ -335,24 +392,27 @@
       <header class="unit-head">
         <div>
           <div class="unit-num">Unit 5</div>
-          <h3 class="unit-title">创新与改变</h3>
+          <div class="unit-title-group">
+            <h3 class="unit-title"><ruby>创<rt>chuàng</rt></ruby><ruby>新<rt>xīn</rt></ruby><ruby>与<rt>yǔ</rt></ruby><ruby>改<rt>gǎi</rt></ruby><ruby>变<rt>biàn</rt></ruby></h3>
+            <span class="unit-title-en">Innovation and Change</span>
+          </div>
         </div>
         <span class="unit-status">Coming soon</span>
       </header>
       <ul class="text-list">
         <li class="text-item ">
-          <span class="cat-pill">Daily Life</span>
-          <span class="text-title-zh">《我是创新王》</span>
+          <span class="cat-pill"><span class="cat-zh">生活空间</span><span class="cat-en">Daily Life</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>我<rt>wǒ</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>创<rt>chuàng</rt></ruby><ruby>新<rt>xīn</rt></ruby><ruby>王<rt>wáng</rt></ruby>》</span><span class="text-title-en">I Am an Innovator</span></div>
           <span class="soon-tag">Soon</span>
         </li>
         <li class="text-item ">
-          <span class="cat-pill">Core</span>
-          <span class="text-title-zh">《海底牧场游记》</span>
+          <span class="cat-pill"><span class="cat-zh">核心</span><span class="cat-en">Core</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>海<rt>hǎi</rt></ruby><ruby>底<rt>dǐ</rt></ruby><ruby>牧<rt>mù</rt></ruby><ruby>场<rt>chǎng</rt></ruby><ruby>游<rt>yóu</rt></ruby><ruby>记<rt>jì</rt></ruby>》</span><span class="text-title-en">A Visit to the Underwater Farm</span></div>
           <span class="soon-tag">Soon</span>
         </li>
         <li class="text-item ">
-          <span class="cat-pill">Consolidation</span>
-          <span class="text-title-zh">《难忘的建筑之旅》</span>
+          <span class="cat-pill"><span class="cat-zh">巩固</span><span class="cat-en">Consolidation</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>难<rt>nán</rt></ruby><ruby>忘<rt>wàng</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>建<rt>jiàn</rt></ruby><ruby>筑<rt>zhù</rt></ruby><ruby>之<rt>zhī</rt></ruby><ruby>旅<rt>lǚ</rt></ruby>》</span><span class="text-title-en">An Unforgettable Architectural Journey</span></div>
           <span class="soon-tag">Soon</span>
         </li>
       </ul>
@@ -361,24 +421,27 @@
       <header class="unit-head">
         <div>
           <div class="unit-num">Unit 6</div>
-          <h3 class="unit-title">小人物 大贡献</h3>
+          <div class="unit-title-group">
+            <h3 class="unit-title"><ruby>小<rt>xiǎo</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>物<rt>wù</rt></ruby> <ruby>大<rt>dà</rt></ruby><ruby>贡<rt>gòng</rt></ruby><ruby>献<rt>xiàn</rt></ruby></h3>
+            <span class="unit-title-en">Small Figures, Great Contributions</span>
+          </div>
         </div>
         <span class="unit-status">Coming soon</span>
       </header>
       <ul class="text-list">
         <li class="text-item ">
-          <span class="cat-pill">Daily Life</span>
-          <span class="text-title-zh">《我们的无名英雄》</span>
+          <span class="cat-pill"><span class="cat-zh">生活空间</span><span class="cat-en">Daily Life</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>我<rt>wǒ</rt></ruby><ruby>们<rt>men</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>无<rt>wú</rt></ruby><ruby>名<rt>míng</rt></ruby><ruby>英<rt>yīng</rt></ruby><ruby>雄<rt>xióng</rt></ruby>》</span><span class="text-title-en">Our Unsung Heroes</span></div>
           <span class="soon-tag">Soon</span>
         </li>
         <li class="text-item ">
-          <span class="cat-pill">Core</span>
-          <span class="text-title-zh">《我为狮城做贡献——走访地铁维修人员》</span>
+          <span class="cat-pill"><span class="cat-zh">核心</span><span class="cat-en">Core</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>我<rt>wǒ</rt></ruby><ruby>为<rt>wèi</rt></ruby><ruby>狮<rt>shī</rt></ruby><ruby>城<rt>chéng</rt></ruby><ruby>做<rt>zuò</rt></ruby><ruby>贡<rt>gòng</rt></ruby><ruby>献<rt>xiàn</rt></ruby>——<ruby>走<rt>zǒu</rt></ruby><ruby>访<rt>fǎng</rt></ruby><ruby>地<rt>dì</rt></ruby><ruby>铁<rt>tiě</rt></ruby><ruby>维<rt>wéi</rt></ruby><ruby>修<rt>xiū</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>员<rt>yuán</rt></ruby>》</span><span class="text-title-en">Serving the Lion City — a Visit to MRT Engineers</span></div>
           <span class="soon-tag">Soon</span>
         </li>
         <li class="text-item ">
-          <span class="cat-pill">Consolidation</span>
-          <span class="text-title-zh">《小人物的心声“一人一首新谣”专题系列报道》</span>
+          <span class="cat-pill"><span class="cat-zh">巩固</span><span class="cat-en">Consolidation</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>小<rt>xiǎo</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>物<rt>wù</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>心<rt>xīn</rt></ruby><ruby>声<rt>shēng</rt></ruby>“<ruby>一<rt>yī</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>首<rt>shǒu</rt></ruby><ruby>新<rt>xīn</rt></ruby><ruby>谣<rt>yáo</rt></ruby>”<ruby>专<rt>zhuān</rt></ruby><ruby>题<rt>tí</rt></ruby><ruby>系<rt>xì</rt></ruby><ruby>列<rt>liè</rt></ruby><ruby>报<rt>bào</rt></ruby><ruby>道<rt>dào</rt></ruby>》</span><span class="text-title-en">Voices of Everyday People — a &quot;One Person, One Xinyao Song&quot; Feature</span></div>
           <span class="soon-tag">Soon</span>
         </li>
       </ul>
@@ -396,24 +459,27 @@
       <header class="unit-head">
         <div>
           <div class="unit-num">Unit 1</div>
-          <h3 class="unit-title">爱的表达</h3>
+          <div class="unit-title-group">
+            <h3 class="unit-title"><ruby>爱<rt>ài</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>表<rt>biǎo</rt></ruby><ruby>达<rt>dá</rt></ruby></h3>
+            <span class="unit-title-en">Expressions of Love</span>
+          </div>
         </div>
         <span class="unit-status">Coming soon</span>
       </header>
       <ul class="text-list">
         <li class="text-item ">
-          <span class="cat-pill">Daily Life</span>
-          <span class="text-title-zh">《我想对您说》</span>
+          <span class="cat-pill"><span class="cat-zh">生活空间</span><span class="cat-en">Daily Life</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>我<rt>wǒ</rt></ruby><ruby>想<rt>xiǎng</rt></ruby><ruby>对<rt>duì</rt></ruby><ruby>您<rt>nín</rt></ruby><ruby>说<rt>shuō</rt></ruby>》</span><span class="text-title-en">Something I Want to Say to You</span></div>
           <span class="soon-tag">Soon</span>
         </li>
         <li class="text-item ">
-          <span class="cat-pill">Core</span>
-          <span class="text-title-zh">《把爱说出来》</span>
+          <span class="cat-pill"><span class="cat-zh">核心</span><span class="cat-en">Core</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>把<rt>bǎ</rt></ruby><ruby>爱<rt>ài</rt></ruby><ruby>说<rt>shuō</rt></ruby><ruby>出<rt>chū</rt></ruby><ruby>来<rt>lái</rt></ruby>》</span><span class="text-title-en">Speaking Love Aloud</span></div>
           <span class="soon-tag">Soon</span>
         </li>
         <li class="text-item ">
-          <span class="cat-pill">Consolidation</span>
-          <span class="text-title-zh">《放风筝》</span>
+          <span class="cat-pill"><span class="cat-zh">巩固</span><span class="cat-en">Consolidation</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>放<rt>fàng</rt></ruby><ruby>风<rt>fēng</rt></ruby><ruby>筝<rt>zhēng</rt></ruby>》</span><span class="text-title-en">Flying a Kite</span></div>
           <span class="soon-tag">Soon</span>
         </li>
       </ul>
@@ -422,24 +488,27 @@
       <header class="unit-head">
         <div>
           <div class="unit-num">Unit 2</div>
-          <h3 class="unit-title">关爱动物</h3>
+          <div class="unit-title-group">
+            <h3 class="unit-title"><ruby>关<rt>guān</rt></ruby><ruby>爱<rt>ài</rt></ruby><ruby>动<rt>dòng</rt></ruby><ruby>物<rt>wù</rt></ruby></h3>
+            <span class="unit-title-en">Caring for Animals</span>
+          </div>
         </div>
         <span class="unit-status">Coming soon</span>
       </header>
       <ul class="text-list">
         <li class="text-item ">
-          <span class="cat-pill">Daily Life</span>
-          <span class="text-title-zh">《助养野生动物》</span>
+          <span class="cat-pill"><span class="cat-zh">生活空间</span><span class="cat-en">Daily Life</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>助<rt>zhù</rt></ruby><ruby>养<rt>yǎng</rt></ruby><ruby>野<rt>yě</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>动<rt>dòng</rt></ruby><ruby>物<rt>wù</rt></ruby>》</span><span class="text-title-en">Adopting Wildlife</span></div>
           <span class="soon-tag">Soon</span>
         </li>
         <li class="text-item ">
-          <span class="cat-pill">Core</span>
-          <span class="text-title-zh">《猫》</span>
+          <span class="cat-pill"><span class="cat-zh">核心</span><span class="cat-en">Core</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>猫<rt>māo</rt></ruby>》</span><span class="text-title-en">The Cat</span></div>
           <span class="soon-tag">Soon</span>
         </li>
         <li class="text-item ">
-          <span class="cat-pill">Consolidation</span>
-          <span class="text-title-zh">《山中奇遇》</span>
+          <span class="cat-pill"><span class="cat-zh">巩固</span><span class="cat-en">Consolidation</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>山<rt>shān</rt></ruby><ruby>中<rt>zhōng</rt></ruby><ruby>奇<rt>qí</rt></ruby><ruby>遇<rt>yù</rt></ruby>》</span><span class="text-title-en">An Unexpected Encounter in the Mountains</span></div>
           <span class="soon-tag">Soon</span>
         </li>
       </ul>
@@ -448,24 +517,27 @@
       <header class="unit-head">
         <div>
           <div class="unit-num">Unit 3</div>
-          <h3 class="unit-title">绿色生活</h3>
+          <div class="unit-title-group">
+            <h3 class="unit-title"><ruby>绿<rt>lǜ</rt></ruby><ruby>色<rt>sè</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>活<rt>huó</rt></ruby></h3>
+            <span class="unit-title-en">Green Living</span>
+          </div>
         </div>
         <span class="unit-status">Coming soon</span>
       </header>
       <ul class="text-list">
         <li class="text-item ">
-          <span class="cat-pill">Daily Life</span>
-          <span class="text-title-zh">《水都去哪儿了？》</span>
+          <span class="cat-pill"><span class="cat-zh">生活空间</span><span class="cat-en">Daily Life</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>水<rt>shuǐ</rt></ruby><ruby>都<rt>dōu</rt></ruby><ruby>去<rt>qù</rt></ruby><ruby>哪<rt>nǎ</rt></ruby><ruby>儿<rt>ér</rt></ruby><ruby>了<rt>le</rt></ruby>？》</span><span class="text-title-en">Where Has All the Water Gone?</span></div>
           <span class="soon-tag">Soon</span>
         </li>
         <li class="text-item ">
-          <span class="cat-pill">Core</span>
-          <span class="text-title-zh">《人类最糟糕的发明》</span>
+          <span class="cat-pill"><span class="cat-zh">核心</span><span class="cat-en">Core</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>人<rt>rén</rt></ruby><ruby>类<rt>lèi</rt></ruby><ruby>最<rt>zuì</rt></ruby><ruby>糟<rt>zāo</rt></ruby><ruby>糕<rt>gāo</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>发<rt>fā</rt></ruby><ruby>明<rt>míng</rt></ruby>》</span><span class="text-title-en">Humanity&#x27;s Worst Invention</span></div>
           <span class="soon-tag">Soon</span>
         </li>
         <li class="text-item ">
-          <span class="cat-pill">Consolidation</span>
-          <span class="text-title-zh">《手机被丢弃之后》</span>
+          <span class="cat-pill"><span class="cat-zh">巩固</span><span class="cat-en">Consolidation</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>手<rt>shǒu</rt></ruby><ruby>机<rt>jī</rt></ruby><ruby>被<rt>bèi</rt></ruby><ruby>丢<rt>diū</rt></ruby><ruby>弃<rt>qì</rt></ruby><ruby>之<rt>zhī</rt></ruby><ruby>后<rt>hòu</rt></ruby>》</span><span class="text-title-en">After the Phone Is Thrown Away</span></div>
           <span class="soon-tag">Soon</span>
         </li>
       </ul>
@@ -474,24 +546,27 @@
       <header class="unit-head">
         <div>
           <div class="unit-num">Unit 4</div>
-          <h3 class="unit-title">成长的足迹</h3>
+          <div class="unit-title-group">
+            <h3 class="unit-title"><ruby>成<rt>chéng</rt></ruby><ruby>长<rt>zhǎng</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>足<rt>zú</rt></ruby><ruby>迹<rt>jì</rt></ruby></h3>
+            <span class="unit-title-en">Footprints of Growing Up</span>
+          </div>
         </div>
         <span class="unit-status">Coming soon</span>
       </header>
       <ul class="text-list">
         <li class="text-item ">
-          <span class="cat-pill">Daily Life</span>
-          <span class="text-title-zh">《心情手账》</span>
+          <span class="cat-pill"><span class="cat-zh">生活空间</span><span class="cat-en">Daily Life</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>心<rt>xīn</rt></ruby><ruby>情<rt>qíng</rt></ruby><ruby>手<rt>shǒu</rt></ruby><ruby>账<rt>zhàng</rt></ruby>》</span><span class="text-title-en">A Journal of Moods</span></div>
           <span class="soon-tag">Soon</span>
         </li>
         <li class="text-item ">
-          <span class="cat-pill">Core</span>
-          <span class="text-title-zh">《恐怖事件》</span>
+          <span class="cat-pill"><span class="cat-zh">核心</span><span class="cat-en">Core</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>恐<rt>kǒng</rt></ruby><ruby>怖<rt>bù</rt></ruby><ruby>事<rt>shì</rt></ruby><ruby>件<rt>jiàn</rt></ruby>》</span><span class="text-title-en">The Scary Incident</span></div>
           <span class="soon-tag">Soon</span>
         </li>
         <li class="text-item ">
-          <span class="cat-pill">Consolidation</span>
-          <span class="text-title-zh">《最美的姿势》</span>
+          <span class="cat-pill"><span class="cat-zh">巩固</span><span class="cat-en">Consolidation</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>最<rt>zuì</rt></ruby><ruby>美<rt>měi</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>姿<rt>zī</rt></ruby><ruby>势<rt>shì</rt></ruby>》</span><span class="text-title-en">The Most Beautiful Pose</span></div>
           <span class="soon-tag">Soon</span>
         </li>
       </ul>
@@ -500,24 +575,27 @@
       <header class="unit-head">
         <div>
           <div class="unit-num">Unit 5</div>
-          <h3 class="unit-title">心系家园</h3>
+          <div class="unit-title-group">
+            <h3 class="unit-title"><ruby>心<rt>xīn</rt></ruby><ruby>系<rt>xì</rt></ruby><ruby>家<rt>jiā</rt></ruby><ruby>园<rt>yuán</rt></ruby></h3>
+            <span class="unit-title-en">Home in Our Hearts</span>
+          </div>
         </div>
         <span class="unit-status">Coming soon</span>
       </header>
       <ul class="text-list">
         <li class="text-item ">
-          <span class="cat-pill">Daily Life</span>
-          <span class="text-title-zh">《组屋：新加坡一道美丽的风景线》</span>
+          <span class="cat-pill"><span class="cat-zh">生活空间</span><span class="cat-en">Daily Life</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>组<rt>zǔ</rt></ruby><ruby>屋<rt>wū</rt></ruby>：<ruby>新<rt>xīn</rt></ruby><ruby>加<rt>jiā</rt></ruby><ruby>坡<rt>pō</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>道<rt>dào</rt></ruby><ruby>美<rt>měi</rt></ruby><ruby>丽<rt>lì</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>风<rt>fēng</rt></ruby><ruby>景<rt>jǐng</rt></ruby><ruby>线<rt>xiàn</rt></ruby>》</span><span class="text-title-en">HDB Flats: A Beautiful Singapore Landscape</span></div>
           <span class="soon-tag">Soon</span>
         </li>
         <li class="text-item ">
-          <span class="cat-pill">Core</span>
-          <span class="text-title-zh">《雨树》</span>
+          <span class="cat-pill"><span class="cat-zh">核心</span><span class="cat-en">Core</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>雨<rt>yǔ</rt></ruby><ruby>树<rt>shù</rt></ruby>》</span><span class="text-title-en">The Rain Tree</span></div>
           <span class="soon-tag">Soon</span>
         </li>
         <li class="text-item ">
-          <span class="cat-pill">Consolidation</span>
-          <span class="text-title-zh">《如果走散了》</span>
+          <span class="cat-pill"><span class="cat-zh">巩固</span><span class="cat-en">Consolidation</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>如<rt>rú</rt></ruby><ruby>果<rt>guǒ</rt></ruby><ruby>走<rt>zǒu</rt></ruby><ruby>散<rt>sàn</rt></ruby><ruby>了<rt>le</rt></ruby>》</span><span class="text-title-en">If We Get Separated</span></div>
           <span class="soon-tag">Soon</span>
         </li>
       </ul>
@@ -526,24 +604,27 @@
       <header class="unit-head">
         <div>
           <div class="unit-num">Unit 6</div>
-          <h3 class="unit-title">与世界相连</h3>
+          <div class="unit-title-group">
+            <h3 class="unit-title"><ruby>与<rt>yǔ</rt></ruby><ruby>世<rt>shì</rt></ruby><ruby>界<rt>jiè</rt></ruby><ruby>相<rt>xiāng</rt></ruby><ruby>连<rt>lián</rt></ruby></h3>
+            <span class="unit-title-en">Connected to the World</span>
+          </div>
         </div>
         <span class="unit-status">Coming soon</span>
       </header>
       <ul class="text-list">
         <li class="text-item ">
-          <span class="cat-pill">Daily Life</span>
-          <span class="text-title-zh">《新加坡与世界的联系》</span>
+          <span class="cat-pill"><span class="cat-zh">生活空间</span><span class="cat-en">Daily Life</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>新<rt>xīn</rt></ruby><ruby>加<rt>jiā</rt></ruby><ruby>坡<rt>pō</rt></ruby><ruby>与<rt>yǔ</rt></ruby><ruby>世<rt>shì</rt></ruby><ruby>界<rt>jiè</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>联<rt>lián</rt></ruby><ruby>系<rt>xì</rt></ruby>》</span><span class="text-title-en">Singapore&#x27;s Connections to the World</span></div>
           <span class="soon-tag">Soon</span>
         </li>
         <li class="text-item ">
-          <span class="cat-pill">Core</span>
-          <span class="text-title-zh">《多元而开放的新加坡》</span>
+          <span class="cat-pill"><span class="cat-zh">核心</span><span class="cat-en">Core</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>多<rt>duō</rt></ruby><ruby>元<rt>yuán</rt></ruby><ruby>而<rt>ér</rt></ruby><ruby>开<rt>kāi</rt></ruby><ruby>放<rt>fàng</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>新<rt>xīn</rt></ruby><ruby>加<rt>jiā</rt></ruby><ruby>坡<rt>pō</rt></ruby>》</span><span class="text-title-en">A Diverse and Open Singapore</span></div>
           <span class="soon-tag">Soon</span>
         </li>
         <li class="text-item ">
-          <span class="cat-pill">Consolidation</span>
-          <span class="text-title-zh">《别上假信息的当》</span>
+          <span class="cat-pill"><span class="cat-zh">巩固</span><span class="cat-en">Consolidation</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>别<rt>bié</rt></ruby><ruby>上<rt>shàng</rt></ruby><ruby>假<rt>jiǎ</rt></ruby><ruby>信<rt>xìn</rt></ruby><ruby>息<rt>xī</rt></ruby><ruby>的<rt>dí</rt></ruby><ruby>当<rt>dàng</rt></ruby>》</span><span class="text-title-en">Don&#x27;t Fall for Fake Information</span></div>
           <span class="soon-tag">Soon</span>
         </li>
       </ul>
@@ -561,24 +642,27 @@
       <header class="unit-head">
         <div>
           <div class="unit-num">Unit 1</div>
-          <h3 class="unit-title">有你做伴</h3>
+          <div class="unit-title-group">
+            <h3 class="unit-title"><ruby>有<rt>yǒu</rt></ruby><ruby>你<rt>nǐ</rt></ruby><ruby>做<rt>zuò</rt></ruby><ruby>伴<rt>bàn</rt></ruby></h3>
+            <span class="unit-title-en">Companions on the Journey</span>
+          </div>
         </div>
         <span class="unit-status">Coming soon</span>
       </header>
       <ul class="text-list">
         <li class="text-item ">
-          <span class="cat-pill">Daily Life</span>
-          <span class="text-title-zh">《如何建立良好的人际关系》</span>
+          <span class="cat-pill"><span class="cat-zh">生活空间</span><span class="cat-en">Daily Life</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>如<rt>rú</rt></ruby><ruby>何<rt>hé</rt></ruby><ruby>建<rt>jiàn</rt></ruby><ruby>立<rt>lì</rt></ruby><ruby>良<rt>liáng</rt></ruby><ruby>好<rt>hǎo</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>际<rt>jì</rt></ruby><ruby>关<rt>guān</rt></ruby><ruby>系<rt>xì</rt></ruby>》</span><span class="text-title-en">How to Build Good Relationships</span></div>
           <span class="soon-tag">Soon</span>
         </li>
         <li class="text-item ">
-          <span class="cat-pill">Core</span>
-          <span class="text-title-zh">《谢谢你的沉默》</span>
+          <span class="cat-pill"><span class="cat-zh">核心</span><span class="cat-en">Core</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>谢<rt>xiè</rt></ruby><ruby>谢<rt>xiè</rt></ruby><ruby>你<rt>nǐ</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>沉<rt>chén</rt></ruby><ruby>默<rt>mò</rt></ruby>》</span><span class="text-title-en">Thank You for Your Silence</span></div>
           <span class="soon-tag">Soon</span>
         </li>
         <li class="text-item ">
-          <span class="cat-pill">Consolidation</span>
-          <span class="text-title-zh">《饼干罐的秘密》</span>
+          <span class="cat-pill"><span class="cat-zh">巩固</span><span class="cat-en">Consolidation</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>饼<rt>bǐng</rt></ruby><ruby>干<rt>gān</rt></ruby><ruby>罐<rt>guàn</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>秘<rt>mì</rt></ruby><ruby>密<rt>mì</rt></ruby>》</span><span class="text-title-en">The Secret of the Biscuit Tin</span></div>
           <span class="soon-tag">Soon</span>
         </li>
       </ul>
@@ -587,24 +671,27 @@
       <header class="unit-head">
         <div>
           <div class="unit-num">Unit 2</div>
-          <h3 class="unit-title">健康生活</h3>
+          <div class="unit-title-group">
+            <h3 class="unit-title"><ruby>健<rt>jiàn</rt></ruby><ruby>康<rt>kāng</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>活<rt>huó</rt></ruby></h3>
+            <span class="unit-title-en">Healthy Living</span>
+          </div>
         </div>
         <span class="unit-status">Coming soon</span>
       </header>
       <ul class="text-list">
         <li class="text-item ">
-          <span class="cat-pill">Daily Life</span>
-          <span class="text-title-zh">《健康生活系列广告》</span>
+          <span class="cat-pill"><span class="cat-zh">生活空间</span><span class="cat-en">Daily Life</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>健<rt>jiàn</rt></ruby><ruby>康<rt>kāng</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>活<rt>huó</rt></ruby><ruby>系<rt>xì</rt></ruby><ruby>列<rt>liè</rt></ruby><ruby>广<rt>guǎng</rt></ruby><ruby>告<rt>gào</rt></ruby>》</span><span class="text-title-en">Healthy Living: Ad Series</span></div>
           <span class="soon-tag">Soon</span>
         </li>
         <li class="text-item ">
-          <span class="cat-pill">Core</span>
-          <span class="text-title-zh">《吃茶 喝茶 品茶》</span>
+          <span class="cat-pill"><span class="cat-zh">核心</span><span class="cat-en">Core</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>吃<rt>chī</rt></ruby><ruby>茶<rt>chá</rt></ruby> <ruby>喝<rt>hē</rt></ruby><ruby>茶<rt>chá</rt></ruby> <ruby>品<rt>pǐn</rt></ruby><ruby>茶<rt>chá</rt></ruby>》</span><span class="text-title-en">Eating, Drinking, and Tasting Tea</span></div>
           <span class="soon-tag">Soon</span>
         </li>
         <li class="text-item ">
-          <span class="cat-pill">Consolidation</span>
-          <span class="text-title-zh">《街舞》</span>
+          <span class="cat-pill"><span class="cat-zh">巩固</span><span class="cat-en">Consolidation</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>街<rt>jiē</rt></ruby><ruby>舞<rt>wǔ</rt></ruby>》</span><span class="text-title-en">Street Dance</span></div>
           <span class="soon-tag">Soon</span>
         </li>
       </ul>
@@ -613,24 +700,27 @@
       <header class="unit-head">
         <div>
           <div class="unit-num">Unit 3</div>
-          <h3 class="unit-title">走进社区</h3>
+          <div class="unit-title-group">
+            <h3 class="unit-title"><ruby>走<rt>zǒu</rt></ruby><ruby>进<rt>jìn</rt></ruby><ruby>社<rt>shè</rt></ruby><ruby>区<rt>qū</rt></ruby></h3>
+            <span class="unit-title-en">Into the Community</span>
+          </div>
         </div>
         <span class="unit-status">Coming soon</span>
       </header>
       <ul class="text-list">
         <li class="text-item ">
-          <span class="cat-pill">Daily Life</span>
-          <span class="text-title-zh">《我的社区节》</span>
+          <span class="cat-pill"><span class="cat-zh">生活空间</span><span class="cat-en">Daily Life</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>我<rt>wǒ</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>社<rt>shè</rt></ruby><ruby>区<rt>qū</rt></ruby><ruby>节<rt>jié</rt></ruby>》</span><span class="text-title-en">My Community Festival</span></div>
           <span class="soon-tag">Soon</span>
         </li>
         <li class="text-item ">
-          <span class="cat-pill">Core</span>
-          <span class="text-title-zh">《远亲不如近邻》</span>
+          <span class="cat-pill"><span class="cat-zh">核心</span><span class="cat-en">Core</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>远<rt>yuǎn</rt></ruby><ruby>亲<rt>qīn</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>如<rt>rú</rt></ruby><ruby>近<rt>jìn</rt></ruby><ruby>邻<rt>lín</rt></ruby>》</span><span class="text-title-en">A Nearby Neighbour Beats a Distant Relative</span></div>
           <span class="soon-tag">Soon</span>
         </li>
         <li class="text-item ">
-          <span class="cat-pill">Consolidation</span>
-          <span class="text-title-zh">《社区网络群组  让邻里感情更深厚》</span>
+          <span class="cat-pill"><span class="cat-zh">巩固</span><span class="cat-en">Consolidation</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>社<rt>shè</rt></ruby><ruby>区<rt>qū</rt></ruby><ruby>网<rt>wǎng</rt></ruby><ruby>络<rt>luò</rt></ruby><ruby>群<rt>qún</rt></ruby><ruby>组<rt>zǔ</rt></ruby>  <ruby>让<rt>ràng</rt></ruby><ruby>邻<rt>lín</rt></ruby><ruby>里<rt>lǐ</rt></ruby><ruby>感<rt>gǎn</rt></ruby><ruby>情<rt>qíng</rt></ruby><ruby>更<rt>gēng</rt></ruby><ruby>深<rt>shēn</rt></ruby><ruby>厚<rt>hòu</rt></ruby>》</span><span class="text-title-en">Community Chat Groups — Bringing Neighbours Closer</span></div>
           <span class="soon-tag">Soon</span>
         </li>
       </ul>
@@ -639,24 +729,27 @@
       <header class="unit-head">
         <div>
           <div class="unit-num">Unit 4</div>
-          <h3 class="unit-title">沟通你我他</h3>
+          <div class="unit-title-group">
+            <h3 class="unit-title"><ruby>沟<rt>gōu</rt></ruby><ruby>通<rt>tōng</rt></ruby><ruby>你<rt>nǐ</rt></ruby><ruby>我<rt>wǒ</rt></ruby><ruby>他<rt>tā</rt></ruby></h3>
+            <span class="unit-title-en">Communication Between Us</span>
+          </div>
         </div>
         <span class="unit-status">Coming soon</span>
       </header>
       <ul class="text-list">
         <li class="text-item ">
-          <span class="cat-pill">Daily Life</span>
-          <span class="text-title-zh">《成为演说高手》</span>
+          <span class="cat-pill"><span class="cat-zh">生活空间</span><span class="cat-en">Daily Life</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>成<rt>chéng</rt></ruby><ruby>为<rt>wéi</rt></ruby><ruby>演<rt>yǎn</rt></ruby><ruby>说<rt>shuō</rt></ruby><ruby>高<rt>gāo</rt></ruby><ruby>手<rt>shǒu</rt></ruby>》</span><span class="text-title-en">Becoming a Skilled Speaker</span></div>
           <span class="soon-tag">Soon</span>
         </li>
         <li class="text-item ">
-          <span class="cat-pill">Core</span>
-          <span class="text-title-zh">《沟通面面观》</span>
+          <span class="cat-pill"><span class="cat-zh">核心</span><span class="cat-en">Core</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>沟<rt>gōu</rt></ruby><ruby>通<rt>tōng</rt></ruby><ruby>面<rt>miàn</rt></ruby><ruby>面<rt>miàn</rt></ruby><ruby>观<rt>guān</rt></ruby>》</span><span class="text-title-en">The Many Faces of Communication</span></div>
           <span class="soon-tag">Soon</span>
         </li>
         <li class="text-item ">
-          <span class="cat-pill">Consolidation</span>
-          <span class="text-title-zh">《社交媒体  拉近你我他》</span>
+          <span class="cat-pill"><span class="cat-zh">巩固</span><span class="cat-en">Consolidation</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>社<rt>shè</rt></ruby><ruby>交<rt>jiāo</rt></ruby><ruby>媒<rt>méi</rt></ruby><ruby>体<rt>tǐ</rt></ruby>  <ruby>拉<rt>lā</rt></ruby><ruby>近<rt>jìn</rt></ruby><ruby>你<rt>nǐ</rt></ruby><ruby>我<rt>wǒ</rt></ruby><ruby>他<rt>tā</rt></ruby>》</span><span class="text-title-en">Social Media — Bringing Us Closer Together</span></div>
           <span class="soon-tag">Soon</span>
         </li>
       </ul>
@@ -665,24 +758,27 @@
       <header class="unit-head">
         <div>
           <div class="unit-num">Unit 5</div>
-          <h3 class="unit-title">学无止境</h3>
+          <div class="unit-title-group">
+            <h3 class="unit-title"><ruby>学<rt>xué</rt></ruby><ruby>无<rt>wú</rt></ruby><ruby>止<rt>zhǐ</rt></ruby><ruby>境<rt>jìng</rt></ruby></h3>
+            <span class="unit-title-en">Learning Without Limits</span>
+          </div>
         </div>
         <span class="unit-status">Coming soon</span>
       </header>
       <ul class="text-list">
         <li class="text-item ">
-          <span class="cat-pill">Daily Life</span>
-          <span class="text-title-zh">《你在学什么》</span>
+          <span class="cat-pill"><span class="cat-zh">生活空间</span><span class="cat-en">Daily Life</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>你<rt>nǐ</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>什<rt>shén</rt></ruby><ruby>么<rt>me</rt></ruby>》</span><span class="text-title-en">What Are You Learning?</span></div>
           <span class="soon-tag">Soon</span>
         </li>
         <li class="text-item ">
-          <span class="cat-pill">Core</span>
-          <span class="text-title-zh">《学然后知不足》</span>
+          <span class="cat-pill"><span class="cat-zh">核心</span><span class="cat-en">Core</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>学<rt>xué</rt></ruby><ruby>然<rt>rán</rt></ruby><ruby>后<rt>hòu</rt></ruby><ruby>知<rt>zhī</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>足<rt>zú</rt></ruby>》</span><span class="text-title-en">To Learn Is to See How Much You Don&#x27;t Know</span></div>
           <span class="soon-tag">Soon</span>
         </li>
         <li class="text-item ">
-          <span class="cat-pill">Consolidation</span>
-          <span class="text-title-zh">《终身学习》</span>
+          <span class="cat-pill"><span class="cat-zh">巩固</span><span class="cat-en">Consolidation</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>终<rt>zhōng</rt></ruby><ruby>身<rt>shēn</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>习<rt>xí</rt></ruby>》</span><span class="text-title-en">Lifelong Learning</span></div>
           <span class="soon-tag">Soon</span>
         </li>
       </ul>
@@ -691,24 +787,27 @@
       <header class="unit-head">
         <div>
           <div class="unit-num">Unit 6</div>
-          <h3 class="unit-title">发现真善美</h3>
+          <div class="unit-title-group">
+            <h3 class="unit-title"><ruby>发<rt>fā</rt></ruby><ruby>现<rt>xiàn</rt></ruby><ruby>真<rt>zhēn</rt></ruby><ruby>善<rt>shàn</rt></ruby><ruby>美<rt>měi</rt></ruby></h3>
+            <span class="unit-title-en">Discovering the True, the Good, and the Beautiful</span>
+          </div>
         </div>
         <span class="unit-status">Coming soon</span>
       </header>
       <ul class="text-list">
         <li class="text-item ">
-          <span class="cat-pill">Daily Life</span>
-          <span class="text-title-zh">《真善美摄影展》</span>
+          <span class="cat-pill"><span class="cat-zh">生活空间</span><span class="cat-en">Daily Life</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>真<rt>zhēn</rt></ruby><ruby>善<rt>shàn</rt></ruby><ruby>美<rt>měi</rt></ruby><ruby>摄<rt>shè</rt></ruby><ruby>影<rt>yǐng</rt></ruby><ruby>展<rt>zhǎn</rt></ruby>》</span><span class="text-title-en">A Photography Exhibition of the True, the Good, and the Beautiful</span></div>
           <span class="soon-tag">Soon</span>
         </li>
         <li class="text-item ">
-          <span class="cat-pill">Core</span>
-          <span class="text-title-zh">《父亲和鱼》</span>
+          <span class="cat-pill"><span class="cat-zh">核心</span><span class="cat-en">Core</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>父<rt>fù</rt></ruby><ruby>亲<rt>qīn</rt></ruby><ruby>和<rt>hé</rt></ruby><ruby>鱼<rt>yú</rt></ruby>》</span><span class="text-title-en">Father and the Fish</span></div>
           <span class="soon-tag">Soon</span>
         </li>
         <li class="text-item ">
-          <span class="cat-pill">Consolidation</span>
-          <span class="text-title-zh">《唯一的听众》</span>
+          <span class="cat-pill"><span class="cat-zh">巩固</span><span class="cat-en">Consolidation</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>唯<rt>wéi</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>听<rt>tīng</rt></ruby><ruby>众<rt>zhòng</rt></ruby>》</span><span class="text-title-en">The Only Listener</span></div>
           <span class="soon-tag">Soon</span>
         </li>
       </ul>
@@ -726,24 +825,27 @@
       <header class="unit-head">
         <div>
           <div class="unit-num">Unit 1</div>
-          <h3 class="unit-title">心手相连</h3>
+          <div class="unit-title-group">
+            <h3 class="unit-title"><ruby>心<rt>xīn</rt></ruby><ruby>手<rt>shǒu</rt></ruby><ruby>相<rt>xiàng</rt></ruby><ruby>连<rt>lián</rt></ruby></h3>
+            <span class="unit-title-en">Hand in Hand, Heart to Heart</span>
+          </div>
         </div>
         <span class="unit-status">Coming soon</span>
       </header>
       <ul class="text-list">
         <li class="text-item ">
-          <span class="cat-pill">Daily Life</span>
-          <span class="text-title-zh">《&lt;关怀满人间&gt;——慈善团体简介》</span>
+          <span class="cat-pill"><span class="cat-zh">生活空间</span><span class="cat-en">Daily Life</span></span>
+          <div class="text-col"><span class="text-title-zh">《&lt;<ruby>关<rt>guān</rt></ruby><ruby>怀<rt>huái</rt></ruby><ruby>满<rt>mǎn</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>间<rt>jiān</rt></ruby>&gt;——<ruby>慈<rt>cí</rt></ruby><ruby>善<rt>shàn</rt></ruby><ruby>团<rt>tuán</rt></ruby><ruby>体<rt>tǐ</rt></ruby><ruby>简<rt>jiǎn</rt></ruby><ruby>介<rt>jiè</rt></ruby>》</span><span class="text-title-en">Care Across the World — Charity Organisations</span></div>
           <span class="soon-tag">Soon</span>
         </li>
         <li class="text-item ">
-          <span class="cat-pill">Core</span>
-          <span class="text-title-zh">《坦然走过乞丐》</span>
+          <span class="cat-pill"><span class="cat-zh">核心</span><span class="cat-en">Core</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>坦<rt>tǎn</rt></ruby><ruby>然<rt>rán</rt></ruby><ruby>走<rt>zǒu</rt></ruby><ruby>过<rt>guò</rt></ruby><ruby>乞<rt>qǐ</rt></ruby><ruby>丐<rt>gài</rt></ruby>》</span><span class="text-title-en">Walking Past a Beggar</span></div>
           <span class="soon-tag">Soon</span>
         </li>
         <li class="text-item ">
-          <span class="cat-pill">Consolidation</span>
-          <span class="text-title-zh">《给善良插上翅膀》</span>
+          <span class="cat-pill"><span class="cat-zh">巩固</span><span class="cat-en">Consolidation</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>给<rt>gěi</rt></ruby><ruby>善<rt>shàn</rt></ruby><ruby>良<rt>liáng</rt></ruby><ruby>插<rt>chā</rt></ruby><ruby>上<rt>shàng</rt></ruby><ruby>翅<rt>chì</rt></ruby><ruby>膀<rt>bǎng</rt></ruby>》</span><span class="text-title-en">Giving Kindness Wings</span></div>
           <span class="soon-tag">Soon</span>
         </li>
       </ul>
@@ -752,24 +854,27 @@
       <header class="unit-head">
         <div>
           <div class="unit-num">Unit 2</div>
-          <h3 class="unit-title">文学世界</h3>
+          <div class="unit-title-group">
+            <h3 class="unit-title"><ruby>文<rt>wén</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>世<rt>shì</rt></ruby><ruby>界<rt>jiè</rt></ruby></h3>
+            <span class="unit-title-en">The World of Literature</span>
+          </div>
         </div>
         <span class="unit-status">Coming soon</span>
       </header>
       <ul class="text-list">
         <li class="text-item ">
-          <span class="cat-pill">Daily Life</span>
-          <span class="text-title-zh">《戏剧中的人生百态》</span>
+          <span class="cat-pill"><span class="cat-zh">生活空间</span><span class="cat-en">Daily Life</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>戏<rt>xì</rt></ruby><ruby>剧<rt>jù</rt></ruby><ruby>中<rt>zhōng</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>百<rt>bǎi</rt></ruby><ruby>态<rt>tài</rt></ruby>》</span><span class="text-title-en">Lives Reflected in Drama</span></div>
           <span class="soon-tag">Soon</span>
         </li>
         <li class="text-item ">
-          <span class="cat-pill">Core</span>
-          <span class="text-title-zh">《林黛玉进贾府》</span>
+          <span class="cat-pill"><span class="cat-zh">核心</span><span class="cat-en">Core</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>林<rt>lín</rt></ruby><ruby>黛<rt>dài</rt></ruby><ruby>玉<rt>yù</rt></ruby><ruby>进<rt>jìn</rt></ruby><ruby>贾<rt>jiǎ</rt></ruby><ruby>府<rt>fǔ</rt></ruby>》</span><span class="text-title-en">Lin Daiyu Enters the Jia Household</span></div>
           <span class="soon-tag">Soon</span>
         </li>
         <li class="text-item ">
-          <span class="cat-pill">Consolidation</span>
-          <span class="text-title-zh">《三顾茅庐》</span>
+          <span class="cat-pill"><span class="cat-zh">巩固</span><span class="cat-en">Consolidation</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>三<rt>sān</rt></ruby><ruby>顾<rt>gù</rt></ruby><ruby>茅<rt>máo</rt></ruby><ruby>庐<rt>lú</rt></ruby>》</span><span class="text-title-en">Three Visits to the Thatched Cottage</span></div>
           <span class="soon-tag">Soon</span>
         </li>
       </ul>
@@ -778,24 +883,27 @@
       <header class="unit-head">
         <div>
           <div class="unit-num">Unit 3</div>
-          <h3 class="unit-title">平衡之道</h3>
+          <div class="unit-title-group">
+            <h3 class="unit-title"><ruby>平<rt>píng</rt></ruby><ruby>衡<rt>héng</rt></ruby><ruby>之<rt>zhī</rt></ruby><ruby>道<rt>dào</rt></ruby></h3>
+            <span class="unit-title-en">The Way of Balance</span>
+          </div>
         </div>
         <span class="unit-status">Coming soon</span>
       </header>
       <ul class="text-list">
         <li class="text-item ">
-          <span class="cat-pill">Daily Life</span>
-          <span class="text-title-zh">《被破坏的生态平衡》</span>
+          <span class="cat-pill"><span class="cat-zh">生活空间</span><span class="cat-en">Daily Life</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>被<rt>bèi</rt></ruby><ruby>破<rt>pò</rt></ruby><ruby>坏<rt>huài</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>态<rt>tài</rt></ruby><ruby>平<rt>píng</rt></ruby><ruby>衡<rt>héng</rt></ruby>》</span><span class="text-title-en">A Broken Ecological Balance</span></div>
           <span class="soon-tag">Soon</span>
         </li>
         <li class="text-item ">
-          <span class="cat-pill">Core</span>
-          <span class="text-title-zh">《对抗气候变化的超级英雄——红树林》</span>
+          <span class="cat-pill"><span class="cat-zh">核心</span><span class="cat-en">Core</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>对<rt>duì</rt></ruby><ruby>抗<rt>kàng</rt></ruby><ruby>气<rt>qì</rt></ruby><ruby>候<rt>hòu</rt></ruby><ruby>变<rt>biàn</rt></ruby><ruby>化<rt>huà</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>超<rt>chāo</rt></ruby><ruby>级<rt>jí</rt></ruby><ruby>英<rt>yīng</rt></ruby><ruby>雄<rt>xióng</rt></ruby>——<ruby>红<rt>hóng</rt></ruby><ruby>树<rt>shù</rt></ruby><ruby>林<rt>lín</rt></ruby>》</span><span class="text-title-en">Climate-Change Superheroes — the Mangroves</span></div>
           <span class="soon-tag">Soon</span>
         </li>
         <li class="text-item ">
-          <span class="cat-pill">Consolidation</span>
-          <span class="text-title-zh">《狼鹿效应》</span>
+          <span class="cat-pill"><span class="cat-zh">巩固</span><span class="cat-en">Consolidation</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>狼<rt>láng</rt></ruby><ruby>鹿<rt>lù</rt></ruby><ruby>效<rt>xiào</rt></ruby><ruby>应<rt>yìng</rt></ruby>》</span><span class="text-title-en">The Wolf-and-Deer Effect</span></div>
           <span class="soon-tag">Soon</span>
         </li>
       </ul>
@@ -804,24 +912,27 @@
       <header class="unit-head">
         <div>
           <div class="unit-num">Unit 4</div>
-          <h3 class="unit-title">知己知彼</h3>
+          <div class="unit-title-group">
+            <h3 class="unit-title"><ruby>知<rt>zhī</rt></ruby><ruby>己<rt>jǐ</rt></ruby><ruby>知<rt>zhī</rt></ruby><ruby>彼<rt>bǐ</rt></ruby></h3>
+            <span class="unit-title-en">Know Yourself, Know Others</span>
+          </div>
         </div>
         <span class="unit-status">Coming soon</span>
       </header>
       <ul class="text-list">
         <li class="text-item ">
-          <span class="cat-pill">Daily Life</span>
-          <span class="text-title-zh">《亚细安知多少》</span>
+          <span class="cat-pill"><span class="cat-zh">生活空间</span><span class="cat-en">Daily Life</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>亚<rt>yà</rt></ruby><ruby>细<rt>xì</rt></ruby><ruby>安<rt>ān</rt></ruby><ruby>知<rt>zhī</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>少<rt>shǎo</rt></ruby>》</span><span class="text-title-en">How Much Do You Know About ASEAN?</span></div>
           <span class="soon-tag">Soon</span>
         </li>
         <li class="text-item ">
-          <span class="cat-pill">Core</span>
-          <span class="text-title-zh">《自知之明》</span>
+          <span class="cat-pill"><span class="cat-zh">核心</span><span class="cat-en">Core</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>自<rt>zì</rt></ruby><ruby>知<rt>zhī</rt></ruby><ruby>之<rt>zhī</rt></ruby><ruby>明<rt>míng</rt></ruby>》</span><span class="text-title-en">Knowing Oneself</span></div>
           <span class="soon-tag">Soon</span>
         </li>
         <li class="text-item ">
-          <span class="cat-pill">Consolidation</span>
-          <span class="text-title-zh">《小国更需要合作》</span>
+          <span class="cat-pill"><span class="cat-zh">巩固</span><span class="cat-en">Consolidation</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>小<rt>xiǎo</rt></ruby><ruby>国<rt>guó</rt></ruby><ruby>更<rt>gèng</rt></ruby><ruby>需<rt>xū</rt></ruby><ruby>要<rt>yào</rt></ruby><ruby>合<rt>hé</rt></ruby><ruby>作<rt>zuò</rt></ruby>》</span><span class="text-title-en">Small Nations Need Cooperation Even More</span></div>
           <span class="soon-tag">Soon</span>
         </li>
       </ul>
@@ -830,24 +941,27 @@
       <header class="unit-head">
         <div>
           <div class="unit-num">Unit 5</div>
-          <h3 class="unit-title">勇于逐梦</h3>
+          <div class="unit-title-group">
+            <h3 class="unit-title"><ruby>勇<rt>yǒng</rt></ruby><ruby>于<rt>yú</rt></ruby><ruby>逐<rt>zhú</rt></ruby><ruby>梦<rt>mèng</rt></ruby></h3>
+            <span class="unit-title-en">The Courage to Chase Dreams</span>
+          </div>
         </div>
         <span class="unit-status">Coming soon</span>
       </header>
       <ul class="text-list">
         <li class="text-item ">
-          <span class="cat-pill">Daily Life</span>
-          <span class="text-title-zh">《追逐梦想——为梦想加油点赞》</span>
+          <span class="cat-pill"><span class="cat-zh">生活空间</span><span class="cat-en">Daily Life</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>追<rt>zhuī</rt></ruby><ruby>逐<rt>zhú</rt></ruby><ruby>梦<rt>mèng</rt></ruby><ruby>想<rt>xiǎng</rt></ruby>——<ruby>为<rt>wèi</rt></ruby><ruby>梦<rt>mèng</rt></ruby><ruby>想<rt>xiǎng</rt></ruby><ruby>加<rt>jiā</rt></ruby><ruby>油<rt>yóu</rt></ruby><ruby>点<rt>diǎn</rt></ruby><ruby>赞<rt>zàn</rt></ruby>》</span><span class="text-title-en">Chasing Dreams — Cheering Each Other On</span></div>
           <span class="soon-tag">Soon</span>
         </li>
         <li class="text-item ">
-          <span class="cat-pill">Core</span>
-          <span class="text-title-zh">《江城子 · 密州出猎》</span>
+          <span class="cat-pill"><span class="cat-zh">核心</span><span class="cat-en">Core</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>江<rt>jiāng</rt></ruby><ruby>城<rt>chéng</rt></ruby><ruby>子<rt>zi</rt></ruby> · <ruby>密<rt>mì</rt></ruby><ruby>州<rt>zhōu</rt></ruby><ruby>出<rt>chū</rt></ruby><ruby>猎<rt>liè</rt></ruby>》</span><span class="text-title-en">Jiang Cheng Zi · Hunting at Mizhou (Su Shi)</span></div>
           <span class="soon-tag">Soon</span>
         </li>
         <li class="text-item ">
-          <span class="cat-pill">Consolidation</span>
-          <span class="text-title-zh">《在山的那边》</span>
+          <span class="cat-pill"><span class="cat-zh">巩固</span><span class="cat-en">Consolidation</span></span>
+          <div class="text-col"><span class="text-title-zh">《<ruby>在<rt>zài</rt></ruby><ruby>山<rt>shān</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>那<rt>nà</rt></ruby><ruby>边<rt>biān</rt></ruby>》</span><span class="text-title-en">Beyond the Mountain</span></div>
           <span class="soon-tag">Soon</span>
         </li>
       </ul>
@@ -875,6 +989,12 @@
   }
   window.addEventListener('scroll', updateCurrent, {passive: true});
   updateCurrent();
+
+  // Pinyin toggle — default off, user can turn on
+  const pinyinToggle = document.getElementById('toggle-pinyin');
+  pinyinToggle.addEventListener('change', function() {
+    document.body.classList.toggle('pinyin-off', !pinyinToggle.checked);
+  });
 </script>
 </body>
 </html>
