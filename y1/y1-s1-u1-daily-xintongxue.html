@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>我的新同学 — 快捷华文</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --ink-muted: #6b7280;
+    --ink-faint: #9ca3af;
+    --accent: #2f7d4f;
+    --accent-soft: #e6f1ea;
+    --accent-dark: #26663f;
+    --rule: #e5e7eb;
+    --bg: #fafaf8;
+    --surface: #ffffff;
+    --bubble-a: #f0f4f2;
+    --bubble-b: #eef3f7;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+  }
+  .chinese { font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Source Han Sans SC", "Noto Sans CJK SC", sans-serif; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  header.top { max-width: 1100px; margin: 0 auto; padding: 2rem 2rem 1rem; }
+  .back-link { font-size: 13px; color: var(--ink-muted); display: inline-block; margin-bottom: 0.75rem; }
+  .back-link:hover { color: var(--accent); }
+  .breadcrumb {
+    font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--ink-muted); margin-bottom: 0.5rem;
+  }
+  .breadcrumb .sep { opacity: 0.5; margin: 0 0.5em; }
+  h1.title {
+    margin: 0; font-weight: 500; font-size: 28px;
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.75rem;
+  }
+  h1.title .zh { color: var(--ink); }
+  h1.title .en { color: var(--ink-muted); font-weight: 400; font-size: 16px; }
+
+  .controls {
+    max-width: 1100px; margin: 0 auto; padding: 1rem 2rem;
+    display: flex; gap: 1.25rem; flex-wrap: wrap; align-items: center;
+    border-bottom: 1px solid var(--rule);
+  }
+  .controls label {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 14px; color: var(--ink-muted); cursor: pointer; user-select: none;
+  }
+  .controls input[type=checkbox] { accent-color: var(--accent); width: 16px; height: 16px; }
+  .controls input[type=checkbox]:checked + span { color: var(--accent); font-weight: 500; }
+  .controls .speed { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ink-muted); }
+  .controls .speed input { width: 100px; accent-color: var(--accent); }
+  .controls .speed .val { min-width: 28px; font-weight: 500; color: var(--ink); }
+  .controls .speed .speed-hint { font-size: 11px; color: var(--ink-faint); font-style: italic; }
+  .controls .spacer { flex: 1; }
+  .controls button.play-all {
+    border: 1px solid var(--accent); background: var(--accent); color: #fff;
+    padding: 7px 14px; font-size: 13px; font-weight: 500; border-radius: 6px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s;
+  }
+  .controls button.play-all:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+  .controls button.play-all.playing { background: #b34545; border-color: #b34545; }
+  .controls button.play-all.playing:hover { background: #933838; border-color: #933838; }
+  .controls button.play-all svg { width: 11px; height: 11px; }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 1.5rem 2rem 5rem; }
+
+  /* Pinyin defaults */
+  ruby { ruby-position: over; }
+  ruby rt {
+    font-size: 11px; color: var(--accent);
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-weight: 400; letter-spacing: 0.02em;
+    padding-bottom: 6px;
+    transition: opacity 0.15s;
+  }
+  body.pinyin-off ruby rt { opacity: 0; }
+
+  .speaker-btn {
+    background: transparent; border: 1px solid var(--rule);
+    width: 28px; height: 28px; padding: 0; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--ink-muted); transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .speaker-btn:hover { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+  .speaker-btn.playing { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .speaker-btn svg { width: 12px; height: 12px; }
+
+  /* PROSE format — two-column */
+  .para {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2.5rem;
+    padding: 1.5rem 0; border-bottom: 1px solid var(--rule); align-items: start;
+  }
+  .para:last-child { border-bottom: none; }
+  .para .zh-col { display: grid; grid-template-columns: 28px 1fr; gap: 12px; align-items: start; }
+  .para .speaker-btn { margin-top: 8px; }
+  .para .zh-text { font-size: 22px; line-height: 2.6; }
+  .para .en-col {
+    font-size: 15px; line-height: 1.75; color: var(--ink-muted); padding-top: 6px;
+    transition: opacity 0.15s;
+  }
+  body.english-off .en-col { opacity: 0; pointer-events: none; }
+  .para-num {
+    color: var(--ink-faint); font-size: 13px; font-weight: 500;
+    margin-bottom: 4px; display: block;
+  }
+  .para.active-passage .zh-text {
+    background: var(--accent-soft); border-radius: 6px; padding: 4px 8px; margin-left: -8px;
+  }
+
+  /* Subheadings inside prose articles */
+  .subheading {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2.5rem;
+    padding: 1rem 0 0; align-items: baseline;
+    margin: 0;
+  }
+  .subheading-zh {
+    font-size: 18px; font-weight: 500; color: var(--accent-dark);
+    padding-left: 40px; line-height: 1.3;
+    margin: 0;
+  }
+  .subheading-en {
+    font-size: 14px; color: var(--ink-muted); font-weight: 500;
+    transition: opacity 0.15s;
+    letter-spacing: 0.02em;
+    line-height: 1.3;
+    margin: 0;
+  }
+  body.english-off .subheading-en { opacity: 0; }
+  /* Tight coupling — subheading sits directly on top of its paragraph */
+  .subheading + .para { border-top: none; padding-top: 0; }
+
+  /* TABLE format — stacked character cards */
+  .profile-card {
+    background: var(--surface); border: 1px solid var(--rule); border-radius: 12px;
+    padding: 1.5rem 1.75rem; margin-bottom: 1.25rem;
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start;
+  }
+  .profile-card:last-child { margin-bottom: 0; }
+  .profile-card .zh-side { display: grid; grid-template-columns: 28px 1fr; gap: 12px; }
+  .profile-card .name {
+    font-size: 24px; font-weight: 500; margin-bottom: 0.75rem;
+    line-height: 2;
+  }
+  .profile-card .traits { font-size: 18px; line-height: 2.4; }
+  .profile-card .trait { margin-bottom: 0.75rem; }
+  .profile-card .trait:last-child { margin-bottom: 0; }
+  .profile-card .trait-label {
+    display: inline-block; background: var(--accent-soft); color: var(--accent);
+    font-size: 14px; font-weight: 500; padding: 2px 12px; border-radius: 12px;
+    margin-right: 8px; vertical-align: baseline;
+    font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
+    position: relative; top: -2px;
+  }
+  .profile-card .trait-label ruby rt { color: var(--accent-dark); }
+  .profile-card .en-side {
+    font-size: 14px; line-height: 1.75; color: var(--ink-muted); padding-top: 8px;
+    transition: opacity 0.15s;
+  }
+  body.english-off .profile-card .en-side { opacity: 0; pointer-events: none; }
+  .profile-card .en-side .en-name { font-weight: 500; color: var(--ink); font-size: 16px; margin-bottom: 0.5rem; }
+  .profile-card .en-side .en-trait { margin-bottom: 0.5rem; }
+  .profile-card .en-side .en-trait-label { font-weight: 500; color: var(--ink); }
+
+  /* DIALOGUE format — chat bubbles */
+  .stage-direction {
+    text-align: center; color: var(--ink-muted);
+    font-size: 15px; padding: 1rem 2rem;
+    font-style: italic;
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start;
+  }
+  .stage-direction .zh-dir { font-style: normal; }
+  .stage-direction .zh-dir .zh-text { line-height: 2.4; }
+  .stage-direction .en-dir { font-size: 14px; }
+
+  .bubble-row {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;
+    margin-bottom: 1rem; align-items: start;
+  }
+  .bubble-zh { display: flex; gap: 10px; align-items: flex-start; }
+  .bubble-zh.align-right { justify-content: flex-end; }
+  .bubble-zh.align-right .bubble { background: var(--accent-soft); }
+  .bubble-zh .speaker-btn { margin-top: 6px; }
+  .bubble {
+    background: var(--bubble-a);
+    border-radius: 16px; padding: 10px 16px;
+    max-width: 85%;
+    line-height: 2.4; font-size: 18px;
+  }
+  .bubble-zh.align-right .bubble { border-bottom-right-radius: 4px; }
+  .bubble-zh.align-left .bubble { border-bottom-left-radius: 4px; }
+  .bubble-zh .speaker-name {
+    display: block; font-size: 12px; font-weight: 500; color: var(--accent-dark);
+    margin-bottom: 2px; letter-spacing: 0.02em;
+  }
+  .bubble-zh.align-right .speaker-name { text-align: right; }
+  .bubble-row.active-passage .bubble { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .bubble-en {
+    font-size: 14px; line-height: 1.6; color: var(--ink-muted); padding-top: 8px;
+    transition: opacity 0.15s;
+  }
+  .bubble-en .en-speaker { font-weight: 500; color: var(--ink); }
+  body.english-off .bubble-en, body.english-off .stage-direction .en-dir { opacity: 0; pointer-events: none; }
+
+  @media (max-width: 720px) {
+    .para { grid-template-columns: 1fr; gap: 0.75rem; }
+    .para .en-col { padding-top: 0; padding-left: 40px; font-style: italic; }
+    .para .zh-text { font-size: 20px; }
+    .profile-card { grid-template-columns: 1fr; gap: 1rem; padding: 1rem 1.25rem; }
+    .profile-card .en-side { padding-top: 0; padding-left: 40px; font-style: italic; border-top: 1px solid var(--rule); padding-top: 1rem; }
+    .profile-card .name { font-size: 22px; }
+    .profile-card .traits { font-size: 17px; line-height: 2.2; }
+    .bubble-row, .stage-direction { grid-template-columns: 1fr; gap: 0.5rem; }
+    .bubble-en { padding-left: 16px; padding-top: 0; font-style: italic; }
+    .bubble { font-size: 17px; }
+    header.top, .controls, main { padding-left: 1.25rem; padding-right: 1.25rem; }
+    .controls { gap: 0.75rem; }
+  }
+</style>
+</head>
+<body>
+  <header class="top">
+    <a class="back-link" href="../index.html">← 返回 Back to all levels</a>
+    <div class="breadcrumb">Level 1 · Unit 1 · 新同学 新鲜事 <span class="sep">·</span> 生活空间 Daily Life</div>
+    <h1 class="title">
+      <span class="zh chinese">《我的新同学》</span>
+      <span class="en">My new classmates</span>
+    </h1>
+  </header>
+  <div class="controls">
+    <label><input type="checkbox" id="toggle-pinyin" checked><span>显示汉语拼音 Show pinyin</span></label>
+    <label><input type="checkbox" id="toggle-english" checked><span>显示英文 Show English</span></label>
+    <div class="speed">
+      <span>语速 Speed</span>
+      <input type="range" min="0.5" max="1.2" step="0.05" value="0.9" id="speed" title="Adjust before playing">
+      <span class="val" id="speed-val">0.9×</span>
+      <span class="speed-hint">(set before play)</span>
+    </div>
+    <div class="spacer"></div>
+    <button class="play-all" id="play-all-btn" type="button">
+      <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>
+      <span>播放全文 Play all</span>
+    </button>
+  </div>
+  <main>
+<article class="profile-card" data-playable data-audio="马小跳。淘气包：贪玩、好动、经常惹“麻烦”，他的故事几天几夜都说不完。。讲义气：为朋友可以两肋插刀。看到有同学被人嘲笑，他会挺身而出。他认为朋友之间要“有福同享，有难同当”。">
+  <div class="zh-side">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="马小跳。淘气包：贪玩、好动、经常惹“麻烦”，他的故事几天几夜都说不完。。讲义气：为朋友可以两肋插刀。看到有同学被人嘲笑，他会挺身而出。他认为朋友之间要“有福同享，有难同当”。"></button>
+    <div>
+      <div class="name chinese"><ruby>马<rt>mǎ</rt></ruby><ruby>小<rt>xiǎo</rt></ruby><ruby>跳<rt>tiào</rt></ruby></div>
+      <div class="traits chinese"><div class="trait"><span class="trait-label"><ruby>淘<rt>táo</rt></ruby><ruby>气<rt>qì</rt></ruby><ruby>包<rt>bāo</rt></ruby></span><ruby>贪<rt>tān</rt></ruby><ruby>玩<rt>wán</rt></ruby>、<ruby>好<rt>hào</rt></ruby><ruby>动<rt>dòng</rt></ruby>、<ruby>经<rt>jīng</rt></ruby><ruby>常<rt>cháng</rt></ruby><ruby>惹<rt>rě</rt></ruby>“<ruby>麻<rt>má</rt></ruby><ruby>烦<rt>fán</rt></ruby>”，<ruby>他<rt>tā</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>故<rt>gù</rt></ruby><ruby>事<rt>shì</rt></ruby><ruby>几<rt>jǐ</rt></ruby><ruby>天<rt>tiān</rt></ruby><ruby>几<rt>jǐ</rt></ruby><ruby>夜<rt>yè</rt></ruby><ruby>都<rt>dōu</rt></ruby><ruby>说<rt>shuō</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>完<rt>wán</rt></ruby>。</div><div class="trait"><span class="trait-label"><ruby>讲<rt>jiǎng</rt></ruby><ruby>义<rt>yì</rt></ruby><ruby>气<rt>qì</rt></ruby></span><ruby>为<rt>wèi</rt></ruby><ruby>朋<rt>péng</rt></ruby><ruby>友<rt>yǒu</rt></ruby><ruby>可<rt>kě</rt></ruby><ruby>以<rt>yǐ</rt></ruby><ruby>两<rt>liǎng</rt></ruby><ruby>肋<rt>lèi</rt></ruby><ruby>插<rt>chā</rt></ruby><ruby>刀<rt>dāo</rt></ruby>。<ruby>看<rt>kàn</rt></ruby><ruby>到<rt>dào</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>同<rt>tóng</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>被<rt>bèi</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>嘲<rt>cháo</rt></ruby><ruby>笑<rt>xiào</rt></ruby>，<ruby>他<rt>tā</rt></ruby><ruby>会<rt>huì</rt></ruby><ruby>挺<rt>tǐng</rt></ruby><ruby>身<rt>shēn</rt></ruby><ruby>而<rt>ér</rt></ruby><ruby>出<rt>chū</rt></ruby>。<ruby>他<rt>tā</rt></ruby><ruby>认<rt>rèn</rt></ruby><ruby>为<rt>wéi</rt></ruby><ruby>朋<rt>péng</rt></ruby><ruby>友<rt>yǒu</rt></ruby><ruby>之<rt>zhī</rt></ruby><ruby>间<rt>jiān</rt></ruby><ruby>要<rt>yào</rt></ruby>“<ruby>有<rt>yǒu</rt></ruby><ruby>福<rt>fú</rt></ruby><ruby>同<rt>tóng</rt></ruby><ruby>享<rt>xiǎng</rt></ruby>，<ruby>有<rt>yǒu</rt></ruby><ruby>难<rt>nán</rt></ruby><ruby>同<rt>tóng</rt></ruby><ruby>当<rt>dāng</rt></ruby>”。</div></div>
+    </div>
+  </div>
+  <div class="en-side">
+    <div class="en-name">Ma Xiaotiao</div>
+    <div class="en-trait"><span class="en-trait-label">Mischief-maker.</span> Loves to play, can&#x27;t sit still, always getting into trouble — his adventures would take days to tell.</div><div class="en-trait"><span class="en-trait-label">Loyal friend.</span> Will do anything for his friends. If he sees a classmate being mocked, he&#x27;ll stand up for them. He believes friends should share joys and hardships together.</div>
+  </div>
+</article>
+<article class="profile-card" data-playable data-audio="赵世亮。IT达人：只要和科技有关的问题，他都能手到“病”除。。乐于助人：有事找他帮忙，一定来者不拒。口头禅是“小事一桩”“助人为快乐之本”。。人气王：人缘特别好，高票当选班长。">
+  <div class="zh-side">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="赵世亮。IT达人：只要和科技有关的问题，他都能手到“病”除。。乐于助人：有事找他帮忙，一定来者不拒。口头禅是“小事一桩”“助人为快乐之本”。。人气王：人缘特别好，高票当选班长。"></button>
+    <div>
+      <div class="name chinese"><ruby>赵<rt>zhào</rt></ruby><ruby>世<rt>shì</rt></ruby><ruby>亮<rt>liàng</rt></ruby></div>
+      <div class="traits chinese"><div class="trait"><span class="trait-label">IT<ruby>达<rt>IT</rt></ruby><ruby>人<rt>dá</rt></ruby></span><ruby>只<rt>zhǐ</rt></ruby><ruby>要<rt>yào</rt></ruby><ruby>和<rt>hé</rt></ruby><ruby>科<rt>kē</rt></ruby><ruby>技<rt>jì</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>关<rt>guān</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>问<rt>wèn</rt></ruby><ruby>题<rt>tí</rt></ruby>，<ruby>他<rt>tā</rt></ruby><ruby>都<rt>dōu</rt></ruby><ruby>能<rt>néng</rt></ruby><ruby>手<rt>shǒu</rt></ruby><ruby>到<rt>dào</rt></ruby>“<ruby>病<rt>bìng</rt></ruby>”<ruby>除<rt>chú</rt></ruby>。</div><div class="trait"><span class="trait-label"><ruby>乐<rt>lè</rt></ruby><ruby>于<rt>yú</rt></ruby><ruby>助<rt>zhù</rt></ruby><ruby>人<rt>rén</rt></ruby></span><ruby>有<rt>yǒu</rt></ruby><ruby>事<rt>shì</rt></ruby><ruby>找<rt>zhǎo</rt></ruby><ruby>他<rt>tā</rt></ruby><ruby>帮<rt>bāng</rt></ruby><ruby>忙<rt>máng</rt></ruby>，<ruby>一<rt>yí</rt></ruby><ruby>定<rt>dìng</rt></ruby><ruby>来<rt>lái</rt></ruby><ruby>者<rt>zhě</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>拒<rt>jù</rt></ruby>。<ruby>口<rt>kǒu</rt></ruby><ruby>头<rt>tóu</rt></ruby><ruby>禅<rt>chán</rt></ruby><ruby>是<rt>shì</rt></ruby>“<ruby>小<rt>xiǎo</rt></ruby><ruby>事<rt>shì</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>桩<rt>zhuāng</rt></ruby>”“<ruby>助<rt>zhù</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>为<rt>wéi</rt></ruby><ruby>快<rt>kuài</rt></ruby><ruby>乐<rt>lè</rt></ruby><ruby>之<rt>zhī</rt></ruby><ruby>本<rt>běn</rt></ruby>”。</div><div class="trait"><span class="trait-label"><ruby>人<rt>rén</rt></ruby><ruby>气<rt>qì</rt></ruby><ruby>王<rt>wáng</rt></ruby></span><ruby>人<rt>rén</rt></ruby><ruby>缘<rt>yuán</rt></ruby><ruby>特<rt>tè</rt></ruby><ruby>别<rt>bié</rt></ruby><ruby>好<rt>hǎo</rt></ruby>，<ruby>高<rt>gāo</rt></ruby><ruby>票<rt>piào</rt></ruby><ruby>当<rt>dāng</rt></ruby><ruby>选<rt>xuǎn</rt></ruby><ruby>班<rt>bān</rt></ruby><ruby>长<rt>zhǎng</rt></ruby>。</div></div>
+    </div>
+  </div>
+  <div class="en-side">
+    <div class="en-name">Zhao Shiliang</div>
+    <div class="en-trait"><span class="en-trait-label">Tech whiz.</span> He can fix any tech problem with ease.</div><div class="en-trait"><span class="en-trait-label">Eager to help.</span> Never turns down a request for help. His catchphrases are &quot;No big deal&quot; and &quot;Helping others is the root of happiness&quot;.</div><div class="en-trait"><span class="en-trait-label">Class favourite.</span> Very popular — got elected class monitor by a wide margin.</div>
+  </div>
+</article>
+<article class="profile-card" data-playable data-audio="欧阳甜甜。运动健将：身材高大，一头短发，浓眉大眼，脸上有几颗青春痘。乒乓球打得很好，得过好多奖牌。。性格直率：有话直说，不怕得罪人。我特别佩服她。。姓名独特：她的姓很特别，是两个字的。名字也很特别，刚开始叫她“甜甜”，我还有些别扭呢。">
+  <div class="zh-side">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="欧阳甜甜。运动健将：身材高大，一头短发，浓眉大眼，脸上有几颗青春痘。乒乓球打得很好，得过好多奖牌。。性格直率：有话直说，不怕得罪人。我特别佩服她。。姓名独特：她的姓很特别，是两个字的。名字也很特别，刚开始叫她“甜甜”，我还有些别扭呢。"></button>
+    <div>
+      <div class="name chinese"><ruby>欧<rt>ōu</rt></ruby><ruby>阳<rt>yáng</rt></ruby><ruby>甜<rt>tián</rt></ruby><ruby>甜<rt>tián</rt></ruby></div>
+      <div class="traits chinese"><div class="trait"><span class="trait-label"><ruby>运<rt>yùn</rt></ruby><ruby>动<rt>dòng</rt></ruby><ruby>健<rt>jiàn</rt></ruby><ruby>将<rt>jiàng</rt></ruby></span><ruby>身<rt>shēn</rt></ruby><ruby>材<rt>cái</rt></ruby><ruby>高<rt>gāo</rt></ruby><ruby>大<rt>dà</rt></ruby>，<ruby>一<rt>yī</rt></ruby><ruby>头<rt>tóu</rt></ruby><ruby>短<rt>duǎn</rt></ruby><ruby>发<rt>fà</rt></ruby>，<ruby>浓<rt>nóng</rt></ruby><ruby>眉<rt>méi</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>眼<rt>yǎn</rt></ruby>，<ruby>脸<rt>liǎn</rt></ruby><ruby>上<rt>shàng</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>几<rt>jǐ</rt></ruby><ruby>颗<rt>kē</rt></ruby><ruby>青<rt>qīng</rt></ruby><ruby>春<rt>chūn</rt></ruby><ruby>痘<rt>dòu</rt></ruby>。<ruby>乒<rt>pīng</rt></ruby><ruby>乓<rt>pāng</rt></ruby><ruby>球<rt>qiú</rt></ruby><ruby>打<rt>dǎ</rt></ruby><ruby>得<rt>dé</rt></ruby><ruby>很<rt>hěn</rt></ruby><ruby>好<rt>hǎo</rt></ruby>，<ruby>得<rt>dé</rt></ruby><ruby>过<rt>guò</rt></ruby><ruby>好<rt>hǎo</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>奖<rt>jiǎng</rt></ruby><ruby>牌<rt>pái</rt></ruby>。</div><div class="trait"><span class="trait-label"><ruby>性<rt>xìng</rt></ruby><ruby>格<rt>gé</rt></ruby><ruby>直<rt>zhí</rt></ruby><ruby>率<rt>shuài</rt></ruby></span><ruby>有<rt>yǒu</rt></ruby><ruby>话<rt>huà</rt></ruby><ruby>直<rt>zhí</rt></ruby><ruby>说<rt>shuō</rt></ruby>，<ruby>不<rt>bù</rt></ruby><ruby>怕<rt>pà</rt></ruby><ruby>得<rt>dé</rt></ruby><ruby>罪<rt>zuì</rt></ruby><ruby>人<rt>rén</rt></ruby>。<ruby>我<rt>wǒ</rt></ruby><ruby>特<rt>tè</rt></ruby><ruby>别<rt>bié</rt></ruby><ruby>佩<rt>pèi</rt></ruby><ruby>服<rt>fú</rt></ruby><ruby>她<rt>tā</rt></ruby>。</div><div class="trait"><span class="trait-label"><ruby>姓<rt>xìng</rt></ruby><ruby>名<rt>míng</rt></ruby><ruby>独<rt>dú</rt></ruby><ruby>特<rt>tè</rt></ruby></span><ruby>她<rt>tā</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>姓<rt>xìng</rt></ruby><ruby>很<rt>hěn</rt></ruby><ruby>特<rt>tè</rt></ruby><ruby>别<rt>bié</rt></ruby>，<ruby>是<rt>shì</rt></ruby><ruby>两<rt>liǎng</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>字<rt>zì</rt></ruby><ruby>的<rt>de</rt></ruby>。<ruby>名<rt>míng</rt></ruby><ruby>字<rt>zì</rt></ruby><ruby>也<rt>yě</rt></ruby><ruby>很<rt>hěn</rt></ruby><ruby>特<rt>tè</rt></ruby><ruby>别<rt>bié</rt></ruby>，<ruby>刚<rt>gāng</rt></ruby><ruby>开<rt>kāi</rt></ruby><ruby>始<rt>shǐ</rt></ruby><ruby>叫<rt>jiào</rt></ruby><ruby>她<rt>tā</rt></ruby>“<ruby>甜<rt>tián</rt></ruby><ruby>甜<rt>tián</rt></ruby>”，<ruby>我<rt>wǒ</rt></ruby><ruby>还<rt>hái</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>些<rt>xiē</rt></ruby><ruby>别<rt>biè</rt></ruby><ruby>扭<rt>niǔ</rt></ruby><ruby>呢<rt>ne</rt></ruby>。</div></div>
+    </div>
+  </div>
+  <div class="en-side">
+    <div class="en-name">Ouyang Tiantian</div>
+    <div class="en-trait"><span class="en-trait-label">Sports star.</span> Tall, with short hair, thick eyebrows and big eyes, and a few pimples on her face. A strong table-tennis player who has won many medals.</div><div class="en-trait"><span class="en-trait-label">Straightforward.</span> Says what she thinks, doesn&#x27;t worry about offending people. I really admire her for it.</div><div class="en-trait"><span class="en-trait-label">Unusual name.</span> Her surname is unusual — two characters long. Her given name is unusual too. It felt a bit awkward at first calling her &quot;Tiantian&quot;.</div>
+  </div>
+</article>
+<article class="profile-card" data-playable data-audio="陈小双。性格内向：留着长发，戴着宽边眼镜。不爱讲话，从不跟人争辩。即使被欺负，被冤枉，也只是一个人偷偷地流泪。。阅读超人：读过四大名著和《哈利·波特》系列。老师推荐我们读的书她大部分都读过了！">
+  <div class="zh-side">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="陈小双。性格内向：留着长发，戴着宽边眼镜。不爱讲话，从不跟人争辩。即使被欺负，被冤枉，也只是一个人偷偷地流泪。。阅读超人：读过四大名著和《哈利·波特》系列。老师推荐我们读的书她大部分都读过了！"></button>
+    <div>
+      <div class="name chinese"><ruby>陈<rt>chén</rt></ruby><ruby>小<rt>xiǎo</rt></ruby><ruby>双<rt>shuāng</rt></ruby></div>
+      <div class="traits chinese"><div class="trait"><span class="trait-label"><ruby>性<rt>xìng</rt></ruby><ruby>格<rt>gé</rt></ruby><ruby>内<rt>nèi</rt></ruby><ruby>向<rt>xiàng</rt></ruby></span><ruby>留<rt>liú</rt></ruby><ruby>着<rt>zhe</rt></ruby><ruby>长<rt>cháng</rt></ruby><ruby>发<rt>fà</rt></ruby>，<ruby>戴<rt>dài</rt></ruby><ruby>着<rt>zhe</rt></ruby><ruby>宽<rt>kuān</rt></ruby><ruby>边<rt>biān</rt></ruby><ruby>眼<rt>yǎn</rt></ruby><ruby>镜<rt>jìng</rt></ruby>。<ruby>不<rt>bù</rt></ruby><ruby>爱<rt>ài</rt></ruby><ruby>讲<rt>jiǎng</rt></ruby><ruby>话<rt>huà</rt></ruby>，<ruby>从<rt>cóng</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>跟<rt>gēn</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>争<rt>zhēng</rt></ruby><ruby>辩<rt>biàn</rt></ruby>。<ruby>即<rt>jí</rt></ruby><ruby>使<rt>shǐ</rt></ruby><ruby>被<rt>bèi</rt></ruby><ruby>欺<rt>qī</rt></ruby><ruby>负<rt>fù</rt></ruby>，<ruby>被<rt>bèi</rt></ruby><ruby>冤<rt>yuān</rt></ruby><ruby>枉<rt>wǎng</rt></ruby>，<ruby>也<rt>yě</rt></ruby><ruby>只<rt>zhǐ</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>一<rt>yí</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>偷<rt>tōu</rt></ruby><ruby>偷<rt>tōu</rt></ruby><ruby>地<rt>dì</rt></ruby><ruby>流<rt>liú</rt></ruby><ruby>泪<rt>lèi</rt></ruby>。</div><div class="trait"><span class="trait-label"><ruby>阅<rt>yuè</rt></ruby><ruby>读<rt>dú</rt></ruby><ruby>超<rt>chāo</rt></ruby><ruby>人<rt>rén</rt></ruby></span><ruby>读<rt>dú</rt></ruby><ruby>过<rt>guò</rt></ruby><ruby>四<rt>sì</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>名<rt>míng</rt></ruby><ruby>著<rt>zhù</rt></ruby><ruby>和<rt>hé</rt></ruby>《<ruby>哈<rt>hā</rt></ruby><ruby>利<rt>lì</rt></ruby>·<ruby>波<rt>bō</rt></ruby><ruby>特<rt>tè</rt></ruby>》<ruby>系<rt>xì</rt></ruby><ruby>列<rt>liè</rt></ruby>。<ruby>老<rt>lǎo</rt></ruby><ruby>师<rt>shī</rt></ruby><ruby>推<rt>tuī</rt></ruby><ruby>荐<rt>jiàn</rt></ruby><ruby>我<rt>wǒ</rt></ruby><ruby>们<rt>men</rt></ruby><ruby>读<rt>dú</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>书<rt>shū</rt></ruby><ruby>她<rt>tā</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>部<rt>bù</rt></ruby><ruby>分<rt>fèn</rt></ruby><ruby>都<rt>dōu</rt></ruby><ruby>读<rt>dú</rt></ruby><ruby>过<rt>guò</rt></ruby><ruby>了<rt>le</rt></ruby>！</div></div>
+    </div>
+  </div>
+  <div class="en-side">
+    <div class="en-name">Chen Xiaoshuang</div>
+    <div class="en-trait"><span class="en-trait-label">Shy and quiet.</span> Has long hair and wears broad-rimmed glasses. Doesn&#x27;t talk much, never argues with anyone. Even when bullied or wronged, she just cries quietly to herself.</div><div class="en-trait"><span class="en-trait-label">Bookworm.</span> Has read the Four Great Classical Novels and the entire Harry Potter series. She&#x27;s already read most of the books our teachers recommend!</div>
+  </div>
+</article></main>
+<script>
+(function () {
+  const SPEAKER_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>';
+  const STOP_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="5" y="5" width="14" height="14" rx="1"></rect></svg>';
+  const PLAY_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>';
+
+  // Inject speaker icons into all .speaker-btn elements
+  document.querySelectorAll('.speaker-btn').forEach(function(b){ b.innerHTML = SPEAKER_SVG; });
+
+  const togglePy = document.getElementById('toggle-pinyin');
+  const toggleEn = document.getElementById('toggle-english');
+  togglePy && togglePy.addEventListener('change', function(){ document.body.classList.toggle('pinyin-off', !togglePy.checked); });
+  toggleEn && toggleEn.addEventListener('change', function(){ document.body.classList.toggle('english-off', !toggleEn.checked); });
+
+  const speed = document.getElementById('speed');
+  const speedVal = document.getElementById('speed-val');
+  let rate = speed ? parseFloat(speed.value) : 0.9;
+  if (speed) speed.addEventListener('input', function(){
+    rate = parseFloat(speed.value);
+    speedVal.textContent = rate.toFixed(2).replace(/0$/, '') + '\u00d7';
+  });
+
+  const synth = window.speechSynthesis;
+  let chosenVoice = null;
+  function pickVoice(){
+    if (!synth) return;
+    const voices = synth.getVoices();
+    chosenVoice = voices.find(function(v){ return v.lang && v.lang.toLowerCase().indexOf('zh') === 0; }) || null;
+  }
+  if (synth) { pickVoice(); synth.addEventListener && synth.addEventListener('voiceschanged', pickVoice); }
+
+  function clearActive(){
+    document.querySelectorAll('.speaker-btn.playing').forEach(function(b){ b.classList.remove('playing'); });
+    document.querySelectorAll('.active-passage').forEach(function(p){ p.classList.remove('active-passage'); });
+  }
+
+  const playAllBtn = document.getElementById('play-all-btn');
+  let isPlayingAll = false;
+  let queue = [];
+
+  function setPlayAllState(playing){
+    isPlayingAll = playing;
+    if (!playAllBtn) return;
+    if (playing){
+      playAllBtn.classList.add('playing');
+      playAllBtn.innerHTML = STOP_SVG + '<span>\u505c\u6b62 Stop</span>';
+    } else {
+      playAllBtn.classList.remove('playing');
+      playAllBtn.innerHTML = PLAY_SVG + '<span>\u64ad\u653e\u5168\u6587 Play all</span>';
+      queue = [];
+    }
+  }
+
+  function speakOne(text, onDone){
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'zh-CN'; u.rate = rate;
+    if (chosenVoice) u.voice = chosenVoice;
+    u.onend = onDone; u.onerror = onDone;
+    synth.speak(u);
+  }
+
+  // Individual speaker buttons — each has data-audio attr containing the Chinese to speak,
+  // and data-active-selector saying which parent element to highlight
+  document.querySelectorAll('.speaker-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      if (!synth){ alert('Your browser does not support speech synthesis.'); return; }
+      synth.cancel(); clearActive(); setPlayAllState(false);
+      const text = btn.dataset.audio || '';
+      const activeEl = btn.closest('[data-playable]');
+      btn.classList.add('playing');
+      if (activeEl) activeEl.classList.add('active-passage');
+      speakOne(text, function(){
+        btn.classList.remove('playing');
+        if (activeEl) activeEl.classList.remove('active-passage');
+      });
+    });
+  });
+
+  if (playAllBtn){
+    playAllBtn.addEventListener('click', function(){
+      if (!synth){ alert('Your browser does not support speech synthesis.'); return; }
+      if (isPlayingAll){ synth.cancel(); clearActive(); setPlayAllState(false); return; }
+      synth.cancel(); clearActive();
+      queue = Array.from(document.querySelectorAll('[data-playable]'));
+      setPlayAllState(true);
+      function next(){
+        if (!isPlayingAll || queue.length === 0){ clearActive(); setPlayAllState(false); return; }
+        const el = queue.shift();
+        clearActive(); el.classList.add('active-passage');
+        el.scrollIntoView({behavior:'smooth', block:'center'});
+        const text = el.dataset.audio || el.querySelector('.speaker-btn').dataset.audio;
+        speakOne(text, next);
+      }
+      next();
+    });
+  }
+})();
+</script>
+</body>
+</html>

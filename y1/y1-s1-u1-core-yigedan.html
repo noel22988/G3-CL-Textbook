@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>一个蛋两个蛋三个蛋 — 快捷华文</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --ink-muted: #6b7280;
+    --ink-faint: #9ca3af;
+    --accent: #2f7d4f;
+    --accent-soft: #e6f1ea;
+    --accent-dark: #26663f;
+    --rule: #e5e7eb;
+    --bg: #fafaf8;
+    --surface: #ffffff;
+    --bubble-a: #f0f4f2;
+    --bubble-b: #eef3f7;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+  }
+  .chinese { font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Source Han Sans SC", "Noto Sans CJK SC", sans-serif; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  header.top { max-width: 1100px; margin: 0 auto; padding: 2rem 2rem 1rem; }
+  .back-link { font-size: 13px; color: var(--ink-muted); display: inline-block; margin-bottom: 0.75rem; }
+  .back-link:hover { color: var(--accent); }
+  .breadcrumb {
+    font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--ink-muted); margin-bottom: 0.5rem;
+  }
+  .breadcrumb .sep { opacity: 0.5; margin: 0 0.5em; }
+  h1.title {
+    margin: 0; font-weight: 500; font-size: 28px;
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.75rem;
+  }
+  h1.title .zh { color: var(--ink); }
+  h1.title .en { color: var(--ink-muted); font-weight: 400; font-size: 16px; }
+
+  .controls {
+    max-width: 1100px; margin: 0 auto; padding: 1rem 2rem;
+    display: flex; gap: 1.25rem; flex-wrap: wrap; align-items: center;
+    border-bottom: 1px solid var(--rule);
+  }
+  .controls label {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 14px; color: var(--ink-muted); cursor: pointer; user-select: none;
+  }
+  .controls input[type=checkbox] { accent-color: var(--accent); width: 16px; height: 16px; }
+  .controls input[type=checkbox]:checked + span { color: var(--accent); font-weight: 500; }
+  .controls .speed { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ink-muted); }
+  .controls .speed input { width: 100px; accent-color: var(--accent); }
+  .controls .speed .val { min-width: 28px; font-weight: 500; color: var(--ink); }
+  .controls .speed .speed-hint { font-size: 11px; color: var(--ink-faint); font-style: italic; }
+  .controls .spacer { flex: 1; }
+  .controls button.play-all {
+    border: 1px solid var(--accent); background: var(--accent); color: #fff;
+    padding: 7px 14px; font-size: 13px; font-weight: 500; border-radius: 6px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s;
+  }
+  .controls button.play-all:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+  .controls button.play-all.playing { background: #b34545; border-color: #b34545; }
+  .controls button.play-all.playing:hover { background: #933838; border-color: #933838; }
+  .controls button.play-all svg { width: 11px; height: 11px; }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 1.5rem 2rem 5rem; }
+
+  /* Pinyin defaults */
+  ruby { ruby-position: over; }
+  ruby rt {
+    font-size: 11px; color: var(--accent);
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-weight: 400; letter-spacing: 0.02em;
+    padding-bottom: 6px;
+    transition: opacity 0.15s;
+  }
+  body.pinyin-off ruby rt { opacity: 0; }
+
+  .speaker-btn {
+    background: transparent; border: 1px solid var(--rule);
+    width: 28px; height: 28px; padding: 0; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--ink-muted); transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .speaker-btn:hover { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+  .speaker-btn.playing { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .speaker-btn svg { width: 12px; height: 12px; }
+
+  /* PROSE format — two-column */
+  .para {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2.5rem;
+    padding: 1.5rem 0; border-bottom: 1px solid var(--rule); align-items: start;
+  }
+  .para:last-child { border-bottom: none; }
+  .para .zh-col { display: grid; grid-template-columns: 28px 1fr; gap: 12px; align-items: start; }
+  .para .speaker-btn { margin-top: 8px; }
+  .para .zh-text { font-size: 22px; line-height: 2.6; }
+  .para .en-col {
+    font-size: 15px; line-height: 1.75; color: var(--ink-muted); padding-top: 6px;
+    transition: opacity 0.15s;
+  }
+  body.english-off .en-col { opacity: 0; pointer-events: none; }
+  .para-num {
+    color: var(--ink-faint); font-size: 13px; font-weight: 500;
+    margin-bottom: 4px; display: block;
+  }
+  .para.active-passage .zh-text {
+    background: var(--accent-soft); border-radius: 6px; padding: 4px 8px; margin-left: -8px;
+  }
+
+  /* Subheadings inside prose articles */
+  .subheading {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2.5rem;
+    padding: 1rem 0 0; align-items: baseline;
+    margin: 0;
+  }
+  .subheading-zh {
+    font-size: 18px; font-weight: 500; color: var(--accent-dark);
+    padding-left: 40px; line-height: 1.3;
+    margin: 0;
+  }
+  .subheading-en {
+    font-size: 14px; color: var(--ink-muted); font-weight: 500;
+    transition: opacity 0.15s;
+    letter-spacing: 0.02em;
+    line-height: 1.3;
+    margin: 0;
+  }
+  body.english-off .subheading-en { opacity: 0; }
+  /* Tight coupling — subheading sits directly on top of its paragraph */
+  .subheading + .para { border-top: none; padding-top: 0; }
+
+  /* TABLE format — stacked character cards */
+  .profile-card {
+    background: var(--surface); border: 1px solid var(--rule); border-radius: 12px;
+    padding: 1.5rem 1.75rem; margin-bottom: 1.25rem;
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start;
+  }
+  .profile-card:last-child { margin-bottom: 0; }
+  .profile-card .zh-side { display: grid; grid-template-columns: 28px 1fr; gap: 12px; }
+  .profile-card .name {
+    font-size: 24px; font-weight: 500; margin-bottom: 0.75rem;
+    line-height: 2;
+  }
+  .profile-card .traits { font-size: 18px; line-height: 2.4; }
+  .profile-card .trait { margin-bottom: 0.75rem; }
+  .profile-card .trait:last-child { margin-bottom: 0; }
+  .profile-card .trait-label {
+    display: inline-block; background: var(--accent-soft); color: var(--accent);
+    font-size: 14px; font-weight: 500; padding: 2px 12px; border-radius: 12px;
+    margin-right: 8px; vertical-align: baseline;
+    font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
+    position: relative; top: -2px;
+  }
+  .profile-card .trait-label ruby rt { color: var(--accent-dark); }
+  .profile-card .en-side {
+    font-size: 14px; line-height: 1.75; color: var(--ink-muted); padding-top: 8px;
+    transition: opacity 0.15s;
+  }
+  body.english-off .profile-card .en-side { opacity: 0; pointer-events: none; }
+  .profile-card .en-side .en-name { font-weight: 500; color: var(--ink); font-size: 16px; margin-bottom: 0.5rem; }
+  .profile-card .en-side .en-trait { margin-bottom: 0.5rem; }
+  .profile-card .en-side .en-trait-label { font-weight: 500; color: var(--ink); }
+
+  /* DIALOGUE format — chat bubbles */
+  .stage-direction {
+    text-align: center; color: var(--ink-muted);
+    font-size: 15px; padding: 1rem 2rem;
+    font-style: italic;
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start;
+  }
+  .stage-direction .zh-dir { font-style: normal; }
+  .stage-direction .zh-dir .zh-text { line-height: 2.4; }
+  .stage-direction .en-dir { font-size: 14px; }
+
+  .bubble-row {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;
+    margin-bottom: 1rem; align-items: start;
+  }
+  .bubble-zh { display: flex; gap: 10px; align-items: flex-start; }
+  .bubble-zh.align-right { justify-content: flex-end; }
+  .bubble-zh.align-right .bubble { background: var(--accent-soft); }
+  .bubble-zh .speaker-btn { margin-top: 6px; }
+  .bubble {
+    background: var(--bubble-a);
+    border-radius: 16px; padding: 10px 16px;
+    max-width: 85%;
+    line-height: 2.4; font-size: 18px;
+  }
+  .bubble-zh.align-right .bubble { border-bottom-right-radius: 4px; }
+  .bubble-zh.align-left .bubble { border-bottom-left-radius: 4px; }
+  .bubble-zh .speaker-name {
+    display: block; font-size: 12px; font-weight: 500; color: var(--accent-dark);
+    margin-bottom: 2px; letter-spacing: 0.02em;
+  }
+  .bubble-zh.align-right .speaker-name { text-align: right; }
+  .bubble-row.active-passage .bubble { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .bubble-en {
+    font-size: 14px; line-height: 1.6; color: var(--ink-muted); padding-top: 8px;
+    transition: opacity 0.15s;
+  }
+  .bubble-en .en-speaker { font-weight: 500; color: var(--ink); }
+  body.english-off .bubble-en, body.english-off .stage-direction .en-dir { opacity: 0; pointer-events: none; }
+
+  @media (max-width: 720px) {
+    .para { grid-template-columns: 1fr; gap: 0.75rem; }
+    .para .en-col { padding-top: 0; padding-left: 40px; font-style: italic; }
+    .para .zh-text { font-size: 20px; }
+    .profile-card { grid-template-columns: 1fr; gap: 1rem; padding: 1rem 1.25rem; }
+    .profile-card .en-side { padding-top: 0; padding-left: 40px; font-style: italic; border-top: 1px solid var(--rule); padding-top: 1rem; }
+    .profile-card .name { font-size: 22px; }
+    .profile-card .traits { font-size: 17px; line-height: 2.2; }
+    .bubble-row, .stage-direction { grid-template-columns: 1fr; gap: 0.5rem; }
+    .bubble-en { padding-left: 16px; padding-top: 0; font-style: italic; }
+    .bubble { font-size: 17px; }
+    header.top, .controls, main { padding-left: 1.25rem; padding-right: 1.25rem; }
+    .controls { gap: 0.75rem; }
+  }
+</style>
+</head>
+<body>
+  <header class="top">
+    <a class="back-link" href="../index.html">← 返回 Back to all levels</a>
+    <div class="breadcrumb">Level 1 · Unit 1 · 新同学 新鲜事 <span class="sep">·</span> 核心 Core</div>
+    <h1 class="title">
+      <span class="zh chinese">《一个蛋两个蛋三个蛋》</span>
+      <span class="en">One Egg, Two Eggs, Three Eggs</span>
+    </h1>
+  </header>
+  <div class="controls">
+    <label><input type="checkbox" id="toggle-pinyin" checked><span>显示汉语拼音 Show pinyin</span></label>
+    <label><input type="checkbox" id="toggle-english" checked><span>显示英文 Show English</span></label>
+    <div class="speed">
+      <span>语速 Speed</span>
+      <input type="range" min="0.5" max="1.2" step="0.05" value="0.9" id="speed" title="Adjust before playing">
+      <span class="val" id="speed-val">0.9×</span>
+      <span class="speed-hint">(set before play)</span>
+    </div>
+    <div class="spacer"></div>
+    <button class="play-all" id="play-all-btn" type="button">
+      <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>
+      <span>播放全文 Play all</span>
+    </button>
+  </div>
+  <main>
+<article class="para" data-playable data-audio="开学了，中一甲班的级任老师是赵老师，她非常特别，就连给同学们布置的作业都与众不同。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="开学了，中一甲班的级任老师是赵老师，她非常特别，就连给同学们布置的作业都与众不同。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">1</span>
+      <ruby>开<rt>kāi</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>了<rt>le</rt></ruby>，<ruby>中<rt>zhōng</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>甲<rt>jiǎ</rt></ruby><ruby>班<rt>bān</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>级<rt>jí</rt></ruby><ruby>任<rt>rèn</rt></ruby><ruby>老<rt>lǎo</rt></ruby><ruby>师<rt>shī</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>赵<rt>zhào</rt></ruby><ruby>老<rt>lǎo</rt></ruby><ruby>师<rt>shī</rt></ruby>，<ruby>她<rt>tā</rt></ruby><ruby>非<rt>fēi</rt></ruby><ruby>常<rt>cháng</rt></ruby><ruby>特<rt>tè</rt></ruby><ruby>别<rt>bié</rt></ruby>，<ruby>就<rt>jiù</rt></ruby><ruby>连<rt>lián</rt></ruby><ruby>给<rt>gěi</rt></ruby><ruby>同<rt>tóng</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>们<rt>men</rt></ruby><ruby>布<rt>bù</rt></ruby><ruby>置<rt>zhì</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>作<rt>zuò</rt></ruby><ruby>业<rt>yè</rt></ruby><ruby>都<rt>dōu</rt></ruby><ruby>与<rt>yǔ</rt></ruby><ruby>众<rt>zhòng</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>同<rt>tóng</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">1</span>The school term had started. The form teacher of Secondary 1A was Teacher Zhao. She was very unusual — even the homework she gave her students was out of the ordinary.</div>
+</article>
+<article class="para" data-playable data-audio="鸡妈妈孵蛋很辛苦，父母养育孩子也很辛苦。为了让同学们体会父母的辛苦，培养他们的责任心，赵老师让每个同学随身带一个鸡蛋， 坚持三天。在这三天里，必须蛋不离身，得让它有人的体温，还不能把它弄破。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="鸡妈妈孵蛋很辛苦，父母养育孩子也很辛苦。为了让同学们体会父母的辛苦，培养他们的责任心，赵老师让每个同学随身带一个鸡蛋， 坚持三天。在这三天里，必须蛋不离身，得让它有人的体温，还不能把它弄破。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">2</span>
+      <ruby>鸡<rt>jī</rt></ruby><ruby>妈<rt>mā</rt></ruby><ruby>妈<rt>mā</rt></ruby><ruby>孵<rt>fū</rt></ruby><ruby>蛋<rt>dàn</rt></ruby><ruby>很<rt>hěn</rt></ruby><ruby>辛<rt>xīn</rt></ruby><ruby>苦<rt>kǔ</rt></ruby>，<ruby>父<rt>fù</rt></ruby><ruby>母<rt>mǔ</rt></ruby><ruby>养<rt>yǎng</rt></ruby><ruby>育<rt>yù</rt></ruby><ruby>孩<rt>hái</rt></ruby><ruby>子<rt>zi</rt></ruby><ruby>也<rt>yě</rt></ruby><ruby>很<rt>hěn</rt></ruby><ruby>辛<rt>xīn</rt></ruby><ruby>苦<rt>kǔ</rt></ruby>。<ruby>为<rt>wèi</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>让<rt>ràng</rt></ruby><ruby>同<rt>tóng</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>们<rt>men</rt></ruby><ruby>体<rt>tǐ</rt></ruby><ruby>会<rt>huì</rt></ruby><ruby>父<rt>fù</rt></ruby><ruby>母<rt>mǔ</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>辛<rt>xīn</rt></ruby><ruby>苦<rt>kǔ</rt></ruby>，<ruby>培<rt>péi</rt></ruby><ruby>养<rt>yǎng</rt></ruby><ruby>他<rt>tā</rt></ruby><ruby>们<rt>men</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>责<rt>zé</rt></ruby><ruby>任<rt>rèn</rt></ruby><ruby>心<rt>xīn</rt></ruby>，<ruby>赵<rt>zhào</rt></ruby><ruby>老<rt>lǎo</rt></ruby><ruby>师<rt>shī</rt></ruby><ruby>让<rt>ràng</rt></ruby><ruby>每<rt>měi</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>同<rt>tóng</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>随<rt>suí</rt></ruby><ruby>身<rt>shēn</rt></ruby><ruby>带<rt>dài</rt></ruby><ruby>一<rt>yí</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>鸡<rt>jī</rt></ruby><ruby>蛋<rt>dàn</rt></ruby>， <ruby>坚<rt>jiān</rt></ruby><ruby>持<rt>chí</rt></ruby><ruby>三<rt>sān</rt></ruby><ruby>天<rt>tiān</rt></ruby>。<ruby>在<rt>zài</rt></ruby><ruby>这<rt>zhè</rt></ruby><ruby>三<rt>sān</rt></ruby><ruby>天<rt>tiān</rt></ruby><ruby>里<rt>lǐ</rt></ruby>，<ruby>必<rt>bì</rt></ruby><ruby>须<rt>xū</rt></ruby><ruby>蛋<rt>dàn</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>离<rt>lí</rt></ruby><ruby>身<rt>shēn</rt></ruby>，<ruby>得<rt>dé</rt></ruby><ruby>让<rt>ràng</rt></ruby><ruby>它<rt>tā</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>体<rt>tǐ</rt></ruby><ruby>温<rt>wēn</rt></ruby>，<ruby>还<rt>hái</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>能<rt>néng</rt></ruby><ruby>把<rt>bǎ</rt></ruby><ruby>它<rt>tā</rt></ruby><ruby>弄<rt>nòng</rt></ruby><ruby>破<rt>pò</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">2</span>Mother hens work hard to hatch their eggs, and parents work hard to raise their children. To help the students understand how hard their parents work and to build a sense of responsibility, Teacher Zhao told each student to carry an egg with them for three days. During these three days, the egg had to stay on their person, be kept at body temperature, and must not be broken.</div>
+</article>
+<article class="para" data-playable data-audio="同学们很兴奋，马小跳兴奋之后却有些担心:“如果我孵出小鸡怎么办？”同学们听了都笑起来，但马小跳没有笑，他是真的担心。赵老师见他不是在捣乱，便说三天是孵不出小鸡的，还说只要鸡蛋三天不破，就会奖励他。马小跳很少得到奖励，老师的话瞬间让他变得兴致勃勃。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="同学们很兴奋，马小跳兴奋之后却有些担心:“如果我孵出小鸡怎么办？”同学们听了都笑起来，但马小跳没有笑，他是真的担心。赵老师见他不是在捣乱，便说三天是孵不出小鸡的，还说只要鸡蛋三天不破，就会奖励他。马小跳很少得到奖励，老师的话瞬间让他变得兴致勃勃。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">3</span>
+      <ruby>同<rt>tóng</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>们<rt>men</rt></ruby><ruby>很<rt>hěn</rt></ruby><ruby>兴<rt>xīng</rt></ruby><ruby>奋<rt>fèn</rt></ruby>，<ruby>马<rt>mǎ</rt></ruby><ruby>小<rt>xiǎo</rt></ruby><ruby>跳<rt>tiào</rt></ruby><ruby>兴<rt>xīng</rt></ruby><ruby>奋<rt>fèn</rt></ruby><ruby>之<rt>zhī</rt></ruby><ruby>后<rt>hòu</rt></ruby><ruby>却<rt>què</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>些<rt>xiē</rt></ruby><ruby>担<rt>dān</rt></ruby><ruby>心<rt>xīn</rt></ruby>:“<ruby>如<rt>rú</rt></ruby><ruby>果<rt>guǒ</rt></ruby><ruby>我<rt>wǒ</rt></ruby><ruby>孵<rt>fū</rt></ruby><ruby>出<rt>chū</rt></ruby><ruby>小<rt>xiǎo</rt></ruby><ruby>鸡<rt>jī</rt></ruby><ruby>怎<rt>zěn</rt></ruby><ruby>么<rt>me</rt></ruby><ruby>办<rt>bàn</rt></ruby>？”<ruby>同<rt>tóng</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>们<rt>men</rt></ruby><ruby>听<rt>tīng</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>都<rt>dōu</rt></ruby><ruby>笑<rt>xiào</rt></ruby><ruby>起<rt>qǐ</rt></ruby><ruby>来<rt>lái</rt></ruby>，<ruby>但<rt>dàn</rt></ruby><ruby>马<rt>mǎ</rt></ruby><ruby>小<rt>xiǎo</rt></ruby><ruby>跳<rt>tiào</rt></ruby><ruby>没<rt>méi</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>笑<rt>xiào</rt></ruby>，<ruby>他<rt>tā</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>真<rt>zhēn</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>担<rt>dān</rt></ruby><ruby>心<rt>xīn</rt></ruby>。<ruby>赵<rt>zhào</rt></ruby><ruby>老<rt>lǎo</rt></ruby><ruby>师<rt>shī</rt></ruby><ruby>见<rt>jiàn</rt></ruby><ruby>他<rt>tā</rt></ruby><ruby>不<rt>bú</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>捣<rt>dǎo</rt></ruby><ruby>乱<rt>luàn</rt></ruby>，<ruby>便<rt>biàn</rt></ruby><ruby>说<rt>shuō</rt></ruby><ruby>三<rt>sān</rt></ruby><ruby>天<rt>tiān</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>孵<rt>fū</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>出<rt>chū</rt></ruby><ruby>小<rt>xiǎo</rt></ruby><ruby>鸡<rt>jī</rt></ruby><ruby>的<rt>de</rt></ruby>，<ruby>还<rt>hái</rt></ruby><ruby>说<rt>shuō</rt></ruby><ruby>只<rt>zhǐ</rt></ruby><ruby>要<rt>yào</rt></ruby><ruby>鸡<rt>jī</rt></ruby><ruby>蛋<rt>dàn</rt></ruby><ruby>三<rt>sān</rt></ruby><ruby>天<rt>tiān</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>破<rt>pò</rt></ruby>，<ruby>就<rt>jiù</rt></ruby><ruby>会<rt>huì</rt></ruby><ruby>奖<rt>jiǎng</rt></ruby><ruby>励<rt>lì</rt></ruby><ruby>他<rt>tā</rt></ruby>。<ruby>马<rt>mǎ</rt></ruby><ruby>小<rt>xiǎo</rt></ruby><ruby>跳<rt>tiào</rt></ruby><ruby>很<rt>hěn</rt></ruby><ruby>少<rt>shǎo</rt></ruby><ruby>得<rt>dé</rt></ruby><ruby>到<rt>dào</rt></ruby><ruby>奖<rt>jiǎng</rt></ruby><ruby>励<rt>lì</rt></ruby>，<ruby>老<rt>lǎo</rt></ruby><ruby>师<rt>shī</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>话<rt>huà</rt></ruby><ruby>瞬<rt>shùn</rt></ruby><ruby>间<rt>jiān</rt></ruby><ruby>让<rt>ràng</rt></ruby><ruby>他<rt>tā</rt></ruby><ruby>变<rt>biàn</rt></ruby><ruby>得<rt>dé</rt></ruby><ruby>兴<rt>xìng</rt></ruby><ruby>致<rt>zhì</rt></ruby><ruby>勃<rt>bó</rt></ruby><ruby>勃<rt>bó</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">3</span>The students were excited. Ma Xiaotiao, after his initial excitement, became a little worried: &quot;What if I actually hatch a chick?&quot; The other students burst out laughing, but Ma Xiaotiao didn&#x27;t laugh — he was genuinely worried. Teacher Zhao, seeing that he wasn&#x27;t fooling around, told him three days wasn&#x27;t enough for an egg to hatch, and said that if his egg survived three days intact, she would reward him. Ma Xiaotiao rarely received rewards, so the teacher&#x27;s words instantly made him enthusiastic.</div>
+</article>
+<article class="para" data-playable data-audio="第一天，马小跳把鸡蛋放在衬衫里面，贴着肚皮，好像母鸡孵小鸡一样，还时不时用手摸一摸。没想到，他去上厕所时，在走廊上跟别人撞在一起，鸡蛋破了。他的身上粘着蛋液，十分狼狈。同学讥讽他没有完成任务，他很恼火，赌气地嚷道：“有什么了不起？我明天重新带一个。”">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="第一天，马小跳把鸡蛋放在衬衫里面，贴着肚皮，好像母鸡孵小鸡一样，还时不时用手摸一摸。没想到，他去上厕所时，在走廊上跟别人撞在一起，鸡蛋破了。他的身上粘着蛋液，十分狼狈。同学讥讽他没有完成任务，他很恼火，赌气地嚷道：“有什么了不起？我明天重新带一个。”"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">4</span>
+      <ruby>第<rt>dì</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>天<rt>tiān</rt></ruby>，<ruby>马<rt>mǎ</rt></ruby><ruby>小<rt>xiǎo</rt></ruby><ruby>跳<rt>tiào</rt></ruby><ruby>把<rt>bǎ</rt></ruby><ruby>鸡<rt>jī</rt></ruby><ruby>蛋<rt>dàn</rt></ruby><ruby>放<rt>fàng</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>衬<rt>chèn</rt></ruby><ruby>衫<rt>shān</rt></ruby><ruby>里<rt>lǐ</rt></ruby><ruby>面<rt>miàn</rt></ruby>，<ruby>贴<rt>tiē</rt></ruby><ruby>着<rt>zhe</rt></ruby><ruby>肚<rt>dù</rt></ruby><ruby>皮<rt>pí</rt></ruby>，<ruby>好<rt>hǎo</rt></ruby><ruby>像<rt>xiàng</rt></ruby><ruby>母<rt>mǔ</rt></ruby><ruby>鸡<rt>jī</rt></ruby><ruby>孵<rt>fū</rt></ruby><ruby>小<rt>xiǎo</rt></ruby><ruby>鸡<rt>jī</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>样<rt>yàng</rt></ruby>，<ruby>还<rt>hái</rt></ruby><ruby>时<rt>shí</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>时<rt>shí</rt></ruby><ruby>用<rt>yòng</rt></ruby><ruby>手<rt>shǒu</rt></ruby><ruby>摸<rt>mō</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>摸<rt>mō</rt></ruby>。<ruby>没<rt>méi</rt></ruby><ruby>想<rt>xiǎng</rt></ruby><ruby>到<rt>dào</rt></ruby>，<ruby>他<rt>tā</rt></ruby><ruby>去<rt>qù</rt></ruby><ruby>上<rt>shàng</rt></ruby><ruby>厕<rt>cè</rt></ruby><ruby>所<rt>suǒ</rt></ruby><ruby>时<rt>shí</rt></ruby>，<ruby>在<rt>zài</rt></ruby><ruby>走<rt>zǒu</rt></ruby><ruby>廊<rt>láng</rt></ruby><ruby>上<rt>shàng</rt></ruby><ruby>跟<rt>gēn</rt></ruby><ruby>别<rt>bié</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>撞<rt>zhuàng</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>一<rt>yì</rt></ruby><ruby>起<rt>qǐ</rt></ruby>，<ruby>鸡<rt>jī</rt></ruby><ruby>蛋<rt>dàn</rt></ruby><ruby>破<rt>pò</rt></ruby><ruby>了<rt>le</rt></ruby>。<ruby>他<rt>tā</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>身<rt>shēn</rt></ruby><ruby>上<rt>shàng</rt></ruby><ruby>粘<rt>zhān</rt></ruby><ruby>着<rt>zhe</rt></ruby><ruby>蛋<rt>dàn</rt></ruby><ruby>液<rt>yè</rt></ruby>，<ruby>十<rt>shí</rt></ruby><ruby>分<rt>fēn</rt></ruby><ruby>狼<rt>láng</rt></ruby><ruby>狈<rt>bèi</rt></ruby>。<ruby>同<rt>tóng</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>讥<rt>jī</rt></ruby><ruby>讽<rt>fěng</rt></ruby><ruby>他<rt>tā</rt></ruby><ruby>没<rt>méi</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>完<rt>wán</rt></ruby><ruby>成<rt>chéng</rt></ruby><ruby>任<rt>rèn</rt></ruby><ruby>务<rt>wù</rt></ruby>，<ruby>他<rt>tā</rt></ruby><ruby>很<rt>hěn</rt></ruby><ruby>恼<rt>nǎo</rt></ruby><ruby>火<rt>huǒ</rt></ruby>，<ruby>赌<rt>dǔ</rt></ruby><ruby>气<rt>qì</rt></ruby><ruby>地<rt>dì</rt></ruby><ruby>嚷<rt>rǎng</rt></ruby><ruby>道<rt>dào</rt></ruby>：“<ruby>有<rt>yǒu</rt></ruby><ruby>什<rt>shén</rt></ruby><ruby>么<rt>me</rt></ruby><ruby>了<rt>liǎo</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>起<rt>qǐ</rt></ruby>？<ruby>我<rt>wǒ</rt></ruby><ruby>明<rt>míng</rt></ruby><ruby>天<rt>tiān</rt></ruby><ruby>重<rt>chóng</rt></ruby><ruby>新<rt>xīn</rt></ruby><ruby>带<rt>dài</rt></ruby><ruby>一<rt>yí</rt></ruby><ruby>个<rt>gè</rt></ruby>。”
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">4</span>On the first day, Ma Xiaotiao tucked the egg inside his shirt against his belly, just like a mother hen hatching her chick, and kept touching it every so often. Unexpectedly, when he went to the toilet, he bumped into someone in the corridor — and the egg broke. Egg yolk stuck to his clothes; he was a mess. When his classmates teased him for failing the task, he grew furious and shouted sulkily, &quot;What&#x27;s the big deal? I&#x27;ll bring another one tomorrow!&quot;</div>
+</article>
+<article class="para" data-playable data-audio="第二天，他小心翼翼地用纸巾把蛋层层包好，放进裤袋，这样果然安全多了。可是，在放学离开教室前，他忽然发现，鸡蛋竟然不见了。同学说他没有责任心，马小跳很不服气，心想：谁说我没有责任心？我一定要证明给你们看！">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="第二天，他小心翼翼地用纸巾把蛋层层包好，放进裤袋，这样果然安全多了。可是，在放学离开教室前，他忽然发现，鸡蛋竟然不见了。同学说他没有责任心，马小跳很不服气，心想：谁说我没有责任心？我一定要证明给你们看！"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">5</span>
+      <ruby>第<rt>dì</rt></ruby><ruby>二<rt>èr</rt></ruby><ruby>天<rt>tiān</rt></ruby>，<ruby>他<rt>tā</rt></ruby><ruby>小<rt>xiǎo</rt></ruby><ruby>心<rt>xīn</rt></ruby><ruby>翼<rt>yì</rt></ruby><ruby>翼<rt>yì</rt></ruby><ruby>地<rt>dì</rt></ruby><ruby>用<rt>yòng</rt></ruby><ruby>纸<rt>zhǐ</rt></ruby><ruby>巾<rt>jīn</rt></ruby><ruby>把<rt>bǎ</rt></ruby><ruby>蛋<rt>dàn</rt></ruby><ruby>层<rt>céng</rt></ruby><ruby>层<rt>céng</rt></ruby><ruby>包<rt>bāo</rt></ruby><ruby>好<rt>hǎo</rt></ruby>，<ruby>放<rt>fàng</rt></ruby><ruby>进<rt>jìn</rt></ruby><ruby>裤<rt>kù</rt></ruby><ruby>袋<rt>dài</rt></ruby>，<ruby>这<rt>zhè</rt></ruby><ruby>样<rt>yàng</rt></ruby><ruby>果<rt>guǒ</rt></ruby><ruby>然<rt>rán</rt></ruby><ruby>安<rt>ān</rt></ruby><ruby>全<rt>quán</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>了<rt>le</rt></ruby>。<ruby>可<rt>kě</rt></ruby><ruby>是<rt>shì</rt></ruby>，<ruby>在<rt>zài</rt></ruby><ruby>放<rt>fàng</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>离<rt>lí</rt></ruby><ruby>开<rt>kāi</rt></ruby><ruby>教<rt>jiào</rt></ruby><ruby>室<rt>shì</rt></ruby><ruby>前<rt>qián</rt></ruby>，<ruby>他<rt>tā</rt></ruby><ruby>忽<rt>hū</rt></ruby><ruby>然<rt>rán</rt></ruby><ruby>发<rt>fā</rt></ruby><ruby>现<rt>xiàn</rt></ruby>，<ruby>鸡<rt>jī</rt></ruby><ruby>蛋<rt>dàn</rt></ruby><ruby>竟<rt>jìng</rt></ruby><ruby>然<rt>rán</rt></ruby><ruby>不<rt>bú</rt></ruby><ruby>见<rt>jiàn</rt></ruby><ruby>了<rt>le</rt></ruby>。<ruby>同<rt>tóng</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>说<rt>shuō</rt></ruby><ruby>他<rt>tā</rt></ruby><ruby>没<rt>méi</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>责<rt>zé</rt></ruby><ruby>任<rt>rèn</rt></ruby><ruby>心<rt>xīn</rt></ruby>，<ruby>马<rt>mǎ</rt></ruby><ruby>小<rt>xiǎo</rt></ruby><ruby>跳<rt>tiào</rt></ruby><ruby>很<rt>hěn</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>服<rt>fú</rt></ruby><ruby>气<rt>qì</rt></ruby>，<ruby>心<rt>xīn</rt></ruby><ruby>想<rt>xiǎng</rt></ruby>：<ruby>谁<rt>shuí</rt></ruby><ruby>说<rt>shuō</rt></ruby><ruby>我<rt>wǒ</rt></ruby><ruby>没<rt>méi</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>责<rt>zé</rt></ruby><ruby>任<rt>rèn</rt></ruby><ruby>心<rt>xīn</rt></ruby>？<ruby>我<rt>wǒ</rt></ruby><ruby>一<rt>yí</rt></ruby><ruby>定<rt>dìng</rt></ruby><ruby>要<rt>yào</rt></ruby><ruby>证<rt>zhèng</rt></ruby><ruby>明<rt>míng</rt></ruby><ruby>给<rt>gěi</rt></ruby><ruby>你<rt>nǐ</rt></ruby><ruby>们<rt>men</rt></ruby><ruby>看<rt>kàn</rt></ruby>！
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">5</span>On the second day, he carefully wrapped the egg in layer upon layer of tissue and put it in his trouser pocket — this was indeed much safer. But just before leaving the classroom at the end of the day, he suddenly realised the egg was gone. When his classmates said he had no sense of responsibility, Ma Xiaotiao refused to accept it, thinking to himself: Who says I have no sense of responsibility? I&#x27;ll prove it to you!</div>
+</article>
+<article class="para" data-playable data-audio="第三天，马小跳还是把鸡蛋放在裤袋里，但是，用别针把裤袋口别了起来。他想：这下子鸡蛋想跑也跑不掉了。上课时，他不时摸摸裤袋，确保鸡蛋还在。放学前，赵老师看到马小跳的鸡蛋居然完好无损，马上表扬了他，还让他把这个蛋带回去送给爸爸妈妈。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="第三天，马小跳还是把鸡蛋放在裤袋里，但是，用别针把裤袋口别了起来。他想：这下子鸡蛋想跑也跑不掉了。上课时，他不时摸摸裤袋，确保鸡蛋还在。放学前，赵老师看到马小跳的鸡蛋居然完好无损，马上表扬了他，还让他把这个蛋带回去送给爸爸妈妈。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">6</span>
+      <ruby>第<rt>dì</rt></ruby><ruby>三<rt>sān</rt></ruby><ruby>天<rt>tiān</rt></ruby>，<ruby>马<rt>mǎ</rt></ruby><ruby>小<rt>xiǎo</rt></ruby><ruby>跳<rt>tiào</rt></ruby><ruby>还<rt>hái</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>把<rt>bǎ</rt></ruby><ruby>鸡<rt>jī</rt></ruby><ruby>蛋<rt>dàn</rt></ruby><ruby>放<rt>fàng</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>裤<rt>kù</rt></ruby><ruby>袋<rt>dài</rt></ruby><ruby>里<rt>lǐ</rt></ruby>，<ruby>但<rt>dàn</rt></ruby><ruby>是<rt>shì</rt></ruby>，<ruby>用<rt>yòng</rt></ruby><ruby>别<rt>bié</rt></ruby><ruby>针<rt>zhēn</rt></ruby><ruby>把<rt>bǎ</rt></ruby><ruby>裤<rt>kù</rt></ruby><ruby>袋<rt>dài</rt></ruby><ruby>口<rt>kǒu</rt></ruby><ruby>别<rt>bié</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>起<rt>qǐ</rt></ruby><ruby>来<rt>lái</rt></ruby>。<ruby>他<rt>tā</rt></ruby><ruby>想<rt>xiǎng</rt></ruby>：<ruby>这<rt>zhè</rt></ruby><ruby>下<rt>xià</rt></ruby><ruby>子<rt>zi</rt></ruby><ruby>鸡<rt>jī</rt></ruby><ruby>蛋<rt>dàn</rt></ruby><ruby>想<rt>xiǎng</rt></ruby><ruby>跑<rt>pǎo</rt></ruby><ruby>也<rt>yě</rt></ruby><ruby>跑<rt>pǎo</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>掉<rt>diào</rt></ruby><ruby>了<rt>le</rt></ruby>。<ruby>上<rt>shàng</rt></ruby><ruby>课<rt>kè</rt></ruby><ruby>时<rt>shí</rt></ruby>，<ruby>他<rt>tā</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>时<rt>shí</rt></ruby><ruby>摸<rt>mō</rt></ruby><ruby>摸<rt>mō</rt></ruby><ruby>裤<rt>kù</rt></ruby><ruby>袋<rt>dài</rt></ruby>，<ruby>确<rt>què</rt></ruby><ruby>保<rt>bǎo</rt></ruby><ruby>鸡<rt>jī</rt></ruby><ruby>蛋<rt>dàn</rt></ruby><ruby>还<rt>hái</rt></ruby><ruby>在<rt>zài</rt></ruby>。<ruby>放<rt>fàng</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>前<rt>qián</rt></ruby>，<ruby>赵<rt>zhào</rt></ruby><ruby>老<rt>lǎo</rt></ruby><ruby>师<rt>shī</rt></ruby><ruby>看<rt>kàn</rt></ruby><ruby>到<rt>dào</rt></ruby><ruby>马<rt>mǎ</rt></ruby><ruby>小<rt>xiǎo</rt></ruby><ruby>跳<rt>tiào</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>鸡<rt>jī</rt></ruby><ruby>蛋<rt>dàn</rt></ruby><ruby>居<rt>jū</rt></ruby><ruby>然<rt>rán</rt></ruby><ruby>完<rt>wán</rt></ruby><ruby>好<rt>hǎo</rt></ruby><ruby>无<rt>wú</rt></ruby><ruby>损<rt>sǔn</rt></ruby>，<ruby>马<rt>mǎ</rt></ruby><ruby>上<rt>shàng</rt></ruby><ruby>表<rt>biǎo</rt></ruby><ruby>扬<rt>yáng</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>他<rt>tā</rt></ruby>，<ruby>还<rt>hái</rt></ruby><ruby>让<rt>ràng</rt></ruby><ruby>他<rt>tā</rt></ruby><ruby>把<rt>bǎ</rt></ruby><ruby>这<rt>zhè</rt></ruby><ruby>个<rt>ge</rt></ruby><ruby>蛋<rt>dàn</rt></ruby><ruby>带<rt>dài</rt></ruby><ruby>回<rt>huí</rt></ruby><ruby>去<rt>qù</rt></ruby><ruby>送<rt>sòng</rt></ruby><ruby>给<rt>gěi</rt></ruby><ruby>爸<rt>bà</rt></ruby><ruby>爸<rt>bà</rt></ruby><ruby>妈<rt>mā</rt></ruby><ruby>妈<rt>mā</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">6</span>On the third day, Ma Xiaotiao put the egg in his trouser pocket again, but this time he used a safety pin to pin the pocket shut. He thought: Now the egg can&#x27;t escape even if it tries. During class, he kept touching his pocket to make sure the egg was still there. Before school ended, Teacher Zhao saw that Ma Xiaotiao&#x27;s egg was completely intact, praised him on the spot, and told him to take the egg home and give it to his parents.</div>
+</article>
+<article class="para" data-playable data-audio="马小跳开心得像只快乐的鸟儿，蹦着跳着，恨不得马上就回到家。回家的路上，他忽然想到：得在蛋上写几个字，再送给爸爸妈妈。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="马小跳开心得像只快乐的鸟儿，蹦着跳着，恨不得马上就回到家。回家的路上，他忽然想到：得在蛋上写几个字，再送给爸爸妈妈。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">7</span>
+      <ruby>马<rt>mǎ</rt></ruby><ruby>小<rt>xiǎo</rt></ruby><ruby>跳<rt>tiào</rt></ruby><ruby>开<rt>kāi</rt></ruby><ruby>心<rt>xīn</rt></ruby><ruby>得<rt>dé</rt></ruby><ruby>像<rt>xiàng</rt></ruby><ruby>只<rt>zhǐ</rt></ruby><ruby>快<rt>kuài</rt></ruby><ruby>乐<rt>lè</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>鸟<rt>niǎo</rt></ruby><ruby>儿<rt>ér</rt></ruby>，<ruby>蹦<rt>bèng</rt></ruby><ruby>着<rt>zhe</rt></ruby><ruby>跳<rt>tiào</rt></ruby><ruby>着<rt>zhe</rt></ruby>，<ruby>恨<rt>hèn</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>得<rt>dé</rt></ruby><ruby>马<rt>mǎ</rt></ruby><ruby>上<rt>shàng</rt></ruby><ruby>就<rt>jiù</rt></ruby><ruby>回<rt>huí</rt></ruby><ruby>到<rt>dào</rt></ruby><ruby>家<rt>jiā</rt></ruby>。<ruby>回<rt>huí</rt></ruby><ruby>家<rt>jiā</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>路<rt>lù</rt></ruby><ruby>上<rt>shàng</rt></ruby>，<ruby>他<rt>tā</rt></ruby><ruby>忽<rt>hū</rt></ruby><ruby>然<rt>rán</rt></ruby><ruby>想<rt>xiǎng</rt></ruby><ruby>到<rt>dào</rt></ruby>：<ruby>得<rt>dé</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>蛋<rt>dàn</rt></ruby><ruby>上<rt>shàng</rt></ruby><ruby>写<rt>xiě</rt></ruby><ruby>几<rt>jǐ</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>字<rt>zì</rt></ruby>，<ruby>再<rt>zài</rt></ruby><ruby>送<rt>sòng</rt></ruby><ruby>给<rt>gěi</rt></ruby><ruby>爸<rt>bà</rt></ruby><ruby>爸<rt>bà</rt></ruby><ruby>妈<rt>mā</rt></ruby><ruby>妈<rt>mā</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">7</span>Ma Xiaotiao was as happy as a bird, skipping and jumping — he couldn&#x27;t wait to get home. On the way home, he suddenly had an idea: he should write a few words on the egg before giving it to his parents.</div>
+</article>
+<article class="para" data-playable data-audio="马小跳走进一家超市去买荧光笔。他买了笔正要走出去，却被店员拦住了。因为他的手一直捂着装鸡蛋的裤袋，引起了店员的怀疑。店员问他裤袋里装的是什么，马小跳没说。店员上前查看，马小跳拼命抵挡，拉扯之间，鸡蛋破了! 马小跳“哇”的一声哭了起来。店员有些手足无措，连忙安慰他说：“别哭别哭，不就是一个鸡蛋吗？赔你一个好不好？”">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="马小跳走进一家超市去买荧光笔。他买了笔正要走出去，却被店员拦住了。因为他的手一直捂着装鸡蛋的裤袋，引起了店员的怀疑。店员问他裤袋里装的是什么，马小跳没说。店员上前查看，马小跳拼命抵挡，拉扯之间，鸡蛋破了! 马小跳“哇”的一声哭了起来。店员有些手足无措，连忙安慰他说：“别哭别哭，不就是一个鸡蛋吗？赔你一个好不好？”"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">8</span>
+      <ruby>马<rt>mǎ</rt></ruby><ruby>小<rt>xiǎo</rt></ruby><ruby>跳<rt>tiào</rt></ruby><ruby>走<rt>zǒu</rt></ruby><ruby>进<rt>jìn</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>家<rt>jiā</rt></ruby><ruby>超<rt>chāo</rt></ruby><ruby>市<rt>shì</rt></ruby><ruby>去<rt>qù</rt></ruby><ruby>买<rt>mǎi</rt></ruby><ruby>荧<rt>yíng</rt></ruby><ruby>光<rt>guāng</rt></ruby><ruby>笔<rt>bǐ</rt></ruby>。<ruby>他<rt>tā</rt></ruby><ruby>买<rt>mǎi</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>笔<rt>bǐ</rt></ruby><ruby>正<rt>zhèng</rt></ruby><ruby>要<rt>yào</rt></ruby><ruby>走<rt>zǒu</rt></ruby><ruby>出<rt>chū</rt></ruby><ruby>去<rt>qù</rt></ruby>，<ruby>却<rt>què</rt></ruby><ruby>被<rt>bèi</rt></ruby><ruby>店<rt>diàn</rt></ruby><ruby>员<rt>yuán</rt></ruby><ruby>拦<rt>lán</rt></ruby><ruby>住<rt>zhù</rt></ruby><ruby>了<rt>le</rt></ruby>。<ruby>因<rt>yīn</rt></ruby><ruby>为<rt>wèi</rt></ruby><ruby>他<rt>tā</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>手<rt>shǒu</rt></ruby><ruby>一<rt>yì</rt></ruby><ruby>直<rt>zhí</rt></ruby><ruby>捂<rt>wǔ</rt></ruby><ruby>着<rt>zhuó</rt></ruby><ruby>装<rt>zhuāng</rt></ruby><ruby>鸡<rt>jī</rt></ruby><ruby>蛋<rt>dàn</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>裤<rt>kù</rt></ruby><ruby>袋<rt>dài</rt></ruby>，<ruby>引<rt>yǐn</rt></ruby><ruby>起<rt>qǐ</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>店<rt>diàn</rt></ruby><ruby>员<rt>yuán</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>怀<rt>huái</rt></ruby><ruby>疑<rt>yí</rt></ruby>。<ruby>店<rt>diàn</rt></ruby><ruby>员<rt>yuán</rt></ruby><ruby>问<rt>wèn</rt></ruby><ruby>他<rt>tā</rt></ruby><ruby>裤<rt>kù</rt></ruby><ruby>袋<rt>dài</rt></ruby><ruby>里<rt>lǐ</rt></ruby><ruby>装<rt>zhuāng</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>什<rt>shén</rt></ruby><ruby>么<rt>me</rt></ruby>，<ruby>马<rt>mǎ</rt></ruby><ruby>小<rt>xiǎo</rt></ruby><ruby>跳<rt>tiào</rt></ruby><ruby>没<rt>méi</rt></ruby><ruby>说<rt>shuō</rt></ruby>。<ruby>店<rt>diàn</rt></ruby><ruby>员<rt>yuán</rt></ruby><ruby>上<rt>shàng</rt></ruby><ruby>前<rt>qián</rt></ruby><ruby>查<rt>chá</rt></ruby><ruby>看<rt>kàn</rt></ruby>，<ruby>马<rt>mǎ</rt></ruby><ruby>小<rt>xiǎo</rt></ruby><ruby>跳<rt>tiào</rt></ruby><ruby>拼<rt>pīn</rt></ruby><ruby>命<rt>mìng</rt></ruby><ruby>抵<rt>dǐ</rt></ruby><ruby>挡<rt>dǎng</rt></ruby>，<ruby>拉<rt>lā</rt></ruby><ruby>扯<rt>chě</rt></ruby><ruby>之<rt>zhī</rt></ruby><ruby>间<rt>jiān</rt></ruby>，<ruby>鸡<rt>jī</rt></ruby><ruby>蛋<rt>dàn</rt></ruby><ruby>破<rt>pò</rt></ruby><ruby>了<rt>le</rt></ruby>! <ruby>马<rt>mǎ</rt></ruby><ruby>小<rt>xiǎo</rt></ruby><ruby>跳<rt>tiào</rt></ruby>“<ruby>哇<rt>wa</rt></ruby>”<ruby>的<rt>de</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>声<rt>shēng</rt></ruby><ruby>哭<rt>kū</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>起<rt>qǐ</rt></ruby><ruby>来<rt>lái</rt></ruby>。<ruby>店<rt>diàn</rt></ruby><ruby>员<rt>yuán</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>些<rt>xiē</rt></ruby><ruby>手<rt>shǒu</rt></ruby><ruby>足<rt>zú</rt></ruby><ruby>无<rt>wú</rt></ruby><ruby>措<rt>cuò</rt></ruby>，<ruby>连<rt>lián</rt></ruby><ruby>忙<rt>máng</rt></ruby><ruby>安<rt>ān</rt></ruby><ruby>慰<rt>wèi</rt></ruby><ruby>他<rt>tā</rt></ruby><ruby>说<rt>shuō</rt></ruby>：“<ruby>别<rt>bié</rt></ruby><ruby>哭<rt>kū</rt></ruby><ruby>别<rt>bié</rt></ruby><ruby>哭<rt>kū</rt></ruby>，<ruby>不<rt>bù</rt></ruby><ruby>就<rt>jiù</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>一<rt>yí</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>鸡<rt>jī</rt></ruby><ruby>蛋<rt>dàn</rt></ruby><ruby>吗<rt>ma</rt></ruby>？<ruby>赔<rt>péi</rt></ruby><ruby>你<rt>nǐ</rt></ruby><ruby>一<rt>yí</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>好<rt>hǎo</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>好<rt>hǎo</rt></ruby>？”
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">8</span>Ma Xiaotiao walked into a supermarket to buy a highlighter. He had bought the pen and was about to leave when a shop assistant stopped him. Because he had been covering the pocket with the egg the whole time, he had made the assistant suspicious. The assistant asked what was in his pocket; Ma Xiaotiao wouldn&#x27;t say. The assistant stepped forward to check, and Ma Xiaotiao frantically resisted — in the struggle, the egg broke! Ma Xiaotiao burst out crying with a loud &quot;waaah&quot;. The assistant didn&#x27;t know what to do and hurriedly tried to comfort him: &quot;Don&#x27;t cry, don&#x27;t cry — it&#x27;s just one egg. I&#x27;ll pay you back for one, okay?&quot;</div>
+</article>
+<article class="para" data-playable data-audio="“赔我一百个我都不要，我就要这一个！”马小跳哭得更伤心了，“这是我保护了一天的鸡蛋，呜呜呜......”">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="“赔我一百个我都不要，我就要这一个！”马小跳哭得更伤心了，“这是我保护了一天的鸡蛋，呜呜呜......”"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">9</span>
+      “<ruby>赔<rt>péi</rt></ruby><ruby>我<rt>wǒ</rt></ruby><ruby>一<rt>yì</rt></ruby><ruby>百<rt>bǎi</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>我<rt>wǒ</rt></ruby><ruby>都<rt>dōu</rt></ruby><ruby>不<rt>bú</rt></ruby><ruby>要<rt>yào</rt></ruby>，<ruby>我<rt>wǒ</rt></ruby><ruby>就<rt>jiù</rt></ruby><ruby>要<rt>yào</rt></ruby><ruby>这<rt>zhè</rt></ruby><ruby>一<rt>yí</rt></ruby><ruby>个<rt>gè</rt></ruby>！”<ruby>马<rt>mǎ</rt></ruby><ruby>小<rt>xiǎo</rt></ruby><ruby>跳<rt>tiào</rt></ruby><ruby>哭<rt>kū</rt></ruby><ruby>得<rt>dé</rt></ruby><ruby>更<rt>gèng</rt></ruby><ruby>伤<rt>shāng</rt></ruby><ruby>心<rt>xīn</rt></ruby><ruby>了<rt>le</rt></ruby>，“<ruby>这<rt>zhè</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>我<rt>wǒ</rt></ruby><ruby>保<rt>bǎo</rt></ruby><ruby>护<rt>hù</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>天<rt>tiān</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>鸡<rt>jī</rt></ruby><ruby>蛋<rt>dàn</rt></ruby>，<ruby>呜<rt>wū</rt></ruby><ruby>呜<rt>wū</rt></ruby><ruby>呜<rt>wū</rt></ruby>......”
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">9</span>&quot;I wouldn&#x27;t take a hundred eggs in return — I only want this one!&quot; Ma Xiaotiao cried even more sorrowfully. &quot;This is the egg I protected for a whole day, boo-hoo-hoo…&quot;</div>
+</article></main>
+<script>
+(function () {
+  const SPEAKER_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>';
+  const STOP_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="5" y="5" width="14" height="14" rx="1"></rect></svg>';
+  const PLAY_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>';
+
+  // Inject speaker icons into all .speaker-btn elements
+  document.querySelectorAll('.speaker-btn').forEach(function(b){ b.innerHTML = SPEAKER_SVG; });
+
+  const togglePy = document.getElementById('toggle-pinyin');
+  const toggleEn = document.getElementById('toggle-english');
+  togglePy && togglePy.addEventListener('change', function(){ document.body.classList.toggle('pinyin-off', !togglePy.checked); });
+  toggleEn && toggleEn.addEventListener('change', function(){ document.body.classList.toggle('english-off', !toggleEn.checked); });
+
+  const speed = document.getElementById('speed');
+  const speedVal = document.getElementById('speed-val');
+  let rate = speed ? parseFloat(speed.value) : 0.9;
+  if (speed) speed.addEventListener('input', function(){
+    rate = parseFloat(speed.value);
+    speedVal.textContent = rate.toFixed(2).replace(/0$/, '') + '\u00d7';
+  });
+
+  const synth = window.speechSynthesis;
+  let chosenVoice = null;
+  function pickVoice(){
+    if (!synth) return;
+    const voices = synth.getVoices();
+    chosenVoice = voices.find(function(v){ return v.lang && v.lang.toLowerCase().indexOf('zh') === 0; }) || null;
+  }
+  if (synth) { pickVoice(); synth.addEventListener && synth.addEventListener('voiceschanged', pickVoice); }
+
+  function clearActive(){
+    document.querySelectorAll('.speaker-btn.playing').forEach(function(b){ b.classList.remove('playing'); });
+    document.querySelectorAll('.active-passage').forEach(function(p){ p.classList.remove('active-passage'); });
+  }
+
+  const playAllBtn = document.getElementById('play-all-btn');
+  let isPlayingAll = false;
+  let queue = [];
+
+  function setPlayAllState(playing){
+    isPlayingAll = playing;
+    if (!playAllBtn) return;
+    if (playing){
+      playAllBtn.classList.add('playing');
+      playAllBtn.innerHTML = STOP_SVG + '<span>\u505c\u6b62 Stop</span>';
+    } else {
+      playAllBtn.classList.remove('playing');
+      playAllBtn.innerHTML = PLAY_SVG + '<span>\u64ad\u653e\u5168\u6587 Play all</span>';
+      queue = [];
+    }
+  }
+
+  function speakOne(text, onDone){
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'zh-CN'; u.rate = rate;
+    if (chosenVoice) u.voice = chosenVoice;
+    u.onend = onDone; u.onerror = onDone;
+    synth.speak(u);
+  }
+
+  // Individual speaker buttons — each has data-audio attr containing the Chinese to speak,
+  // and data-active-selector saying which parent element to highlight
+  document.querySelectorAll('.speaker-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      if (!synth){ alert('Your browser does not support speech synthesis.'); return; }
+      synth.cancel(); clearActive(); setPlayAllState(false);
+      const text = btn.dataset.audio || '';
+      const activeEl = btn.closest('[data-playable]');
+      btn.classList.add('playing');
+      if (activeEl) activeEl.classList.add('active-passage');
+      speakOne(text, function(){
+        btn.classList.remove('playing');
+        if (activeEl) activeEl.classList.remove('active-passage');
+      });
+    });
+  });
+
+  if (playAllBtn){
+    playAllBtn.addEventListener('click', function(){
+      if (!synth){ alert('Your browser does not support speech synthesis.'); return; }
+      if (isPlayingAll){ synth.cancel(); clearActive(); setPlayAllState(false); return; }
+      synth.cancel(); clearActive();
+      queue = Array.from(document.querySelectorAll('[data-playable]'));
+      setPlayAllState(true);
+      function next(){
+        if (!isPlayingAll || queue.length === 0){ clearActive(); setPlayAllState(false); return; }
+        const el = queue.shift();
+        clearActive(); el.classList.add('active-passage');
+        el.scrollIntoView({behavior:'smooth', block:'center'});
+        const text = el.dataset.audio || el.querySelector('.speaker-btn').dataset.audio;
+        speakOne(text, next);
+      }
+      next();
+    });
+  }
+})();
+</script>
+</body>
+</html>

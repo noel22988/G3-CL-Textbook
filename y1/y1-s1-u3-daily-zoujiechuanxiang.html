@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>走街串巷逛狮城 — 快捷华文</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --ink-muted: #6b7280;
+    --ink-faint: #9ca3af;
+    --accent: #2f7d4f;
+    --accent-soft: #e6f1ea;
+    --accent-dark: #26663f;
+    --rule: #e5e7eb;
+    --bg: #fafaf8;
+    --surface: #ffffff;
+    --bubble-a: #f0f4f2;
+    --bubble-b: #eef3f7;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+  }
+  .chinese { font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Source Han Sans SC", "Noto Sans CJK SC", sans-serif; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  header.top { max-width: 1100px; margin: 0 auto; padding: 2rem 2rem 1rem; }
+  .back-link { font-size: 13px; color: var(--ink-muted); display: inline-block; margin-bottom: 0.75rem; }
+  .back-link:hover { color: var(--accent); }
+  .breadcrumb {
+    font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--ink-muted); margin-bottom: 0.5rem;
+  }
+  .breadcrumb .sep { opacity: 0.5; margin: 0 0.5em; }
+  h1.title {
+    margin: 0; font-weight: 500; font-size: 28px;
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.75rem;
+  }
+  h1.title .zh { color: var(--ink); }
+  h1.title .en { color: var(--ink-muted); font-weight: 400; font-size: 16px; }
+
+  .controls {
+    max-width: 1100px; margin: 0 auto; padding: 1rem 2rem;
+    display: flex; gap: 1.25rem; flex-wrap: wrap; align-items: center;
+    border-bottom: 1px solid var(--rule);
+  }
+  .controls label {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 14px; color: var(--ink-muted); cursor: pointer; user-select: none;
+  }
+  .controls input[type=checkbox] { accent-color: var(--accent); width: 16px; height: 16px; }
+  .controls input[type=checkbox]:checked + span { color: var(--accent); font-weight: 500; }
+  .controls .speed { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ink-muted); }
+  .controls .speed input { width: 100px; accent-color: var(--accent); }
+  .controls .speed .val { min-width: 28px; font-weight: 500; color: var(--ink); }
+  .controls .speed .speed-hint { font-size: 11px; color: var(--ink-faint); font-style: italic; }
+  .controls .spacer { flex: 1; }
+  .controls button.play-all {
+    border: 1px solid var(--accent); background: var(--accent); color: #fff;
+    padding: 7px 14px; font-size: 13px; font-weight: 500; border-radius: 6px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s;
+  }
+  .controls button.play-all:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+  .controls button.play-all.playing { background: #b34545; border-color: #b34545; }
+  .controls button.play-all.playing:hover { background: #933838; border-color: #933838; }
+  .controls button.play-all svg { width: 11px; height: 11px; }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 1.5rem 2rem 5rem; }
+
+  /* Pinyin defaults */
+  ruby { ruby-position: over; }
+  ruby rt {
+    font-size: 11px; color: var(--accent);
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-weight: 400; letter-spacing: 0.02em;
+    padding-bottom: 6px;
+    transition: opacity 0.15s;
+  }
+  body.pinyin-off ruby rt { opacity: 0; }
+
+  .speaker-btn {
+    background: transparent; border: 1px solid var(--rule);
+    width: 28px; height: 28px; padding: 0; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--ink-muted); transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .speaker-btn:hover { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+  .speaker-btn.playing { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .speaker-btn svg { width: 12px; height: 12px; }
+
+  /* PROSE format — two-column */
+  .para {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2.5rem;
+    padding: 1.5rem 0; border-bottom: 1px solid var(--rule); align-items: start;
+  }
+  .para:last-child { border-bottom: none; }
+  .para .zh-col { display: grid; grid-template-columns: 28px 1fr; gap: 12px; align-items: start; }
+  .para .speaker-btn { margin-top: 8px; }
+  .para .zh-text { font-size: 22px; line-height: 2.6; }
+  .para .en-col {
+    font-size: 15px; line-height: 1.75; color: var(--ink-muted); padding-top: 6px;
+    transition: opacity 0.15s;
+  }
+  body.english-off .en-col { opacity: 0; pointer-events: none; }
+  .para-num {
+    color: var(--ink-faint); font-size: 13px; font-weight: 500;
+    margin-bottom: 4px; display: block;
+  }
+  .para.active-passage .zh-text {
+    background: var(--accent-soft); border-radius: 6px; padding: 4px 8px; margin-left: -8px;
+  }
+
+  /* Subheadings inside prose articles */
+  .subheading {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2.5rem;
+    padding: 1rem 0 0; align-items: baseline;
+    margin: 0;
+  }
+  .subheading-zh {
+    font-size: 18px; font-weight: 500; color: var(--accent-dark);
+    padding-left: 40px; line-height: 1.3;
+    margin: 0;
+  }
+  .subheading-en {
+    font-size: 14px; color: var(--ink-muted); font-weight: 500;
+    transition: opacity 0.15s;
+    letter-spacing: 0.02em;
+    line-height: 1.3;
+    margin: 0;
+  }
+  body.english-off .subheading-en { opacity: 0; }
+  /* Tight coupling — subheading sits directly on top of its paragraph */
+  .subheading + .para { border-top: none; padding-top: 0; }
+
+  /* TABLE format — stacked character cards */
+  .profile-card {
+    background: var(--surface); border: 1px solid var(--rule); border-radius: 12px;
+    padding: 1.5rem 1.75rem; margin-bottom: 1.25rem;
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start;
+  }
+  .profile-card:last-child { margin-bottom: 0; }
+  .profile-card .zh-side { display: grid; grid-template-columns: 28px 1fr; gap: 12px; }
+  .profile-card .name {
+    font-size: 24px; font-weight: 500; margin-bottom: 0.75rem;
+    line-height: 2;
+  }
+  .profile-card .traits { font-size: 18px; line-height: 2.4; }
+  .profile-card .trait { margin-bottom: 0.75rem; }
+  .profile-card .trait:last-child { margin-bottom: 0; }
+  .profile-card .trait-label {
+    display: inline-block; background: var(--accent-soft); color: var(--accent);
+    font-size: 14px; font-weight: 500; padding: 2px 12px; border-radius: 12px;
+    margin-right: 8px; vertical-align: baseline;
+    font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
+    position: relative; top: -2px;
+  }
+  .profile-card .trait-label ruby rt { color: var(--accent-dark); }
+  .profile-card .en-side {
+    font-size: 14px; line-height: 1.75; color: var(--ink-muted); padding-top: 8px;
+    transition: opacity 0.15s;
+  }
+  body.english-off .profile-card .en-side { opacity: 0; pointer-events: none; }
+  .profile-card .en-side .en-name { font-weight: 500; color: var(--ink); font-size: 16px; margin-bottom: 0.5rem; }
+  .profile-card .en-side .en-trait { margin-bottom: 0.5rem; }
+  .profile-card .en-side .en-trait-label { font-weight: 500; color: var(--ink); }
+
+  /* DIALOGUE format — chat bubbles */
+  .stage-direction {
+    text-align: center; color: var(--ink-muted);
+    font-size: 15px; padding: 1rem 2rem;
+    font-style: italic;
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start;
+  }
+  .stage-direction .zh-dir { font-style: normal; }
+  .stage-direction .zh-dir .zh-text { line-height: 2.4; }
+  .stage-direction .en-dir { font-size: 14px; }
+
+  .bubble-row {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;
+    margin-bottom: 1rem; align-items: start;
+  }
+  .bubble-zh { display: flex; gap: 10px; align-items: flex-start; }
+  .bubble-zh.align-right { justify-content: flex-end; }
+  .bubble-zh.align-right .bubble { background: var(--accent-soft); }
+  .bubble-zh .speaker-btn { margin-top: 6px; }
+  .bubble {
+    background: var(--bubble-a);
+    border-radius: 16px; padding: 10px 16px;
+    max-width: 85%;
+    line-height: 2.4; font-size: 18px;
+  }
+  .bubble-zh.align-right .bubble { border-bottom-right-radius: 4px; }
+  .bubble-zh.align-left .bubble { border-bottom-left-radius: 4px; }
+  .bubble-zh .speaker-name {
+    display: block; font-size: 12px; font-weight: 500; color: var(--accent-dark);
+    margin-bottom: 2px; letter-spacing: 0.02em;
+  }
+  .bubble-zh.align-right .speaker-name { text-align: right; }
+  .bubble-row.active-passage .bubble { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .bubble-en {
+    font-size: 14px; line-height: 1.6; color: var(--ink-muted); padding-top: 8px;
+    transition: opacity 0.15s;
+  }
+  .bubble-en .en-speaker { font-weight: 500; color: var(--ink); }
+  body.english-off .bubble-en, body.english-off .stage-direction .en-dir { opacity: 0; pointer-events: none; }
+
+  @media (max-width: 720px) {
+    .para { grid-template-columns: 1fr; gap: 0.75rem; }
+    .para .en-col { padding-top: 0; padding-left: 40px; font-style: italic; }
+    .para .zh-text { font-size: 20px; }
+    .profile-card { grid-template-columns: 1fr; gap: 1rem; padding: 1rem 1.25rem; }
+    .profile-card .en-side { padding-top: 0; padding-left: 40px; font-style: italic; border-top: 1px solid var(--rule); padding-top: 1rem; }
+    .profile-card .name { font-size: 22px; }
+    .profile-card .traits { font-size: 17px; line-height: 2.2; }
+    .bubble-row, .stage-direction { grid-template-columns: 1fr; gap: 0.5rem; }
+    .bubble-en { padding-left: 16px; padding-top: 0; font-style: italic; }
+    .bubble { font-size: 17px; }
+    header.top, .controls, main { padding-left: 1.25rem; padding-right: 1.25rem; }
+    .controls { gap: 0.75rem; }
+  }
+</style>
+</head>
+<body>
+  <header class="top">
+    <a class="back-link" href="../index.html">← 返回 Back to all levels</a>
+    <div class="breadcrumb">Level 1 · Unit 3 · 相约狮城 <span class="sep">·</span> 生活空间 Daily Life</div>
+    <h1 class="title">
+      <span class="zh chinese">《走街串巷逛狮城》</span>
+      <span class="en">Exploring the Lion City</span>
+    </h1>
+  </header>
+  <div class="controls">
+    <label><input type="checkbox" id="toggle-pinyin" checked><span>显示汉语拼音 Show pinyin</span></label>
+    <label><input type="checkbox" id="toggle-english" checked><span>显示英文 Show English</span></label>
+    <div class="speed">
+      <span>语速 Speed</span>
+      <input type="range" min="0.5" max="1.2" step="0.05" value="0.9" id="speed" title="Adjust before playing">
+      <span class="val" id="speed-val">0.9×</span>
+      <span class="speed-hint">(set before play)</span>
+    </div>
+    <div class="spacer"></div>
+    <button class="play-all" id="play-all-btn" type="button">
+      <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>
+      <span>播放全文 Play all</span>
+    </button>
+  </div>
+  <main>
+<article class="profile-card" data-playable data-audio="① 市政区。感受艺术魅力：市政区是艺术爱好者的乐园，这里除了维多利亚剧院与音乐厅、亚洲文明博物馆，还有收藏了9000多件艺术品的新加坡国家美术馆。这些建筑历史悠久，是新加坡文化遗产的重要组成部分。。推荐：欣赏艺术、感受历史">
+  <div class="zh-side">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="① 市政区。感受艺术魅力：市政区是艺术爱好者的乐园，这里除了维多利亚剧院与音乐厅、亚洲文明博物馆，还有收藏了9000多件艺术品的新加坡国家美术馆。这些建筑历史悠久，是新加坡文化遗产的重要组成部分。。推荐：欣赏艺术、感受历史"></button>
+    <div>
+      <div class="name chinese">① <ruby>市<rt>shì</rt></ruby><ruby>政<rt>zhèng</rt></ruby><ruby>区<rt>qū</rt></ruby></div>
+      <div class="traits chinese"><div class="trait"><span class="trait-label"><ruby>感<rt>gǎn</rt></ruby><ruby>受<rt>shòu</rt></ruby><ruby>艺<rt>yì</rt></ruby><ruby>术<rt>shù</rt></ruby><ruby>魅<rt>mèi</rt></ruby><ruby>力<rt>lì</rt></ruby></span><ruby>市<rt>shì</rt></ruby><ruby>政<rt>zhèng</rt></ruby><ruby>区<rt>qū</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>艺<rt>yì</rt></ruby><ruby>术<rt>shù</rt></ruby><ruby>爱<rt>ài</rt></ruby><ruby>好<rt>hào</rt></ruby><ruby>者<rt>zhě</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>乐<rt>lè</rt></ruby><ruby>园<rt>yuán</rt></ruby>，<ruby>这<rt>zhè</rt></ruby><ruby>里<rt>lǐ</rt></ruby><ruby>除<rt>chú</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>维<rt>wéi</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>利<rt>lì</rt></ruby><ruby>亚<rt>yà</rt></ruby><ruby>剧<rt>jù</rt></ruby><ruby>院<rt>yuàn</rt></ruby><ruby>与<rt>yǔ</rt></ruby><ruby>音<rt>yīn</rt></ruby><ruby>乐<rt>yuè</rt></ruby><ruby>厅<rt>tīng</rt></ruby>、<ruby>亚<rt>yà</rt></ruby><ruby>洲<rt>zhōu</rt></ruby><ruby>文<rt>wén</rt></ruby><ruby>明<rt>míng</rt></ruby><ruby>博<rt>bó</rt></ruby><ruby>物<rt>wù</rt></ruby><ruby>馆<rt>guǎn</rt></ruby>，<ruby>还<rt>hái</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>收<rt>shōu</rt></ruby><ruby>藏<rt>cáng</rt></ruby><ruby>了<rt>le</rt></ruby>9000<ruby>多<rt>duō</rt></ruby><ruby>件<rt>jiàn</rt></ruby><ruby>艺<rt>yì</rt></ruby><ruby>术<rt>shù</rt></ruby><ruby>品<rt>pǐn</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>新<rt>xīn</rt></ruby><ruby>加<rt>jiā</rt></ruby><ruby>坡<rt>pō</rt></ruby><ruby>国<rt>guó</rt></ruby><ruby>家<rt>jiā</rt></ruby><ruby>美<rt>měi</rt></ruby><ruby>术<rt>shù</rt></ruby><ruby>馆<rt>guǎn</rt></ruby>。<ruby>这<rt>zhè</rt></ruby><ruby>些<rt>xiē</rt></ruby><ruby>建<rt>jiàn</rt></ruby><ruby>筑<rt>zhù</rt></ruby><ruby>历<rt>lì</rt></ruby><ruby>史<rt>shǐ</rt></ruby><ruby>悠<rt>yōu</rt></ruby><ruby>久<rt>jiǔ</rt></ruby>，<ruby>是<rt>shì</rt></ruby><ruby>新<rt>xīn</rt></ruby><ruby>加<rt>jiā</rt></ruby><ruby>坡<rt>pō</rt></ruby><ruby>文<rt>wén</rt></ruby><ruby>化<rt>huà</rt></ruby><ruby>遗<rt>yí</rt></ruby><ruby>产<rt>chǎn</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>重<rt>zhòng</rt></ruby><ruby>要<rt>yào</rt></ruby><ruby>组<rt>zǔ</rt></ruby><ruby>成<rt>chéng</rt></ruby><ruby>部<rt>bù</rt></ruby><ruby>分<rt>fèn</rt></ruby>。</div><div class="trait"><span class="trait-label"><ruby>推<rt>tuī</rt></ruby><ruby>荐<rt>jiàn</rt></ruby></span><ruby>欣<rt>xīn</rt></ruby><ruby>赏<rt>shǎng</rt></ruby><ruby>艺<rt>yì</rt></ruby><ruby>术<rt>shù</rt></ruby>、<ruby>感<rt>gǎn</rt></ruby><ruby>受<rt>shòu</rt></ruby><ruby>历<rt>lì</rt></ruby><ruby>史<rt>shǐ</rt></ruby></div></div>
+    </div>
+  </div>
+  <div class="en-side">
+    <div class="en-name">1. Civic District</div>
+    <div class="en-trait"><span class="en-trait-label">Feel the charm of art.</span> The Civic District is a paradise for art lovers. Besides Victoria Theatre and Concert Hall and the Asian Civilisations Museum, it is home to the National Gallery Singapore, which holds a collection of more than 9,000 artworks. These historic buildings are an important part of Singapore&#x27;s cultural heritage.</div><div class="en-trait"><span class="en-trait-label">Recommended for.</span> Appreciating art and soaking up history</div>
+  </div>
+</article>
+<article class="profile-card" data-playable data-audio="② 老巴刹。品尝特色美食：老巴刹建于19世纪，历史上曾多次重建，1973年被列为国家古迹。它像一位百岁老人，安详地坐在市中心，欢迎着各族同胞和来自世界各地的游客。这里24小时开放，售卖各族美食，鸡饭、沙爹、印度煎饼等应有尽有，体现了不同文化的融合。。推荐：品尝美食、体验文化">
+  <div class="zh-side">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="② 老巴刹。品尝特色美食：老巴刹建于19世纪，历史上曾多次重建，1973年被列为国家古迹。它像一位百岁老人，安详地坐在市中心，欢迎着各族同胞和来自世界各地的游客。这里24小时开放，售卖各族美食，鸡饭、沙爹、印度煎饼等应有尽有，体现了不同文化的融合。。推荐：品尝美食、体验文化"></button>
+    <div>
+      <div class="name chinese">② <ruby>老<rt>lǎo</rt></ruby><ruby>巴<rt>bā</rt></ruby><ruby>刹<rt>shā</rt></ruby></div>
+      <div class="traits chinese"><div class="trait"><span class="trait-label"><ruby>品<rt>pǐn</rt></ruby><ruby>尝<rt>cháng</rt></ruby><ruby>特<rt>tè</rt></ruby><ruby>色<rt>sè</rt></ruby><ruby>美<rt>měi</rt></ruby><ruby>食<rt>shí</rt></ruby></span><ruby>老<rt>lǎo</rt></ruby><ruby>巴<rt>bā</rt></ruby><ruby>刹<rt>shā</rt></ruby><ruby>建<rt>jiàn</rt></ruby><ruby>于<rt>yú</rt></ruby>19<ruby>世<rt>shì</rt></ruby><ruby>纪<rt>jì</rt></ruby>，<ruby>历<rt>lì</rt></ruby><ruby>史<rt>shǐ</rt></ruby><ruby>上<rt>shàng</rt></ruby><ruby>曾<rt>céng</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>次<rt>cì</rt></ruby><ruby>重<rt>chóng</rt></ruby><ruby>建<rt>jiàn</rt></ruby>，1973<ruby>年<rt>nián</rt></ruby><ruby>被<rt>bèi</rt></ruby><ruby>列<rt>liè</rt></ruby><ruby>为<rt>wèi</rt></ruby><ruby>国<rt>guó</rt></ruby><ruby>家<rt>jiā</rt></ruby><ruby>古<rt>gǔ</rt></ruby><ruby>迹<rt>jì</rt></ruby>。<ruby>它<rt>tā</rt></ruby><ruby>像<rt>xiàng</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>位<rt>wèi</rt></ruby><ruby>百<rt>bǎi</rt></ruby><ruby>岁<rt>suì</rt></ruby><ruby>老<rt>lǎo</rt></ruby><ruby>人<rt>rén</rt></ruby>，<ruby>安<rt>ān</rt></ruby><ruby>详<rt>xiáng</rt></ruby><ruby>地<rt>dì</rt></ruby><ruby>坐<rt>zuò</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>市<rt>shì</rt></ruby><ruby>中<rt>zhōng</rt></ruby><ruby>心<rt>xīn</rt></ruby>，<ruby>欢<rt>huān</rt></ruby><ruby>迎<rt>yíng</rt></ruby><ruby>着<rt>zhe</rt></ruby><ruby>各<rt>gè</rt></ruby><ruby>族<rt>zú</rt></ruby><ruby>同<rt>tóng</rt></ruby><ruby>胞<rt>bāo</rt></ruby><ruby>和<rt>hé</rt></ruby><ruby>来<rt>lái</rt></ruby><ruby>自<rt>zì</rt></ruby><ruby>世<rt>shì</rt></ruby><ruby>界<rt>jiè</rt></ruby><ruby>各<rt>gè</rt></ruby><ruby>地<rt>dì</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>游<rt>yóu</rt></ruby><ruby>客<rt>kè</rt></ruby>。<ruby>这<rt>zhè</rt></ruby><ruby>里<rt>lǐ</rt></ruby>24<ruby>小<rt>xiǎo</rt></ruby><ruby>时<rt>shí</rt></ruby><ruby>开<rt>kāi</rt></ruby><ruby>放<rt>fàng</rt></ruby>，<ruby>售<rt>shòu</rt></ruby><ruby>卖<rt>mài</rt></ruby><ruby>各<rt>gè</rt></ruby><ruby>族<rt>zú</rt></ruby><ruby>美<rt>měi</rt></ruby><ruby>食<rt>shí</rt></ruby>，<ruby>鸡<rt>jī</rt></ruby><ruby>饭<rt>fàn</rt></ruby>、<ruby>沙<rt>shā</rt></ruby><ruby>爹<rt>diē</rt></ruby>、<ruby>印<rt>yìn</rt></ruby><ruby>度<rt>dù</rt></ruby><ruby>煎<rt>jiān</rt></ruby><ruby>饼<rt>bǐng</rt></ruby><ruby>等<rt>děng</rt></ruby><ruby>应<rt>yīng</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>尽<rt>jìn</rt></ruby><ruby>有<rt>yǒu</rt></ruby>，<ruby>体<rt>tǐ</rt></ruby><ruby>现<rt>xiàn</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>同<rt>tóng</rt></ruby><ruby>文<rt>wén</rt></ruby><ruby>化<rt>huà</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>融<rt>róng</rt></ruby><ruby>合<rt>hé</rt></ruby>。</div><div class="trait"><span class="trait-label"><ruby>推<rt>tuī</rt></ruby><ruby>荐<rt>jiàn</rt></ruby></span><ruby>品<rt>pǐn</rt></ruby><ruby>尝<rt>cháng</rt></ruby><ruby>美<rt>měi</rt></ruby><ruby>食<rt>shí</rt></ruby>、<ruby>体<rt>tǐ</rt></ruby><ruby>验<rt>yàn</rt></ruby><ruby>文<rt>wén</rt></ruby><ruby>化<rt>huà</rt></ruby></div></div>
+    </div>
+  </div>
+  <div class="en-side">
+    <div class="en-name">2. Lau Pa Sat</div>
+    <div class="en-trait"><span class="en-trait-label">Taste signature local food.</span> Built in the 19th century and rebuilt several times over the years, Lau Pa Sat was gazetted as a national monument in 1973. Like a serene centenarian sitting peacefully in the city centre, it welcomes Singaporeans of every race alongside visitors from around the world. Open 24 hours, its stalls sell food from every community — chicken rice, satay, prata and more — all reflecting the blending of different cultures.</div><div class="en-trait"><span class="en-trait-label">Recommended for.</span> Tasting local food and experiencing different cultures</div>
+  </div>
+</article>
+<article class="profile-card" data-playable data-audio="③ 甘榜格南。连接过去与现在：甘榜格南有着浓浓的马来文化特色。这里以前是马来皇宫的所在地。圆顶的苏丹回教堂就像童话中的城堡。邻近的哈芝巷随处可见时尚小店和彩绘壁画，难怪年轻人会流连忘返。。推荐：体验文化、娱乐休闲">
+  <div class="zh-side">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="③ 甘榜格南。连接过去与现在：甘榜格南有着浓浓的马来文化特色。这里以前是马来皇宫的所在地。圆顶的苏丹回教堂就像童话中的城堡。邻近的哈芝巷随处可见时尚小店和彩绘壁画，难怪年轻人会流连忘返。。推荐：体验文化、娱乐休闲"></button>
+    <div>
+      <div class="name chinese">③ <ruby>甘<rt>gān</rt></ruby><ruby>榜<rt>bǎng</rt></ruby><ruby>格<rt>gé</rt></ruby><ruby>南<rt>nán</rt></ruby></div>
+      <div class="traits chinese"><div class="trait"><span class="trait-label"><ruby>连<rt>lián</rt></ruby><ruby>接<rt>jiē</rt></ruby><ruby>过<rt>guò</rt></ruby><ruby>去<rt>qù</rt></ruby><ruby>与<rt>yǔ</rt></ruby><ruby>现<rt>xiàn</rt></ruby><ruby>在<rt>zài</rt></ruby></span><ruby>甘<rt>gān</rt></ruby><ruby>榜<rt>bǎng</rt></ruby><ruby>格<rt>gé</rt></ruby><ruby>南<rt>nán</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>着<rt>zhe</rt></ruby><ruby>浓<rt>nóng</rt></ruby><ruby>浓<rt>nóng</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>马<rt>mǎ</rt></ruby><ruby>来<rt>lái</rt></ruby><ruby>文<rt>wén</rt></ruby><ruby>化<rt>huà</rt></ruby><ruby>特<rt>tè</rt></ruby><ruby>色<rt>sè</rt></ruby>。<ruby>这<rt>zhè</rt></ruby><ruby>里<rt>lǐ</rt></ruby><ruby>以<rt>yǐ</rt></ruby><ruby>前<rt>qián</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>马<rt>mǎ</rt></ruby><ruby>来<rt>lái</rt></ruby><ruby>皇<rt>huáng</rt></ruby><ruby>宫<rt>gōng</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>所<rt>suǒ</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>地<rt>dì</rt></ruby>。<ruby>圆<rt>yuán</rt></ruby><ruby>顶<rt>dǐng</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>苏<rt>sū</rt></ruby><ruby>丹<rt>dān</rt></ruby><ruby>回<rt>huí</rt></ruby><ruby>教<rt>jiào</rt></ruby><ruby>堂<rt>táng</rt></ruby><ruby>就<rt>jiù</rt></ruby><ruby>像<rt>xiàng</rt></ruby><ruby>童<rt>tóng</rt></ruby><ruby>话<rt>huà</rt></ruby><ruby>中<rt>zhōng</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>城<rt>chéng</rt></ruby><ruby>堡<rt>bǎo</rt></ruby>。<ruby>邻<rt>lín</rt></ruby><ruby>近<rt>jìn</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>哈<rt>hā</rt></ruby><ruby>芝<rt>zhī</rt></ruby><ruby>巷<rt>xiàng</rt></ruby><ruby>随<rt>suí</rt></ruby><ruby>处<rt>chù</rt></ruby><ruby>可<rt>kě</rt></ruby><ruby>见<rt>jiàn</rt></ruby><ruby>时<rt>shí</rt></ruby><ruby>尚<rt>shàng</rt></ruby><ruby>小<rt>xiǎo</rt></ruby><ruby>店<rt>diàn</rt></ruby><ruby>和<rt>hé</rt></ruby><ruby>彩<rt>cǎi</rt></ruby><ruby>绘<rt>huì</rt></ruby><ruby>壁<rt>bì</rt></ruby><ruby>画<rt>huà</rt></ruby>，<ruby>难<rt>nán</rt></ruby><ruby>怪<rt>guài</rt></ruby><ruby>年<rt>nián</rt></ruby><ruby>轻<rt>qīng</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>会<rt>huì</rt></ruby><ruby>流<rt>liú</rt></ruby><ruby>连<rt>lián</rt></ruby><ruby>忘<rt>wàng</rt></ruby><ruby>返<rt>fǎn</rt></ruby>。</div><div class="trait"><span class="trait-label"><ruby>推<rt>tuī</rt></ruby><ruby>荐<rt>jiàn</rt></ruby></span><ruby>体<rt>tǐ</rt></ruby><ruby>验<rt>yàn</rt></ruby><ruby>文<rt>wén</rt></ruby><ruby>化<rt>huà</rt></ruby>、<ruby>娱<rt>yú</rt></ruby><ruby>乐<rt>lè</rt></ruby><ruby>休<rt>xiū</rt></ruby><ruby>闲<rt>xián</rt></ruby></div></div>
+    </div>
+  </div>
+  <div class="en-side">
+    <div class="en-name">3. Kampong Glam</div>
+    <div class="en-trait"><span class="en-trait-label">A bridge between past and present.</span> Kampong Glam is rich in Malay culture. Once the site of the Malay palace, it is home to the domed Sultan Mosque, which rises like a castle out of a fairytale. Nearby Haji Lane is full of trendy boutiques and colourful murals — no wonder young people love to linger there.</div><div class="en-trait"><span class="en-trait-label">Recommended for.</span> Cultural experiences and casual exploring</div>
+  </div>
+</article>
+<article class="profile-card" data-playable data-audio="④ 如切、加东。探索娘惹文化：如切、加东有许多色彩缤纷的店屋，是保存完好的多元文化街区。这里售卖各种娘惹美食和服饰，许多介绍娘惹文化的片子都在这里拍摄。1993年，这一街区成为指定的旧屋保留区。。推荐：体验文化、观赏建筑">
+  <div class="zh-side">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="④ 如切、加东。探索娘惹文化：如切、加东有许多色彩缤纷的店屋，是保存完好的多元文化街区。这里售卖各种娘惹美食和服饰，许多介绍娘惹文化的片子都在这里拍摄。1993年，这一街区成为指定的旧屋保留区。。推荐：体验文化、观赏建筑"></button>
+    <div>
+      <div class="name chinese">④ <ruby>如<rt>rú</rt></ruby><ruby>切<rt>qiè</rt></ruby>、<ruby>加<rt>jiā</rt></ruby><ruby>东<rt>dōng</rt></ruby></div>
+      <div class="traits chinese"><div class="trait"><span class="trait-label"><ruby>探<rt>tàn</rt></ruby><ruby>索<rt>suǒ</rt></ruby><ruby>娘<rt>niáng</rt></ruby><ruby>惹<rt>rě</rt></ruby><ruby>文<rt>wén</rt></ruby><ruby>化<rt>huà</rt></ruby></span><ruby>如<rt>rú</rt></ruby><ruby>切<rt>qiè</rt></ruby>、<ruby>加<rt>jiā</rt></ruby><ruby>东<rt>dōng</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>许<rt>xǔ</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>色<rt>sè</rt></ruby><ruby>彩<rt>cǎi</rt></ruby><ruby>缤<rt>bīn</rt></ruby><ruby>纷<rt>fēn</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>店<rt>diàn</rt></ruby><ruby>屋<rt>wū</rt></ruby>，<ruby>是<rt>shì</rt></ruby><ruby>保<rt>bǎo</rt></ruby><ruby>存<rt>cún</rt></ruby><ruby>完<rt>wán</rt></ruby><ruby>好<rt>hǎo</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>元<rt>yuán</rt></ruby><ruby>文<rt>wén</rt></ruby><ruby>化<rt>huà</rt></ruby><ruby>街<rt>jiē</rt></ruby><ruby>区<rt>qū</rt></ruby>。<ruby>这<rt>zhè</rt></ruby><ruby>里<rt>lǐ</rt></ruby><ruby>售<rt>shòu</rt></ruby><ruby>卖<rt>mài</rt></ruby><ruby>各<rt>gè</rt></ruby><ruby>种<rt>zhǒng</rt></ruby><ruby>娘<rt>niáng</rt></ruby><ruby>惹<rt>rě</rt></ruby><ruby>美<rt>měi</rt></ruby><ruby>食<rt>shí</rt></ruby><ruby>和<rt>hé</rt></ruby><ruby>服<rt>fú</rt></ruby><ruby>饰<rt>shì</rt></ruby>，<ruby>许<rt>xǔ</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>介<rt>jiè</rt></ruby><ruby>绍<rt>shào</rt></ruby><ruby>娘<rt>niáng</rt></ruby><ruby>惹<rt>rě</rt></ruby><ruby>文<rt>wén</rt></ruby><ruby>化<rt>huà</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>片<rt>piān</rt></ruby><ruby>子<rt>zi</rt></ruby><ruby>都<rt>dōu</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>这<rt>zhè</rt></ruby><ruby>里<rt>lǐ</rt></ruby><ruby>拍<rt>pāi</rt></ruby><ruby>摄<rt>shè</rt></ruby>。1993<ruby>年<rt>nián</rt></ruby>，<ruby>这<rt>zhè</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>街<rt>jiē</rt></ruby><ruby>区<rt>qū</rt></ruby><ruby>成<rt>chéng</rt></ruby><ruby>为<rt>wéi</rt></ruby><ruby>指<rt>zhǐ</rt></ruby><ruby>定<rt>dìng</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>旧<rt>jiù</rt></ruby><ruby>屋<rt>wū</rt></ruby><ruby>保<rt>bǎo</rt></ruby><ruby>留<rt>liú</rt></ruby><ruby>区<rt>qū</rt></ruby>。</div><div class="trait"><span class="trait-label"><ruby>推<rt>tuī</rt></ruby><ruby>荐<rt>jiàn</rt></ruby></span><ruby>体<rt>tǐ</rt></ruby><ruby>验<rt>yàn</rt></ruby><ruby>文<rt>wén</rt></ruby><ruby>化<rt>huà</rt></ruby>、<ruby>观<rt>guān</rt></ruby><ruby>赏<rt>shǎng</rt></ruby><ruby>建<rt>jiàn</rt></ruby><ruby>筑<rt>zhù</rt></ruby></div></div>
+    </div>
+  </div>
+  <div class="en-side">
+    <div class="en-name">4. Joo Chiat and Katong</div>
+    <div class="en-trait"><span class="en-trait-label">Explore Peranakan culture.</span> Joo Chiat and Katong are known for their colourful shophouses — well-preserved multicultural districts where you can find Peranakan food and traditional clothing. Many films about Peranakan culture have been shot here. In 1993, the area was officially designated a conservation district.</div><div class="en-trait"><span class="en-trait-label">Recommended for.</span> Cultural experiences and architecture</div>
+  </div>
+</article>
+<article class="profile-card" data-playable data-audio="⑤ 樟宜机场。通往世界各地：樟宜机场世界闻名，2019年的载客量超过6500万人次，平均每80秒就有一架飞机起降，十分繁忙。这里有许多休闲娱乐的好去处，其中包括如宝石一般闪耀的星耀樟宜。。推荐：娱乐休闲、品尝美食">
+  <div class="zh-side">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="⑤ 樟宜机场。通往世界各地：樟宜机场世界闻名，2019年的载客量超过6500万人次，平均每80秒就有一架飞机起降，十分繁忙。这里有许多休闲娱乐的好去处，其中包括如宝石一般闪耀的星耀樟宜。。推荐：娱乐休闲、品尝美食"></button>
+    <div>
+      <div class="name chinese">⑤ <ruby>樟<rt>zhāng</rt></ruby><ruby>宜<rt>yí</rt></ruby><ruby>机<rt>jī</rt></ruby><ruby>场<rt>chǎng</rt></ruby></div>
+      <div class="traits chinese"><div class="trait"><span class="trait-label"><ruby>通<rt>tōng</rt></ruby><ruby>往<rt>wǎng</rt></ruby><ruby>世<rt>shì</rt></ruby><ruby>界<rt>jiè</rt></ruby><ruby>各<rt>gè</rt></ruby><ruby>地<rt>dì</rt></ruby></span><ruby>樟<rt>zhāng</rt></ruby><ruby>宜<rt>yí</rt></ruby><ruby>机<rt>jī</rt></ruby><ruby>场<rt>chǎng</rt></ruby><ruby>世<rt>shì</rt></ruby><ruby>界<rt>jiè</rt></ruby><ruby>闻<rt>wén</rt></ruby><ruby>名<rt>míng</rt></ruby>，2019<ruby>年<rt>nián</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>载<rt>zài</rt></ruby><ruby>客<rt>kè</rt></ruby><ruby>量<rt>liàng</rt></ruby><ruby>超<rt>chāo</rt></ruby><ruby>过<rt>guò</rt></ruby>6500<ruby>万<rt>wàn</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>次<rt>cì</rt></ruby>，<ruby>平<rt>píng</rt></ruby><ruby>均<rt>jūn</rt></ruby><ruby>每<rt>měi</rt></ruby>80<ruby>秒<rt>miǎo</rt></ruby><ruby>就<rt>jiù</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>架<rt>jià</rt></ruby><ruby>飞<rt>fēi</rt></ruby><ruby>机<rt>jī</rt></ruby><ruby>起<rt>qǐ</rt></ruby><ruby>降<rt>jiàng</rt></ruby>，<ruby>十<rt>shí</rt></ruby><ruby>分<rt>fēn</rt></ruby><ruby>繁<rt>fán</rt></ruby><ruby>忙<rt>máng</rt></ruby>。<ruby>这<rt>zhè</rt></ruby><ruby>里<rt>lǐ</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>许<rt>xǔ</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>休<rt>xiū</rt></ruby><ruby>闲<rt>xián</rt></ruby><ruby>娱<rt>yú</rt></ruby><ruby>乐<rt>lè</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>好<rt>hǎo</rt></ruby><ruby>去<rt>qù</rt></ruby><ruby>处<rt>chù</rt></ruby>，<ruby>其<rt>qí</rt></ruby><ruby>中<rt>zhōng</rt></ruby><ruby>包<rt>bāo</rt></ruby><ruby>括<rt>kuò</rt></ruby><ruby>如<rt>rú</rt></ruby><ruby>宝<rt>bǎo</rt></ruby><ruby>石<rt>shí</rt></ruby><ruby>一<rt>yì</rt></ruby><ruby>般<rt>bān</rt></ruby><ruby>闪<rt>shǎn</rt></ruby><ruby>耀<rt>yào</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>星<rt>xīng</rt></ruby><ruby>耀<rt>yào</rt></ruby><ruby>樟<rt>zhāng</rt></ruby><ruby>宜<rt>yí</rt></ruby>。</div><div class="trait"><span class="trait-label"><ruby>推<rt>tuī</rt></ruby><ruby>荐<rt>jiàn</rt></ruby></span><ruby>娱<rt>yú</rt></ruby><ruby>乐<rt>lè</rt></ruby><ruby>休<rt>xiū</rt></ruby><ruby>闲<rt>xián</rt></ruby>、<ruby>品<rt>pǐn</rt></ruby><ruby>尝<rt>cháng</rt></ruby><ruby>美<rt>měi</rt></ruby><ruby>食<rt>shí</rt></ruby></div></div>
+    </div>
+  </div>
+  <div class="en-side">
+    <div class="en-name">5. Changi Airport</div>
+    <div class="en-trait"><span class="en-trait-label">A gateway to the world.</span> Changi Airport is world-famous. It handled more than 65 million passengers in 2019 — an aircraft taking off or landing every 80 seconds on average. Beyond travel, the airport has many spots for leisure and entertainment, including the jewel-like Jewel Changi.</div><div class="en-trait"><span class="en-trait-label">Recommended for.</span> Leisure, entertainment, and food</div>
+  </div>
+</article></main>
+<script>
+(function () {
+  const SPEAKER_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>';
+  const STOP_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="5" y="5" width="14" height="14" rx="1"></rect></svg>';
+  const PLAY_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>';
+
+  // Inject speaker icons into all .speaker-btn elements
+  document.querySelectorAll('.speaker-btn').forEach(function(b){ b.innerHTML = SPEAKER_SVG; });
+
+  const togglePy = document.getElementById('toggle-pinyin');
+  const toggleEn = document.getElementById('toggle-english');
+  togglePy && togglePy.addEventListener('change', function(){ document.body.classList.toggle('pinyin-off', !togglePy.checked); });
+  toggleEn && toggleEn.addEventListener('change', function(){ document.body.classList.toggle('english-off', !toggleEn.checked); });
+
+  const speed = document.getElementById('speed');
+  const speedVal = document.getElementById('speed-val');
+  let rate = speed ? parseFloat(speed.value) : 0.9;
+  if (speed) speed.addEventListener('input', function(){
+    rate = parseFloat(speed.value);
+    speedVal.textContent = rate.toFixed(2).replace(/0$/, '') + '\u00d7';
+  });
+
+  const synth = window.speechSynthesis;
+  let chosenVoice = null;
+  function pickVoice(){
+    if (!synth) return;
+    const voices = synth.getVoices();
+    chosenVoice = voices.find(function(v){ return v.lang && v.lang.toLowerCase().indexOf('zh') === 0; }) || null;
+  }
+  if (synth) { pickVoice(); synth.addEventListener && synth.addEventListener('voiceschanged', pickVoice); }
+
+  function clearActive(){
+    document.querySelectorAll('.speaker-btn.playing').forEach(function(b){ b.classList.remove('playing'); });
+    document.querySelectorAll('.active-passage').forEach(function(p){ p.classList.remove('active-passage'); });
+  }
+
+  const playAllBtn = document.getElementById('play-all-btn');
+  let isPlayingAll = false;
+  let queue = [];
+
+  function setPlayAllState(playing){
+    isPlayingAll = playing;
+    if (!playAllBtn) return;
+    if (playing){
+      playAllBtn.classList.add('playing');
+      playAllBtn.innerHTML = STOP_SVG + '<span>\u505c\u6b62 Stop</span>';
+    } else {
+      playAllBtn.classList.remove('playing');
+      playAllBtn.innerHTML = PLAY_SVG + '<span>\u64ad\u653e\u5168\u6587 Play all</span>';
+      queue = [];
+    }
+  }
+
+  function speakOne(text, onDone){
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'zh-CN'; u.rate = rate;
+    if (chosenVoice) u.voice = chosenVoice;
+    u.onend = onDone; u.onerror = onDone;
+    synth.speak(u);
+  }
+
+  // Individual speaker buttons — each has data-audio attr containing the Chinese to speak,
+  // and data-active-selector saying which parent element to highlight
+  document.querySelectorAll('.speaker-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      if (!synth){ alert('Your browser does not support speech synthesis.'); return; }
+      synth.cancel(); clearActive(); setPlayAllState(false);
+      const text = btn.dataset.audio || '';
+      const activeEl = btn.closest('[data-playable]');
+      btn.classList.add('playing');
+      if (activeEl) activeEl.classList.add('active-passage');
+      speakOne(text, function(){
+        btn.classList.remove('playing');
+        if (activeEl) activeEl.classList.remove('active-passage');
+      });
+    });
+  });
+
+  if (playAllBtn){
+    playAllBtn.addEventListener('click', function(){
+      if (!synth){ alert('Your browser does not support speech synthesis.'); return; }
+      if (isPlayingAll){ synth.cancel(); clearActive(); setPlayAllState(false); return; }
+      synth.cancel(); clearActive();
+      queue = Array.from(document.querySelectorAll('[data-playable]'));
+      setPlayAllState(true);
+      function next(){
+        if (!isPlayingAll || queue.length === 0){ clearActive(); setPlayAllState(false); return; }
+        const el = queue.shift();
+        clearActive(); el.classList.add('active-passage');
+        el.scrollIntoView({behavior:'smooth', block:'center'});
+        const text = el.dataset.audio || el.querySelector('.speaker-btn').dataset.audio;
+        speakOne(text, next);
+      }
+      next();
+    });
+  }
+})();
+</script>
+</body>
+</html>
