@@ -1,0 +1,633 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>沟通面面观 — 快捷华文</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --ink-muted: #6b7280;
+    --ink-faint: #9ca3af;
+    --accent: #2f7d4f;
+    --accent-soft: #e6f1ea;
+    --accent-dark: #26663f;
+    --rule: #e5e7eb;
+    --bg: #fafaf8;
+    --surface: #ffffff;
+    --bubble-a: #f0f4f2;
+    --bubble-b: #eef3f7;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+  }
+  .chinese { font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Source Han Sans SC", "Noto Sans CJK SC", sans-serif; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  header.top { max-width: 1100px; margin: 0 auto; padding: 2rem 2rem 1rem; }
+  .back-link { font-size: 13px; color: var(--ink-muted); display: inline-block; margin-bottom: 0.75rem; }
+  .back-link:hover { color: var(--accent); }
+  .breadcrumb {
+    font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--ink-muted); margin-bottom: 0.5rem;
+  }
+  .breadcrumb .sep { opacity: 0.5; margin: 0 0.5em; }
+  h1.title {
+    margin: 0; font-weight: 500; font-size: 28px;
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.75rem;
+  }
+  h1.title .zh { color: var(--ink); }
+  h1.title .en { color: var(--ink-muted); font-weight: 400; font-size: 16px; }
+
+  .controls {
+    max-width: 1100px; margin: 0 auto; padding: 1rem 2rem;
+    display: flex; gap: 1.25rem; flex-wrap: wrap; align-items: center;
+    border-bottom: 1px solid var(--rule);
+  }
+  .controls label {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 14px; color: var(--ink-muted); cursor: pointer; user-select: none;
+  }
+  .controls input[type=checkbox] { accent-color: var(--accent); width: 16px; height: 16px; }
+  .controls input[type=checkbox]:checked + span { color: var(--accent); font-weight: 500; }
+  .controls .speed { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ink-muted); }
+  .controls .speed input { width: 100px; accent-color: var(--accent); }
+  .controls .speed .val { min-width: 28px; font-weight: 500; color: var(--ink); }
+  .controls .speed .speed-hint { font-size: 11px; color: var(--ink-faint); font-style: italic; }
+  .controls .spacer { flex: 1; }
+  .controls button.play-all {
+    border: 1px solid var(--accent); background: var(--accent); color: #fff;
+    padding: 7px 14px; font-size: 13px; font-weight: 500; border-radius: 6px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s;
+  }
+  .controls button.play-all:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+  .controls button.play-all.playing { background: #b34545; border-color: #b34545; }
+  .controls button.play-all.playing:hover { background: #933838; border-color: #933838; }
+  .controls button.play-all svg { width: 11px; height: 11px; }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 1.5rem 2rem 5rem; }
+
+  /* Pinyin defaults */
+  ruby { ruby-position: over; }
+  ruby rt {
+    font-size: 11px; color: var(--accent);
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-weight: 400; letter-spacing: 0.02em;
+    padding-bottom: 6px;
+    transition: opacity 0.15s;
+  }
+  body.pinyin-off ruby rt { opacity: 0; }
+
+  .speaker-btn {
+    background: transparent; border: 1px solid var(--rule);
+    width: 28px; height: 28px; padding: 0; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--ink-muted); transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .speaker-btn:hover { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+  .speaker-btn.playing { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .speaker-btn svg { width: 12px; height: 12px; }
+
+  /* PROSE format — two-column */
+  .para {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2.5rem;
+    padding: 1.5rem 0; border-bottom: 1px solid var(--rule); align-items: start;
+  }
+  .para:last-child { border-bottom: none; }
+  .para .zh-col { display: grid; grid-template-columns: 28px 1fr; gap: 12px; align-items: start; }
+  .para .speaker-btn { margin-top: 8px; }
+  .para .zh-text { font-size: 22px; line-height: 2.6; }
+  .para .en-col {
+    font-size: 15px; line-height: 1.75; color: var(--ink-muted); padding-top: 6px;
+    transition: opacity 0.15s;
+  }
+  body.english-off .en-col { opacity: 0; pointer-events: none; }
+  .para-num {
+    color: var(--ink-faint); font-size: 13px; font-weight: 500;
+    margin-bottom: 4px; display: block;
+  }
+  .para.active-passage .zh-text {
+    background: var(--accent-soft); border-radius: 6px; padding: 4px 8px; margin-left: -8px;
+  }
+
+  /* Subheadings inside prose articles */
+  .subheading {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2.5rem;
+    padding: 1rem 0 0; align-items: baseline;
+    margin: 0;
+  }
+  .subheading-zh {
+    font-size: 18px; font-weight: 500; color: var(--accent-dark);
+    padding-left: 40px; line-height: 1.3;
+    margin: 0;
+  }
+  .subheading-en {
+    font-size: 14px; color: var(--ink-muted); font-weight: 500;
+    transition: opacity 0.15s;
+    letter-spacing: 0.02em;
+    line-height: 1.3;
+    margin: 0;
+  }
+  body.english-off .subheading-en { opacity: 0; }
+  /* Tight coupling — subheading sits directly on top of its paragraph */
+  .subheading + .para { border-top: none; padding-top: 0; }
+
+  /* TABLE format — stacked character cards */
+  .profile-card {
+    background: var(--surface); border: 1px solid var(--rule); border-radius: 12px;
+    padding: 1.5rem 1.75rem; margin-bottom: 1.25rem;
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start;
+  }
+  .profile-card:last-child { margin-bottom: 0; }
+  .profile-card .zh-side { display: grid; grid-template-columns: 28px 1fr; gap: 12px; }
+  .profile-card .name {
+    font-size: 24px; font-weight: 500; margin-bottom: 0.75rem;
+    line-height: 2;
+  }
+  .profile-card .traits { font-size: 18px; line-height: 2.4; }
+  .profile-card .trait { margin-bottom: 0.75rem; }
+  .profile-card .trait:last-child { margin-bottom: 0; }
+  .profile-card .trait-label {
+    display: inline-block; background: var(--accent-soft); color: var(--accent);
+    font-size: 14px; font-weight: 500; padding: 2px 12px; border-radius: 12px;
+    margin-right: 8px; vertical-align: baseline;
+    font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
+    position: relative; top: -2px;
+  }
+  .profile-card .trait-label ruby rt { color: var(--accent-dark); }
+  .profile-card .en-side {
+    font-size: 14px; line-height: 1.75; color: var(--ink-muted); padding-top: 8px;
+    transition: opacity 0.15s;
+  }
+  body.english-off .profile-card .en-side { opacity: 0; pointer-events: none; }
+  .profile-card .en-side .en-name { font-weight: 500; color: var(--ink); font-size: 16px; margin-bottom: 0.5rem; }
+  .profile-card .en-side .en-trait { margin-bottom: 0.5rem; }
+  .profile-card .en-side .en-trait-label { font-weight: 500; color: var(--ink); }
+
+  /* DIALOGUE format — chat bubbles */
+  .stage-direction {
+    text-align: center; color: var(--ink-muted);
+    font-size: 15px; padding: 1rem 2rem;
+    font-style: italic;
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start;
+  }
+  .stage-direction .zh-dir { font-style: normal; }
+  .stage-direction .zh-dir .zh-text { line-height: 2.4; }
+  .stage-direction .en-dir { font-size: 14px; }
+
+  .bubble-row {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;
+    margin-bottom: 1rem; align-items: start;
+  }
+  .bubble-zh { display: flex; gap: 10px; align-items: flex-start; }
+  .bubble-zh.align-right { justify-content: flex-end; }
+  .bubble-zh.align-right .bubble { background: var(--accent-soft); }
+  .bubble-zh .speaker-btn { margin-top: 6px; }
+  .bubble {
+    background: var(--bubble-a);
+    border-radius: 16px; padding: 10px 16px;
+    max-width: 85%;
+    line-height: 2.4; font-size: 18px;
+  }
+  .bubble-zh.align-right .bubble { border-bottom-right-radius: 4px; }
+  .bubble-zh.align-left .bubble { border-bottom-left-radius: 4px; }
+  .bubble-zh .speaker-name {
+    display: block; font-size: 12px; font-weight: 500; color: var(--accent-dark);
+    margin-bottom: 2px; letter-spacing: 0.02em;
+  }
+  .bubble-zh.align-right .speaker-name { text-align: right; }
+  .bubble-row.active-passage .bubble { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .bubble-en {
+    font-size: 14px; line-height: 1.6; color: var(--ink-muted); padding-top: 8px;
+    transition: opacity 0.15s;
+  }
+  .bubble-en .en-speaker { font-weight: 500; color: var(--ink); }
+  body.english-off .bubble-en, body.english-off .stage-direction .en-dir { opacity: 0; pointer-events: none; }
+
+  /* ===== Vocab inline highlighting + bottom sheet ===== */
+  .vocab {
+    cursor: pointer;
+    text-underline-offset: 6px;
+    text-decoration: underline dotted var(--accent);
+    text-decoration-thickness: 1.5px;
+    transition: background 0.15s;
+    border-radius: 3px;
+    padding: 0 1px;
+  }
+  .vocab:hover, .vocab:focus { background: var(--accent-soft); outline: none; }
+
+  /* Vocab list panel at top of passage (toggleable) */
+  .vocab-panel {
+    background: var(--surface); border: 1px solid var(--rule);
+    border-radius: 12px; padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .vocab-panel-title {
+    font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--ink-faint); font-weight: 500; margin: 0 0 1rem;
+  }
+  .vocab-list {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem 2rem;
+  }
+  .vocab-row {
+    display: grid; grid-template-columns: minmax(auto, 140px) 1fr; gap: 1rem;
+    padding: 0.5rem 0; border-top: 1px solid var(--rule-soft);
+    align-items: baseline;
+  }
+  .vocab-row:first-child, .vocab-row:nth-child(2) { border-top: none; }
+  .vocab-row-zh { font-size: 18px; font-family: "PingFang SC", "Hiragino Sans GB", sans-serif; line-height: 2; }
+  .vocab-row-en { font-size: 14px; color: var(--ink-muted); line-height: 1.5; }
+
+  /* Bottom sheet for single-word lookup */
+  .vocab-backdrop {
+    position: fixed; inset: 0; background: rgba(0, 0, 0, 0.25);
+    z-index: 100; opacity: 0; transition: opacity 0.2s;
+    pointer-events: none;
+  }
+  .vocab-backdrop.visible { opacity: 1; pointer-events: auto; }
+  .vocab-sheet {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--rule);
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.08);
+    padding: 1.5rem 2rem 2rem;
+    z-index: 101;
+    transform: translateY(100%); transition: transform 0.25s ease-out;
+    max-width: 600px; margin: 0 auto;
+    border-top-left-radius: 16px; border-top-right-radius: 16px;
+  }
+  .vocab-sheet.visible { transform: translateY(0); }
+  .vocab-sheet-close {
+    position: absolute; top: 10px; right: 14px;
+    background: transparent; border: none; font-size: 28px; line-height: 1;
+    color: var(--ink-faint); cursor: pointer; padding: 4px 10px;
+  }
+  .vocab-sheet-close:hover { color: var(--ink); }
+  .vocab-sheet-content .vs-zh {
+    font-size: 32px; font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
+    line-height: 2.2; margin: 0;
+  }
+  .vocab-sheet-content .vs-zh ruby rt { font-size: 14px; }
+  .vocab-sheet-content .vs-en {
+    font-size: 16px; color: var(--ink); line-height: 1.6;
+    margin: 0.5rem 0 0;
+  }
+
+  @media (max-width: 720px) {
+    .para { grid-template-columns: 1fr; gap: 0.75rem; }
+    .para .en-col { padding-top: 0; padding-left: 40px; font-style: italic; }
+    .para .zh-text { font-size: 20px; }
+    .profile-card { grid-template-columns: 1fr; gap: 1rem; padding: 1rem 1.25rem; }
+    .profile-card .en-side { padding-top: 0; padding-left: 40px; font-style: italic; border-top: 1px solid var(--rule); padding-top: 1rem; }
+    .profile-card .name { font-size: 22px; }
+    .profile-card .traits { font-size: 17px; line-height: 2.2; }
+    .bubble-row, .stage-direction { grid-template-columns: 1fr; gap: 0.5rem; }
+    .bubble-en { padding-left: 16px; padding-top: 0; font-style: italic; }
+    .bubble { font-size: 17px; }
+    header.top, .controls, main { padding-left: 1.25rem; padding-right: 1.25rem; }
+    .controls { gap: 0.75rem; }
+    .vocab-list { grid-template-columns: 1fr; gap: 0; }
+    .vocab-row { grid-template-columns: minmax(auto, 120px) 1fr; padding: 0.5rem 0; border-top: 1px solid var(--rule-soft); }
+    .vocab-row:nth-child(2) { border-top: 1px solid var(--rule-soft); }
+    .vocab-row:first-child { border-top: none; }
+    .vocab-sheet { padding: 1.25rem 1.5rem 1.75rem; }
+    .vocab-sheet-content .vs-zh { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+  <header class="top">
+    <a class="back-link" href="../index.html">← 返回 Back to all levels</a>
+    <div class="breadcrumb">Level 3 · Unit 4 · 沟通你我他 Communication Between Us <span class="sep">·</span> 核心 Core</div>
+    <h1 class="title">
+      <span class="zh chinese">《沟通面面观》</span>
+      <span class="en">The Many Faces of Communication</span>
+    </h1>
+  </header>
+  <div class="controls">
+    <label><input type="checkbox" id="toggle-pinyin" checked><span>显示汉语拼音 Show pinyin</span></label>
+    <label><input type="checkbox" id="toggle-english" checked><span>显示英文 Show English</span></label>
+    <label><input type="checkbox" id="toggle-vocab-panel"><span>显示生词 Show vocab list</span></label>
+    <div class="speed">
+      <span>语速 Speed</span>
+      <input type="range" min="0.5" max="1.2" step="0.05" value="0.9" id="speed" title="Adjust before playing">
+      <span class="val" id="speed-val">0.9×</span>
+      <span class="speed-hint">(set before play)</span>
+    </div>
+    <div class="spacer"></div>
+    <button class="play-all" id="play-all-btn" type="button">
+      <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>
+      <span>播放全文 Play all</span>
+    </button>
+  </div>
+  <main>
+  <section class="vocab-panel" id="vocab-panel" hidden>
+    <h2 class="vocab-panel-title">生词 Vocabulary · 13 words</h2>
+    <div class="vocab-list">
+      <div class="vocab-row" data-vocab-id="0">
+        <div class="vocab-row-zh chinese"><ruby>润<rt>rùn</rt></ruby><ruby>滑<rt>huá</rt></ruby><ruby>剂<rt>jì</rt></ruby></div>
+        <div class="vocab-row-en">lubricant; figuratively, something that keeps things running smoothly</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="1">
+        <div class="vocab-row-zh chinese"><ruby>不<rt>bù</rt></ruby><ruby>胜<rt>shèng</rt></ruby><ruby>枚<rt>méi</rt></ruby><ruby>举<rt>jǔ</rt></ruby></div>
+        <div class="vocab-row-en">too numerous to list</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="2">
+        <div class="vocab-row-zh chinese"><ruby>扼<rt>è</rt></ruby><ruby>腕<rt>wàn</rt></ruby></div>
+        <div class="vocab-row-en">to wring one&#x27;s wrists (in regret or frustration)</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="3">
+        <div class="vocab-row-zh chinese"><ruby>体<rt>tǐ</rt></ruby><ruby>恤<rt>xù</rt></ruby></div>
+        <div class="vocab-row-en">to show consideration for; to empathise with</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="4">
+        <div class="vocab-row-zh chinese"><ruby>氛<rt>fēn</rt></ruby><ruby>围<rt>wéi</rt></ruby></div>
+        <div class="vocab-row-en">atmosphere; mood (of a place or gathering)</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="5">
+        <div class="vocab-row-zh chinese"><ruby>谦<rt>qiān</rt></ruby><ruby>虚<rt>xū</rt></ruby></div>
+        <div class="vocab-row-en">humble; modest</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="6">
+        <div class="vocab-row-zh chinese"><ruby>裨<rt>bì</rt></ruby><ruby>益<rt>yì</rt></ruby></div>
+        <div class="vocab-row-en">benefit; advantage</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="7">
+        <div class="vocab-row-zh chinese"><ruby>严<rt>yán</rt></ruby><ruby>峻<rt>jùn</rt></ruby></div>
+        <div class="vocab-row-en">severe; grave (of challenges or situations)</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="8">
+        <div class="vocab-row-zh chinese"><ruby>流<rt>liú</rt></ruby><ruby>言<rt>yán</rt></ruby><ruby>蜚<rt>fēi</rt></ruby><ruby>语<rt>yǔ</rt></ruby></div>
+        <div class="vocab-row-en">rumours and gossip; unfounded talk</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="9">
+        <div class="vocab-row-zh chinese"><ruby>扰<rt>rǎo</rt></ruby><ruby>乱<rt>luàn</rt></ruby></div>
+        <div class="vocab-row-en">to disrupt; to unsettle</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="10">
+        <div class="vocab-row-zh chinese"><ruby>甚<rt>shèn</rt></ruby><ruby>嚣<rt>xiāo</rt></ruby><ruby>尘<rt>chén</rt></ruby><ruby>上<rt>shàng</rt></ruby></div>
+        <div class="vocab-row-en">spreading rampantly (of rumours, controversies)</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="11">
+        <div class="vocab-row-zh chinese"><ruby>基<rt>jī</rt></ruby><ruby>础<rt>chǔ</rt></ruby></div>
+        <div class="vocab-row-en">foundation; basis</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="12">
+        <div class="vocab-row-zh chinese"><ruby>涵<rt>hán</rt></ruby><ruby>盖<rt>gài</rt></ruby></div>
+        <div class="vocab-row-en">to cover; to encompass</div>
+      </div></div>
+  </section>
+<article class="para" data-playable data-audio="我们每天都与很多人沟通：和朋友闲聊是一种沟通，问老师问题是一种沟通，在朋友的贴文上点赞和留言也是一种沟通。英国诗人约翰·多恩说过：“没有人是一座孤岛。”这句话告诉我们，每个人都需要与别人进行交流。可以说，我们的生活离不开沟通。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="我们每天都与很多人沟通：和朋友闲聊是一种沟通，问老师问题是一种沟通，在朋友的贴文上点赞和留言也是一种沟通。英国诗人约翰·多恩说过：“没有人是一座孤岛。”这句话告诉我们，每个人都需要与别人进行交流。可以说，我们的生活离不开沟通。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">1</span>
+      <ruby>我<rt>wǒ</rt></ruby><ruby>们<rt>men</rt></ruby><ruby>每<rt>měi</rt></ruby><ruby>天<rt>tiān</rt></ruby><ruby>都<rt>dōu</rt></ruby><ruby>与<rt>yǔ</rt></ruby><ruby>很<rt>hěn</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>沟<rt>gōu</rt></ruby><ruby>通<rt>tōng</rt></ruby>：<ruby>和<rt>hé</rt></ruby><ruby>朋<rt>péng</rt></ruby><ruby>友<rt>yǒu</rt></ruby><ruby>闲<rt>xián</rt></ruby><ruby>聊<rt>liáo</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>种<rt>zhǒng</rt></ruby><ruby>沟<rt>gōu</rt></ruby><ruby>通<rt>tōng</rt></ruby>，<ruby>问<rt>wèn</rt></ruby><ruby>老<rt>lǎo</rt></ruby><ruby>师<rt>shī</rt></ruby><ruby>问<rt>wèn</rt></ruby><ruby>题<rt>tí</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>种<rt>zhǒng</rt></ruby><ruby>沟<rt>gōu</rt></ruby><ruby>通<rt>tōng</rt></ruby>，<ruby>在<rt>zài</rt></ruby><ruby>朋<rt>péng</rt></ruby><ruby>友<rt>yǒu</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>贴<rt>tiē</rt></ruby><ruby>文<rt>wén</rt></ruby><ruby>上<rt>shàng</rt></ruby><ruby>点<rt>diǎn</rt></ruby><ruby>赞<rt>zàn</rt></ruby><ruby>和<rt>hé</rt></ruby><ruby>留<rt>liú</rt></ruby><ruby>言<rt>yán</rt></ruby><ruby>也<rt>yě</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>种<rt>zhǒng</rt></ruby><ruby>沟<rt>gōu</rt></ruby><ruby>通<rt>tōng</rt></ruby>。<ruby>英<rt>yīng</rt></ruby><ruby>国<rt>guó</rt></ruby><ruby>诗<rt>shī</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>约<rt>yuē</rt></ruby><ruby>翰<rt>hàn</rt></ruby>·<ruby>多<rt>duō</rt></ruby><ruby>恩<rt>ēn</rt></ruby><ruby>说<rt>shuō</rt></ruby><ruby>过<rt>guò</rt></ruby>：“<ruby>没<rt>méi</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>座<rt>zuò</rt></ruby><ruby>孤<rt>gū</rt></ruby><ruby>岛<rt>dǎo</rt></ruby>。”<ruby>这<rt>zhè</rt></ruby><ruby>句<rt>jù</rt></ruby><ruby>话<rt>huà</rt></ruby><ruby>告<rt>gào</rt></ruby><ruby>诉<rt>sù</rt></ruby><ruby>我<rt>wǒ</rt></ruby><ruby>们<rt>men</rt></ruby>，<ruby>每<rt>měi</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>都<rt>dōu</rt></ruby><ruby>需<rt>xū</rt></ruby><ruby>要<rt>yào</rt></ruby><ruby>与<rt>yǔ</rt></ruby><ruby>别<rt>bié</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>进<rt>jìn</rt></ruby><ruby>行<rt>xíng</rt></ruby><ruby>交<rt>jiāo</rt></ruby><ruby>流<rt>liú</rt></ruby>。<ruby>可<rt>kě</rt></ruby><ruby>以<rt>yǐ</rt></ruby><ruby>说<rt>shuō</rt></ruby>，<ruby>我<rt>wǒ</rt></ruby><ruby>们<rt>men</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>活<rt>huó</rt></ruby><ruby>离<rt>lí</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>开<rt>kāi</rt></ruby><ruby>沟<rt>gōu</rt></ruby><ruby>通<rt>tōng</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">1</span>Every day we communicate with many people: chatting casually with friends is a form of communication, asking a teacher a question is communication, and liking or leaving a comment on a friend&#x27;s post is communication too. The English poet John Donne once said, &quot;No man is an island.&quot; His words remind us that everyone needs to connect with others. You could say that our lives cannot do without communication.</div>
+</article>
+<article class="para" data-playable data-audio="从个人方面来说，沟通是维持良好关系的润滑剂，它可以促进朋友之间的交流，加深彼此的情谊。如果缺少沟通，日子久了，再深厚的感情也会逐渐转淡。很多人在小学时都有亲密的朋友，可是升上不同的中学后，沟通的机会少了，友情也越来越难以维持，一些好朋友最后甚至完全失去联络。这样的例子不胜枚举。每当看到这种情况，难免令人扼腕叹息。由此可见，沟通在维系友情方面具有非常重要的作用。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="从个人方面来说，沟通是维持良好关系的润滑剂，它可以促进朋友之间的交流，加深彼此的情谊。如果缺少沟通，日子久了，再深厚的感情也会逐渐转淡。很多人在小学时都有亲密的朋友，可是升上不同的中学后，沟通的机会少了，友情也越来越难以维持，一些好朋友最后甚至完全失去联络。这样的例子不胜枚举。每当看到这种情况，难免令人扼腕叹息。由此可见，沟通在维系友情方面具有非常重要的作用。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">2</span>
+      <ruby>从<rt>cóng</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>方<rt>fāng</rt></ruby><ruby>面<rt>miàn</rt></ruby><ruby>来<rt>lái</rt></ruby><ruby>说<rt>shuō</rt></ruby>，<ruby>沟<rt>gōu</rt></ruby><ruby>通<rt>tōng</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>维<rt>wéi</rt></ruby><ruby>持<rt>chí</rt></ruby><ruby>良<rt>liáng</rt></ruby><ruby>好<rt>hǎo</rt></ruby><ruby>关<rt>guān</rt></ruby><ruby>系<rt>xì</rt></ruby><ruby>的<rt>de</rt></ruby><span class="vocab" data-vocab-id="0"><ruby>润<rt>rùn</rt></ruby><ruby>滑<rt>huá</rt></ruby><ruby>剂<rt>jì</rt></ruby></span>，<ruby>它<rt>tā</rt></ruby><ruby>可<rt>kě</rt></ruby><ruby>以<rt>yǐ</rt></ruby><ruby>促<rt>cù</rt></ruby><ruby>进<rt>jìn</rt></ruby><ruby>朋<rt>péng</rt></ruby><ruby>友<rt>yǒu</rt></ruby><ruby>之<rt>zhī</rt></ruby><ruby>间<rt>jiān</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>交<rt>jiāo</rt></ruby><ruby>流<rt>liú</rt></ruby>，<ruby>加<rt>jiā</rt></ruby><ruby>深<rt>shēn</rt></ruby><ruby>彼<rt>bǐ</rt></ruby><ruby>此<rt>cǐ</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>情<rt>qíng</rt></ruby><ruby>谊<rt>yì</rt></ruby>。<ruby>如<rt>rú</rt></ruby><ruby>果<rt>guǒ</rt></ruby><ruby>缺<rt>quē</rt></ruby><ruby>少<rt>shǎo</rt></ruby><ruby>沟<rt>gōu</rt></ruby><ruby>通<rt>tōng</rt></ruby>，<ruby>日<rt>rì</rt></ruby><ruby>子<rt>zi</rt></ruby><ruby>久<rt>jiǔ</rt></ruby><ruby>了<rt>le</rt></ruby>，<ruby>再<rt>zài</rt></ruby><ruby>深<rt>shēn</rt></ruby><ruby>厚<rt>hòu</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>感<rt>gǎn</rt></ruby><ruby>情<rt>qíng</rt></ruby><ruby>也<rt>yě</rt></ruby><ruby>会<rt>huì</rt></ruby><ruby>逐<rt>zhú</rt></ruby><ruby>渐<rt>jiàn</rt></ruby><ruby>转<rt>zhuǎn</rt></ruby><ruby>淡<rt>dàn</rt></ruby>。<ruby>很<rt>hěn</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>小<rt>xiǎo</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>时<rt>shí</rt></ruby><ruby>都<rt>dōu</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>亲<rt>qīn</rt></ruby><ruby>密<rt>mì</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>朋<rt>péng</rt></ruby><ruby>友<rt>yǒu</rt></ruby>，<ruby>可<rt>kě</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>升<rt>shēng</rt></ruby><ruby>上<rt>shàng</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>同<rt>tóng</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>中<rt>zhōng</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>后<rt>hòu</rt></ruby>，<ruby>沟<rt>gōu</rt></ruby><ruby>通<rt>tōng</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>机<rt>jī</rt></ruby><ruby>会<rt>huì</rt></ruby><ruby>少<rt>shǎo</rt></ruby><ruby>了<rt>le</rt></ruby>，<ruby>友<rt>yǒu</rt></ruby><ruby>情<rt>qíng</rt></ruby><ruby>也<rt>yě</rt></ruby><ruby>越<rt>yuè</rt></ruby><ruby>来<rt>lái</rt></ruby><ruby>越<rt>yuè</rt></ruby><ruby>难<rt>nán</rt></ruby><ruby>以<rt>yǐ</rt></ruby><ruby>维<rt>wéi</rt></ruby><ruby>持<rt>chí</rt></ruby>，<ruby>一<rt>yì</rt></ruby><ruby>些<rt>xiē</rt></ruby><ruby>好<rt>hǎo</rt></ruby><ruby>朋<rt>péng</rt></ruby><ruby>友<rt>yǒu</rt></ruby><ruby>最<rt>zuì</rt></ruby><ruby>后<rt>hòu</rt></ruby><ruby>甚<rt>shèn</rt></ruby><ruby>至<rt>zhì</rt></ruby><ruby>完<rt>wán</rt></ruby><ruby>全<rt>quán</rt></ruby><ruby>失<rt>shī</rt></ruby><ruby>去<rt>qù</rt></ruby><ruby>联<rt>lián</rt></ruby><ruby>络<rt>luò</rt></ruby>。<ruby>这<rt>zhè</rt></ruby><ruby>样<rt>yàng</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>例<rt>lì</rt></ruby><ruby>子<rt>zi</rt></ruby><span class="vocab" data-vocab-id="1"><ruby>不<rt>bù</rt></ruby><ruby>胜<rt>shèng</rt></ruby><ruby>枚<rt>méi</rt></ruby><ruby>举<rt>jǔ</rt></ruby></span>。<ruby>每<rt>měi</rt></ruby><ruby>当<rt>dāng</rt></ruby><ruby>看<rt>kàn</rt></ruby><ruby>到<rt>dào</rt></ruby><ruby>这<rt>zhè</rt></ruby><ruby>种<rt>zhǒng</rt></ruby><ruby>情<rt>qíng</rt></ruby><ruby>况<rt>kuàng</rt></ruby>，<ruby>难<rt>nán</rt></ruby><ruby>免<rt>miǎn</rt></ruby><ruby>令<rt>lìng</rt></ruby><ruby>人<rt>rén</rt></ruby><span class="vocab" data-vocab-id="2"><ruby>扼<rt>è</rt></ruby><ruby>腕<rt>wàn</rt></ruby></span><ruby>叹<rt>tàn</rt></ruby><ruby>息<rt>xī</rt></ruby>。<ruby>由<rt>yóu</rt></ruby><ruby>此<rt>cǐ</rt></ruby><ruby>可<rt>kě</rt></ruby><ruby>见<rt>jiàn</rt></ruby>，<ruby>沟<rt>gōu</rt></ruby><ruby>通<rt>tōng</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>维<rt>wéi</rt></ruby><ruby>系<rt>xì</rt></ruby><ruby>友<rt>yǒu</rt></ruby><ruby>情<rt>qíng</rt></ruby><ruby>方<rt>fāng</rt></ruby><ruby>面<rt>miàn</rt></ruby><ruby>具<rt>jù</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>非<rt>fēi</rt></ruby><ruby>常<rt>cháng</rt></ruby><ruby>重<rt>zhòng</rt></ruby><ruby>要<rt>yào</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>作<rt>zuò</rt></ruby><ruby>用<rt>yòng</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">2</span>On a personal level, communication is the lubricant that keeps good relationships running smoothly — it deepens the bond between friends. Without communication, over time even the deepest connection gradually fades. Many people have close friends in primary school, but once they move on to different secondary schools, opportunities to communicate shrink, friendships become harder to sustain, and sometimes old friends lose contact altogether. Examples of this are too numerous to list. Every time we see it, we can&#x27;t help but feel regret. This shows just how vital communication is to holding friendships together.</div>
+</article>
+<article class="para" data-playable data-audio="对家庭而言，沟通更是必不可少。现今社会生活节奏快，很多人早出晚归，终日忙碌，很少和家人沟通，以致与家人的关系渐渐疏远。其实，即使亲如家人，也需要经常交流。这样一来，孩子会更体恤父母的辛劳，父母会更了解孩子的心思，家庭氛围也会因此变得更加融洽。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="对家庭而言，沟通更是必不可少。现今社会生活节奏快，很多人早出晚归，终日忙碌，很少和家人沟通，以致与家人的关系渐渐疏远。其实，即使亲如家人，也需要经常交流。这样一来，孩子会更体恤父母的辛劳，父母会更了解孩子的心思，家庭氛围也会因此变得更加融洽。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">3</span>
+      <ruby>对<rt>duì</rt></ruby><ruby>家<rt>jiā</rt></ruby><ruby>庭<rt>tíng</rt></ruby><ruby>而<rt>ér</rt></ruby><ruby>言<rt>yán</rt></ruby>，<ruby>沟<rt>gōu</rt></ruby><ruby>通<rt>tōng</rt></ruby><ruby>更<rt>gèng</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>必<rt>bì</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>可<rt>kě</rt></ruby><ruby>少<rt>shǎo</rt></ruby>。<ruby>现<rt>xiàn</rt></ruby><ruby>今<rt>jīn</rt></ruby><ruby>社<rt>shè</rt></ruby><ruby>会<rt>huì</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>活<rt>huó</rt></ruby><ruby>节<rt>jié</rt></ruby><ruby>奏<rt>zòu</rt></ruby><ruby>快<rt>kuài</rt></ruby>，<ruby>很<rt>hěn</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>早<rt>zǎo</rt></ruby><ruby>出<rt>chū</rt></ruby><ruby>晚<rt>wǎn</rt></ruby><ruby>归<rt>guī</rt></ruby>，<ruby>终<rt>zhōng</rt></ruby><ruby>日<rt>rì</rt></ruby><ruby>忙<rt>máng</rt></ruby><ruby>碌<rt>lù</rt></ruby>，<ruby>很<rt>hěn</rt></ruby><ruby>少<rt>shǎo</rt></ruby><ruby>和<rt>hé</rt></ruby><ruby>家<rt>jiā</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>沟<rt>gōu</rt></ruby><ruby>通<rt>tōng</rt></ruby>，<ruby>以<rt>yǐ</rt></ruby><ruby>致<rt>zhì</rt></ruby><ruby>与<rt>yǔ</rt></ruby><ruby>家<rt>jiā</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>关<rt>guān</rt></ruby><ruby>系<rt>xì</rt></ruby><ruby>渐<rt>jiàn</rt></ruby><ruby>渐<rt>jiàn</rt></ruby><ruby>疏<rt>shū</rt></ruby><ruby>远<rt>yuǎn</rt></ruby>。<ruby>其<rt>qí</rt></ruby><ruby>实<rt>shí</rt></ruby>，<ruby>即<rt>jí</rt></ruby><ruby>使<rt>shǐ</rt></ruby><ruby>亲<rt>qīn</rt></ruby><ruby>如<rt>rú</rt></ruby><ruby>家<rt>jiā</rt></ruby><ruby>人<rt>rén</rt></ruby>，<ruby>也<rt>yě</rt></ruby><ruby>需<rt>xū</rt></ruby><ruby>要<rt>yào</rt></ruby><ruby>经<rt>jīng</rt></ruby><ruby>常<rt>cháng</rt></ruby><ruby>交<rt>jiāo</rt></ruby><ruby>流<rt>liú</rt></ruby>。<ruby>这<rt>zhè</rt></ruby><ruby>样<rt>yàng</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>来<rt>lái</rt></ruby>，<ruby>孩<rt>hái</rt></ruby><ruby>子<rt>zi</rt></ruby><ruby>会<rt>huì</rt></ruby><ruby>更<rt>gèng</rt></ruby><span class="vocab" data-vocab-id="3"><ruby>体<rt>tǐ</rt></ruby><ruby>恤<rt>xù</rt></ruby></span><ruby>父<rt>fù</rt></ruby><ruby>母<rt>mǔ</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>辛<rt>xīn</rt></ruby><ruby>劳<rt>láo</rt></ruby>，<ruby>父<rt>fù</rt></ruby><ruby>母<rt>mǔ</rt></ruby><ruby>会<rt>huì</rt></ruby><ruby>更<rt>gèng</rt></ruby><ruby>了<rt>liǎo</rt></ruby><ruby>解<rt>jiě</rt></ruby><ruby>孩<rt>hái</rt></ruby><ruby>子<rt>zi</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>心<rt>xīn</rt></ruby><ruby>思<rt>sī</rt></ruby>，<ruby>家<rt>jiā</rt></ruby><ruby>庭<rt>tíng</rt></ruby><span class="vocab" data-vocab-id="4"><ruby>氛<rt>fēn</rt></ruby><ruby>围<rt>wéi</rt></ruby></span><ruby>也<rt>yě</rt></ruby><ruby>会<rt>huì</rt></ruby><ruby>因<rt>yīn</rt></ruby><ruby>此<rt>cǐ</rt></ruby><ruby>变<rt>biàn</rt></ruby><ruby>得<rt>dé</rt></ruby><ruby>更<rt>gèng</rt></ruby><ruby>加<rt>jiā</rt></ruby><ruby>融<rt>róng</rt></ruby><ruby>洽<rt>qià</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">3</span>For families, communication is all the more essential. Life moves fast today — many people leave early and come home late, staying busy all day, and rarely talk with their families. This slowly pulls family members apart. In truth, even the closest family members need to communicate often. When they do, children become more empathetic to their parents&#x27; hard work, parents understand their children&#x27;s thoughts better, and the atmosphere at home grows warmer.</div>
+</article>
+<article class="para" data-playable data-audio="沟通不只对维系友情和促进家人的关系有帮助，对团体的成功也起着关键的作用。任何一个团队，要达成目标，就必须上下一心，团结互信。要做到这一点，就离不开适当的沟通。现代管理理论之父切斯特·巴纳德曾经这样说：“管理者最基本的职责是建立与维持一个畅通的沟通管道。”在团队中，领导者应该懂得以谦虚的态度倾听他人的意见，懂得通过巧妙的提问鼓励下属畅所欲言。这样的沟通是尊重，也是鼓励，可以增强团体的凝聚力。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="沟通不只对维系友情和促进家人的关系有帮助，对团体的成功也起着关键的作用。任何一个团队，要达成目标，就必须上下一心，团结互信。要做到这一点，就离不开适当的沟通。现代管理理论之父切斯特·巴纳德曾经这样说：“管理者最基本的职责是建立与维持一个畅通的沟通管道。”在团队中，领导者应该懂得以谦虚的态度倾听他人的意见，懂得通过巧妙的提问鼓励下属畅所欲言。这样的沟通是尊重，也是鼓励，可以增强团体的凝聚力。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">4</span>
+      <ruby>沟<rt>gōu</rt></ruby><ruby>通<rt>tōng</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>只<rt>zhǐ</rt></ruby><ruby>对<rt>duì</rt></ruby><ruby>维<rt>wéi</rt></ruby><ruby>系<rt>xì</rt></ruby><ruby>友<rt>yǒu</rt></ruby><ruby>情<rt>qíng</rt></ruby><ruby>和<rt>hé</rt></ruby><ruby>促<rt>cù</rt></ruby><ruby>进<rt>jìn</rt></ruby><ruby>家<rt>jiā</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>关<rt>guān</rt></ruby><ruby>系<rt>xì</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>帮<rt>bāng</rt></ruby><ruby>助<rt>zhù</rt></ruby>，<ruby>对<rt>duì</rt></ruby><ruby>团<rt>tuán</rt></ruby><ruby>体<rt>tǐ</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>成<rt>chéng</rt></ruby><ruby>功<rt>gōng</rt></ruby><ruby>也<rt>yě</rt></ruby><ruby>起<rt>qǐ</rt></ruby><ruby>着<rt>zhe</rt></ruby><ruby>关<rt>guān</rt></ruby><ruby>键<rt>jiàn</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>作<rt>zuò</rt></ruby><ruby>用<rt>yòng</rt></ruby>。<ruby>任<rt>rèn</rt></ruby><ruby>何<rt>hé</rt></ruby><ruby>一<rt>yí</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>团<rt>tuán</rt></ruby><ruby>队<rt>duì</rt></ruby>，<ruby>要<rt>yào</rt></ruby><ruby>达<rt>dá</rt></ruby><ruby>成<rt>chéng</rt></ruby><ruby>目<rt>mù</rt></ruby><ruby>标<rt>biāo</rt></ruby>，<ruby>就<rt>jiù</rt></ruby><ruby>必<rt>bì</rt></ruby><ruby>须<rt>xū</rt></ruby><ruby>上<rt>shàng</rt></ruby><ruby>下<rt>xià</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>心<rt>xīn</rt></ruby>，<ruby>团<rt>tuán</rt></ruby><ruby>结<rt>jié</rt></ruby><ruby>互<rt>hù</rt></ruby><ruby>信<rt>xìn</rt></ruby>。<ruby>要<rt>yào</rt></ruby><ruby>做<rt>zuò</rt></ruby><ruby>到<rt>dào</rt></ruby><ruby>这<rt>zhè</rt></ruby><ruby>一<rt>yì</rt></ruby><ruby>点<rt>diǎn</rt></ruby>，<ruby>就<rt>jiù</rt></ruby><ruby>离<rt>lí</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>开<rt>kāi</rt></ruby><ruby>适<rt>shì</rt></ruby><ruby>当<rt>dàng</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>沟<rt>gōu</rt></ruby><ruby>通<rt>tōng</rt></ruby>。<ruby>现<rt>xiàn</rt></ruby><ruby>代<rt>dài</rt></ruby><ruby>管<rt>guǎn</rt></ruby><ruby>理<rt>lǐ</rt></ruby><ruby>理<rt>lǐ</rt></ruby><ruby>论<rt>lùn</rt></ruby><ruby>之<rt>zhī</rt></ruby><ruby>父<rt>fù</rt></ruby><ruby>切<rt>qiè</rt></ruby><ruby>斯<rt>sī</rt></ruby><ruby>特<rt>tè</rt></ruby>·<ruby>巴<rt>bā</rt></ruby><ruby>纳<rt>nà</rt></ruby><ruby>德<rt>dé</rt></ruby><ruby>曾<rt>céng</rt></ruby><ruby>经<rt>jīng</rt></ruby><ruby>这<rt>zhè</rt></ruby><ruby>样<rt>yàng</rt></ruby><ruby>说<rt>shuō</rt></ruby>：“<ruby>管<rt>guǎn</rt></ruby><ruby>理<rt>lǐ</rt></ruby><ruby>者<rt>zhě</rt></ruby><ruby>最<rt>zuì</rt></ruby><ruby>基<rt>jī</rt></ruby><ruby>本<rt>běn</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>职<rt>zhí</rt></ruby><ruby>责<rt>zé</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>建<rt>jiàn</rt></ruby><ruby>立<rt>lì</rt></ruby><ruby>与<rt>yǔ</rt></ruby><ruby>维<rt>wéi</rt></ruby><ruby>持<rt>chí</rt></ruby><ruby>一<rt>yí</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>畅<rt>chàng</rt></ruby><ruby>通<rt>tōng</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>沟<rt>gōu</rt></ruby><ruby>通<rt>tōng</rt></ruby><ruby>管<rt>guǎn</rt></ruby><ruby>道<rt>dào</rt></ruby>。”<ruby>在<rt>zài</rt></ruby><ruby>团<rt>tuán</rt></ruby><ruby>队<rt>duì</rt></ruby><ruby>中<rt>zhōng</rt></ruby>，<ruby>领<rt>lǐng</rt></ruby><ruby>导<rt>dǎo</rt></ruby><ruby>者<rt>zhě</rt></ruby><ruby>应<rt>yīng</rt></ruby><ruby>该<rt>gāi</rt></ruby><ruby>懂<rt>dǒng</rt></ruby><ruby>得<rt>de</rt></ruby><ruby>以<rt>yǐ</rt></ruby><span class="vocab" data-vocab-id="5"><ruby>谦<rt>qiān</rt></ruby><ruby>虚<rt>xū</rt></ruby></span><ruby>的<rt>de</rt></ruby><ruby>态<rt>tài</rt></ruby><ruby>度<rt>dù</rt></ruby><ruby>倾<rt>qīng</rt></ruby><ruby>听<rt>tīng</rt></ruby><ruby>他<rt>tā</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>意<rt>yì</rt></ruby><ruby>见<rt>jiàn</rt></ruby>，<ruby>懂<rt>dǒng</rt></ruby><ruby>得<rt>de</rt></ruby><ruby>通<rt>tōng</rt></ruby><ruby>过<rt>guò</rt></ruby><ruby>巧<rt>qiǎo</rt></ruby><ruby>妙<rt>miào</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>提<rt>tí</rt></ruby><ruby>问<rt>wèn</rt></ruby><ruby>鼓<rt>gǔ</rt></ruby><ruby>励<rt>lì</rt></ruby><ruby>下<rt>xià</rt></ruby><ruby>属<rt>shǔ</rt></ruby><ruby>畅<rt>chàng</rt></ruby><ruby>所<rt>suǒ</rt></ruby><ruby>欲<rt>yù</rt></ruby><ruby>言<rt>yán</rt></ruby>。<ruby>这<rt>zhè</rt></ruby><ruby>样<rt>yàng</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>沟<rt>gōu</rt></ruby><ruby>通<rt>tōng</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>尊<rt>zūn</rt></ruby><ruby>重<rt>zhòng</rt></ruby>，<ruby>也<rt>yě</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>鼓<rt>gǔ</rt></ruby><ruby>励<rt>lì</rt></ruby>，<ruby>可<rt>kě</rt></ruby><ruby>以<rt>yǐ</rt></ruby><ruby>增<rt>zēng</rt></ruby><ruby>强<rt>qiáng</rt></ruby><ruby>团<rt>tuán</rt></ruby><ruby>体<rt>tǐ</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>凝<rt>níng</rt></ruby><ruby>聚<rt>jù</rt></ruby><ruby>力<rt>lì</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">4</span>Communication doesn&#x27;t just matter for friendships and family — it plays a critical role in the success of any group. For a team to reach its goals, everyone has to be of one mind, united and trusting. That cannot happen without proper communication. Chester Barnard, the father of modern management theory, once said: &quot;The most basic responsibility of a manager is to establish and maintain a channel of open communication.&quot; Within a team, leaders should know how to listen humbly to others&#x27; views, and use thoughtful questions to encourage team members to speak their minds. This kind of communication is both a mark of respect and an encouragement — and it strengthens a team&#x27;s cohesion.</div>
+</article>
+<article class="para" data-playable data-audio="从更广泛的层面来看，沟通对国家的稳定与发展也大有裨益。这一点从我国的历史发展中就可以找到证明。上个世纪60年代，各个族群聚居在不同地区，彼此之间的交流相对不足。那个时候，新加坡面临种种严峻的挑战，社会上出现了大量的流言蜚语，各种扰乱民心的论调也甚嚣尘上，最终导致激烈的种族冲突。这些事件让国人意识到，种族之间的沟通、理解和包容是构建和谐社会的基础。在此之后，我国制定了更多促进种族融合的政策。这些政策涵盖了许多具体的措施，例如，确保同一个社区里居住着不同种族的人，以增进彼此的交流与了解。在日常的相处和沟通中，各个种族彼此包容，国家也因此得以稳定发展。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="从更广泛的层面来看，沟通对国家的稳定与发展也大有裨益。这一点从我国的历史发展中就可以找到证明。上个世纪60年代，各个族群聚居在不同地区，彼此之间的交流相对不足。那个时候，新加坡面临种种严峻的挑战，社会上出现了大量的流言蜚语，各种扰乱民心的论调也甚嚣尘上，最终导致激烈的种族冲突。这些事件让国人意识到，种族之间的沟通、理解和包容是构建和谐社会的基础。在此之后，我国制定了更多促进种族融合的政策。这些政策涵盖了许多具体的措施，例如，确保同一个社区里居住着不同种族的人，以增进彼此的交流与了解。在日常的相处和沟通中，各个种族彼此包容，国家也因此得以稳定发展。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">5</span>
+      <ruby>从<rt>cóng</rt></ruby><ruby>更<rt>gèng</rt></ruby><ruby>广<rt>guǎng</rt></ruby><ruby>泛<rt>fàn</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>层<rt>céng</rt></ruby><ruby>面<rt>miàn</rt></ruby><ruby>来<rt>lái</rt></ruby><ruby>看<rt>kàn</rt></ruby>，<ruby>沟<rt>gōu</rt></ruby><ruby>通<rt>tōng</rt></ruby><ruby>对<rt>duì</rt></ruby><ruby>国<rt>guó</rt></ruby><ruby>家<rt>jiā</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>稳<rt>wěn</rt></ruby><ruby>定<rt>dìng</rt></ruby><ruby>与<rt>yǔ</rt></ruby><ruby>发<rt>fā</rt></ruby><ruby>展<rt>zhǎn</rt></ruby><ruby>也<rt>yě</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>有<rt>yǒu</rt></ruby><span class="vocab" data-vocab-id="6"><ruby>裨<rt>bì</rt></ruby><ruby>益<rt>yì</rt></ruby></span>。<ruby>这<rt>zhè</rt></ruby><ruby>一<rt>yì</rt></ruby><ruby>点<rt>diǎn</rt></ruby><ruby>从<rt>cóng</rt></ruby><ruby>我<rt>wǒ</rt></ruby><ruby>国<rt>guó</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>历<rt>lì</rt></ruby><ruby>史<rt>shǐ</rt></ruby><ruby>发<rt>fā</rt></ruby><ruby>展<rt>zhǎn</rt></ruby><ruby>中<rt>zhōng</rt></ruby><ruby>就<rt>jiù</rt></ruby><ruby>可<rt>kě</rt></ruby><ruby>以<rt>yǐ</rt></ruby><ruby>找<rt>zhǎo</rt></ruby><ruby>到<rt>dào</rt></ruby><ruby>证<rt>zhèng</rt></ruby><ruby>明<rt>míng</rt></ruby>。<ruby>上<rt>shàng</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>世<rt>shì</rt></ruby><ruby>纪<rt>jì</rt></ruby>60<ruby>年<rt>nián</rt></ruby><ruby>代<rt>dài</rt></ruby>，<ruby>各<rt>gè</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>族<rt>zú</rt></ruby><ruby>群<rt>qún</rt></ruby><ruby>聚<rt>jù</rt></ruby><ruby>居<rt>jū</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>同<rt>tóng</rt></ruby><ruby>地<rt>dì</rt></ruby><ruby>区<rt>qū</rt></ruby>，<ruby>彼<rt>bǐ</rt></ruby><ruby>此<rt>cǐ</rt></ruby><ruby>之<rt>zhī</rt></ruby><ruby>间<rt>jiān</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>交<rt>jiāo</rt></ruby><ruby>流<rt>liú</rt></ruby><ruby>相<rt>xiāng</rt></ruby><ruby>对<rt>duì</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>足<rt>zú</rt></ruby>。<ruby>那<rt>nà</rt></ruby><ruby>个<rt>ge</rt></ruby><ruby>时<rt>shí</rt></ruby><ruby>候<rt>hòu</rt></ruby>，<ruby>新<rt>xīn</rt></ruby><ruby>加<rt>jiā</rt></ruby><ruby>坡<rt>pō</rt></ruby><ruby>面<rt>miàn</rt></ruby><ruby>临<rt>lín</rt></ruby><ruby>种<rt>zhǒng</rt></ruby><ruby>种<rt>zhǒng</rt></ruby><span class="vocab" data-vocab-id="7"><ruby>严<rt>yán</rt></ruby><ruby>峻<rt>jùn</rt></ruby></span><ruby>的<rt>de</rt></ruby><ruby>挑<rt>tiǎo</rt></ruby><ruby>战<rt>zhàn</rt></ruby>，<ruby>社<rt>shè</rt></ruby><ruby>会<rt>huì</rt></ruby><ruby>上<rt>shàng</rt></ruby><ruby>出<rt>chū</rt></ruby><ruby>现<rt>xiàn</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>量<rt>liàng</rt></ruby><ruby>的<rt>de</rt></ruby><span class="vocab" data-vocab-id="8"><ruby>流<rt>liú</rt></ruby><ruby>言<rt>yán</rt></ruby><ruby>蜚<rt>fēi</rt></ruby><ruby>语<rt>yǔ</rt></ruby></span>，<ruby>各<rt>gè</rt></ruby><ruby>种<rt>zhǒng</rt></ruby><span class="vocab" data-vocab-id="9"><ruby>扰<rt>rǎo</rt></ruby><ruby>乱<rt>luàn</rt></ruby></span><ruby>民<rt>mín</rt></ruby><ruby>心<rt>xīn</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>论<rt>lùn</rt></ruby><ruby>调<rt>diào</rt></ruby><ruby>也<rt>yě</rt></ruby><span class="vocab" data-vocab-id="10"><ruby>甚<rt>shèn</rt></ruby><ruby>嚣<rt>xiāo</rt></ruby><ruby>尘<rt>chén</rt></ruby><ruby>上<rt>shàng</rt></ruby></span>，<ruby>最<rt>zuì</rt></ruby><ruby>终<rt>zhōng</rt></ruby><ruby>导<rt>dǎo</rt></ruby><ruby>致<rt>zhì</rt></ruby><ruby>激<rt>jī</rt></ruby><ruby>烈<rt>liè</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>种<rt>zhǒng</rt></ruby><ruby>族<rt>zú</rt></ruby><ruby>冲<rt>chōng</rt></ruby><ruby>突<rt>tū</rt></ruby>。<ruby>这<rt>zhè</rt></ruby><ruby>些<rt>xiē</rt></ruby><ruby>事<rt>shì</rt></ruby><ruby>件<rt>jiàn</rt></ruby><ruby>让<rt>ràng</rt></ruby><ruby>国<rt>guó</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>意<rt>yì</rt></ruby><ruby>识<rt>shí</rt></ruby><ruby>到<rt>dào</rt></ruby>，<ruby>种<rt>zhǒng</rt></ruby><ruby>族<rt>zú</rt></ruby><ruby>之<rt>zhī</rt></ruby><ruby>间<rt>jiān</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>沟<rt>gōu</rt></ruby><ruby>通<rt>tōng</rt></ruby>、<ruby>理<rt>lǐ</rt></ruby><ruby>解<rt>jiě</rt></ruby><ruby>和<rt>hé</rt></ruby><ruby>包<rt>bāo</rt></ruby><ruby>容<rt>róng</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>构<rt>gòu</rt></ruby><ruby>建<rt>jiàn</rt></ruby><ruby>和<rt>hé</rt></ruby><ruby>谐<rt>xié</rt></ruby><ruby>社<rt>shè</rt></ruby><ruby>会<rt>huì</rt></ruby><ruby>的<rt>de</rt></ruby><span class="vocab" data-vocab-id="11"><ruby>基<rt>jī</rt></ruby><ruby>础<rt>chǔ</rt></ruby></span>。<ruby>在<rt>zài</rt></ruby><ruby>此<rt>cǐ</rt></ruby><ruby>之<rt>zhī</rt></ruby><ruby>后<rt>hòu</rt></ruby>，<ruby>我<rt>wǒ</rt></ruby><ruby>国<rt>guó</rt></ruby><ruby>制<rt>zhì</rt></ruby><ruby>定<rt>dìng</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>更<rt>gèng</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>促<rt>cù</rt></ruby><ruby>进<rt>jìn</rt></ruby><ruby>种<rt>zhǒng</rt></ruby><ruby>族<rt>zú</rt></ruby><ruby>融<rt>róng</rt></ruby><ruby>合<rt>hé</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>政<rt>zhèng</rt></ruby><ruby>策<rt>cè</rt></ruby>。<ruby>这<rt>zhè</rt></ruby><ruby>些<rt>xiē</rt></ruby><ruby>政<rt>zhèng</rt></ruby><ruby>策<rt>cè</rt></ruby><span class="vocab" data-vocab-id="12"><ruby>涵<rt>hán</rt></ruby><ruby>盖<rt>gài</rt></ruby></span><ruby>了<rt>le</rt></ruby><ruby>许<rt>xǔ</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>具<rt>jù</rt></ruby><ruby>体<rt>tǐ</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>措<rt>cuò</rt></ruby><ruby>施<rt>shī</rt></ruby>，<ruby>例<rt>lì</rt></ruby><ruby>如<rt>rú</rt></ruby>，<ruby>确<rt>què</rt></ruby><ruby>保<rt>bǎo</rt></ruby><ruby>同<rt>tóng</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>社<rt>shè</rt></ruby><ruby>区<rt>qū</rt></ruby><ruby>里<rt>lǐ</rt></ruby><ruby>居<rt>jū</rt></ruby><ruby>住<rt>zhù</rt></ruby><ruby>着<rt>zhe</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>同<rt>tóng</rt></ruby><ruby>种<rt>zhǒng</rt></ruby><ruby>族<rt>zú</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>人<rt>rén</rt></ruby>，<ruby>以<rt>yǐ</rt></ruby><ruby>增<rt>zēng</rt></ruby><ruby>进<rt>jìn</rt></ruby><ruby>彼<rt>bǐ</rt></ruby><ruby>此<rt>cǐ</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>交<rt>jiāo</rt></ruby><ruby>流<rt>liú</rt></ruby><ruby>与<rt>yǔ</rt></ruby><ruby>了<rt>liǎo</rt></ruby><ruby>解<rt>jiě</rt></ruby>。<ruby>在<rt>zài</rt></ruby><ruby>日<rt>rì</rt></ruby><ruby>常<rt>cháng</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>相<rt>xiāng</rt></ruby><ruby>处<rt>chǔ</rt></ruby><ruby>和<rt>hé</rt></ruby><ruby>沟<rt>gōu</rt></ruby><ruby>通<rt>tōng</rt></ruby><ruby>中<rt>zhōng</rt></ruby>，<ruby>各<rt>gè</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>种<rt>zhǒng</rt></ruby><ruby>族<rt>zú</rt></ruby><ruby>彼<rt>bǐ</rt></ruby><ruby>此<rt>cǐ</rt></ruby><ruby>包<rt>bāo</rt></ruby><ruby>容<rt>róng</rt></ruby>，<ruby>国<rt>guó</rt></ruby><ruby>家<rt>jiā</rt></ruby><ruby>也<rt>yě</rt></ruby><ruby>因<rt>yīn</rt></ruby><ruby>此<rt>cǐ</rt></ruby><ruby>得<rt>dé</rt></ruby><ruby>以<rt>yǐ</rt></ruby><ruby>稳<rt>wěn</rt></ruby><ruby>定<rt>dìng</rt></ruby><ruby>发<rt>fā</rt></ruby><ruby>展<rt>zhǎn</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">5</span>On a broader level, communication also benefits a nation&#x27;s stability and development. We can see this in Singapore&#x27;s own history. In the 1960s, different ethnic communities lived separately in different areas, with relatively little contact between them. At that time, Singapore faced severe challenges; rumours and gossip were rife, and unsettling voices were loud in the public sphere — ultimately leading to fierce racial conflict. Those events made Singaporeans realise that communication, understanding, and tolerance between races are the foundation of a harmonious society. After that, Singapore introduced more policies to promote racial integration. These covered many concrete measures — for example, ensuring that people of different races live in the same neighbourhoods, so that they can better communicate and understand one another. Through daily contact and communication, the different races have come to tolerate each other, and the country has been able to develop in stability.</div>
+</article>
+<article class="para" data-playable data-audio="总而言之，小到个人和家庭，大至团体和国家，都离不开沟通。良好的沟通会为生活添加更多的亮色，让社会更加安定和谐。反之，如果缺少沟通，很多矛盾和问题都会因之而起。让我们从今天开始，从自身做起，为促进人与人之间的沟通与交流，尽自己的一份力。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="总而言之，小到个人和家庭，大至团体和国家，都离不开沟通。良好的沟通会为生活添加更多的亮色，让社会更加安定和谐。反之，如果缺少沟通，很多矛盾和问题都会因之而起。让我们从今天开始，从自身做起，为促进人与人之间的沟通与交流，尽自己的一份力。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">6</span>
+      <ruby>总<rt>zǒng</rt></ruby><ruby>而<rt>ér</rt></ruby><ruby>言<rt>yán</rt></ruby><ruby>之<rt>zhī</rt></ruby>，<ruby>小<rt>xiǎo</rt></ruby><ruby>到<rt>dào</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>和<rt>hé</rt></ruby><ruby>家<rt>jiā</rt></ruby><ruby>庭<rt>tíng</rt></ruby>，<ruby>大<rt>dà</rt></ruby><ruby>至<rt>zhì</rt></ruby><ruby>团<rt>tuán</rt></ruby><ruby>体<rt>tǐ</rt></ruby><ruby>和<rt>hé</rt></ruby><ruby>国<rt>guó</rt></ruby><ruby>家<rt>jiā</rt></ruby>，<ruby>都<rt>dōu</rt></ruby><ruby>离<rt>lí</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>开<rt>kāi</rt></ruby><ruby>沟<rt>gōu</rt></ruby><ruby>通<rt>tōng</rt></ruby>。<ruby>良<rt>liáng</rt></ruby><ruby>好<rt>hǎo</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>沟<rt>gōu</rt></ruby><ruby>通<rt>tōng</rt></ruby><ruby>会<rt>huì</rt></ruby><ruby>为<rt>wéi</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>活<rt>huó</rt></ruby><ruby>添<rt>tiān</rt></ruby><ruby>加<rt>jiā</rt></ruby><ruby>更<rt>gèng</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>亮<rt>liàng</rt></ruby><ruby>色<rt>sè</rt></ruby>，<ruby>让<rt>ràng</rt></ruby><ruby>社<rt>shè</rt></ruby><ruby>会<rt>huì</rt></ruby><ruby>更<rt>gèng</rt></ruby><ruby>加<rt>jiā</rt></ruby><ruby>安<rt>ān</rt></ruby><ruby>定<rt>dìng</rt></ruby><ruby>和<rt>hé</rt></ruby><ruby>谐<rt>xié</rt></ruby>。<ruby>反<rt>fǎn</rt></ruby><ruby>之<rt>zhī</rt></ruby>，<ruby>如<rt>rú</rt></ruby><ruby>果<rt>guǒ</rt></ruby><ruby>缺<rt>quē</rt></ruby><ruby>少<rt>shǎo</rt></ruby><ruby>沟<rt>gōu</rt></ruby><ruby>通<rt>tōng</rt></ruby>，<ruby>很<rt>hěn</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>矛<rt>máo</rt></ruby><ruby>盾<rt>dùn</rt></ruby><ruby>和<rt>hé</rt></ruby><ruby>问<rt>wèn</rt></ruby><ruby>题<rt>tí</rt></ruby><ruby>都<rt>dū</rt></ruby><ruby>会<rt>huì</rt></ruby><ruby>因<rt>yīn</rt></ruby><ruby>之<rt>zhī</rt></ruby><ruby>而<rt>ér</rt></ruby><ruby>起<rt>qǐ</rt></ruby>。<ruby>让<rt>ràng</rt></ruby><ruby>我<rt>wǒ</rt></ruby><ruby>们<rt>men</rt></ruby><ruby>从<rt>cóng</rt></ruby><ruby>今<rt>jīn</rt></ruby><ruby>天<rt>tiān</rt></ruby><ruby>开<rt>kāi</rt></ruby><ruby>始<rt>shǐ</rt></ruby>，<ruby>从<rt>cóng</rt></ruby><ruby>自<rt>zì</rt></ruby><ruby>身<rt>shēn</rt></ruby><ruby>做<rt>zuò</rt></ruby><ruby>起<rt>qǐ</rt></ruby>，<ruby>为<rt>wèi</rt></ruby><ruby>促<rt>cù</rt></ruby><ruby>进<rt>jìn</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>与<rt>yǔ</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>之<rt>zhī</rt></ruby><ruby>间<rt>jiān</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>沟<rt>gōu</rt></ruby><ruby>通<rt>tōng</rt></ruby><ruby>与<rt>yǔ</rt></ruby><ruby>交<rt>jiāo</rt></ruby><ruby>流<rt>liú</rt></ruby>，<ruby>尽<rt>jǐn</rt></ruby><ruby>自<rt>zì</rt></ruby><ruby>己<rt>jǐ</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>份<rt>fèn</rt></ruby><ruby>力<rt>lì</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">6</span>In sum, from individuals and families to groups and nations, none of us can do without communication. Good communication adds colour and brightness to life, and makes society more stable and harmonious. Without it, many of our conflicts and problems arise. Let us start today, with ourselves, and do our part to encourage communication and exchange between people.</div>
+</article></main>
+  <div id="vocab-sheet" class="vocab-sheet" hidden>
+    <button class="vocab-sheet-close" id="vocab-sheet-close" aria-label="Close">×</button>
+    <div class="vocab-sheet-content"></div>
+  </div>
+  <div id="vocab-backdrop" class="vocab-backdrop" hidden></div>
+<script>window.__VOCAB__ = [{"zh": "润滑剂", "pinyin": "rùn huá jì", "en": "lubricant; figuratively, something that keeps things running smoothly"}, {"zh": "不胜枚举", "pinyin": "bù shèng méi jǔ", "en": "too numerous to list"}, {"zh": "扼腕", "pinyin": "è wàn", "en": "to wring one's wrists (in regret or frustration)"}, {"zh": "体恤", "pinyin": "tǐ xù", "en": "to show consideration for; to empathise with"}, {"zh": "氛围", "pinyin": "fēn wéi", "en": "atmosphere; mood (of a place or gathering)"}, {"zh": "谦虚", "pinyin": "qiān xū", "en": "humble; modest"}, {"zh": "裨益", "pinyin": "bì yì", "en": "benefit; advantage"}, {"zh": "严峻", "pinyin": "yán jùn", "en": "severe; grave (of challenges or situations)"}, {"zh": "流言蜚语", "pinyin": "liú yán fēi yǔ", "en": "rumours and gossip; unfounded talk"}, {"zh": "扰乱", "pinyin": "rǎo luàn", "en": "to disrupt; to unsettle"}, {"zh": "甚嚣尘上", "pinyin": "shèn xiāo chén shàng", "en": "spreading rampantly (of rumours, controversies)"}, {"zh": "基础", "pinyin": "jī chǔ", "en": "foundation; basis"}, {"zh": "涵盖", "pinyin": "hán gài", "en": "to cover; to encompass"}];</script>
+<script>
+(function () {
+  const SPEAKER_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>';
+  const STOP_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="5" y="5" width="14" height="14" rx="1"></rect></svg>';
+  const PLAY_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>';
+
+  // Inject speaker icons into all .speaker-btn elements
+  document.querySelectorAll('.speaker-btn').forEach(function(b){ b.innerHTML = SPEAKER_SVG; });
+
+  const togglePy = document.getElementById('toggle-pinyin');
+  const toggleEn = document.getElementById('toggle-english');
+  togglePy && togglePy.addEventListener('change', function(){ document.body.classList.toggle('pinyin-off', !togglePy.checked); });
+  toggleEn && toggleEn.addEventListener('change', function(){ document.body.classList.toggle('english-off', !toggleEn.checked); });
+
+  // ===== Vocab panel toggle =====
+  const vocabPanelToggle = document.getElementById('toggle-vocab-panel');
+  const vocabPanel = document.getElementById('vocab-panel');
+  if (vocabPanelToggle && vocabPanel) {
+    vocabPanelToggle.addEventListener('change', function(){
+      vocabPanel.hidden = !vocabPanelToggle.checked;
+    });
+  }
+
+  // ===== Vocab bottom sheet =====
+  const vocabSheet = document.getElementById('vocab-sheet');
+  const vocabBackdrop = document.getElementById('vocab-backdrop');
+  const vocabSheetClose = document.getElementById('vocab-sheet-close');
+  const vocabData = window.__VOCAB__ || [];
+
+  function buildRuby(zh, pinyinStr) {
+    // Split pinyin by space, line up with chars of zh
+    const chars = Array.from(zh);
+    const syllables = (pinyinStr || '').split(/\s+/).filter(Boolean);
+    let out = '';
+    let si = 0;
+    for (const ch of chars) {
+      // Only attach pinyin to CJK characters
+      if (/[\u4e00-\u9fff]/.test(ch)) {
+        const p = syllables[si++] || '';
+        out += '<ruby>' + ch + '<rt>' + p + '</rt></ruby>';
+      } else {
+        out += ch;
+      }
+    }
+    return out;
+  }
+
+  function openVocabSheet(vocabId) {
+    const v = vocabData[vocabId];
+    if (!v || !vocabSheet || !vocabBackdrop) return;
+    const content = vocabSheet.querySelector('.vocab-sheet-content');
+    content.innerHTML = '<p class="vs-zh chinese">' + buildRuby(v.zh, v.pinyin || '') + '</p>' +
+                        '<p class="vs-en">' + v.en + '</p>';
+    vocabSheet.hidden = false;
+    vocabBackdrop.hidden = false;
+    // allow transition
+    requestAnimationFrame(function(){
+      vocabSheet.classList.add('visible');
+      vocabBackdrop.classList.add('visible');
+    });
+  }
+
+  function closeVocabSheet() {
+    if (!vocabSheet || !vocabBackdrop) return;
+    vocabSheet.classList.remove('visible');
+    vocabBackdrop.classList.remove('visible');
+    setTimeout(function(){
+      vocabSheet.hidden = true;
+      vocabBackdrop.hidden = true;
+    }, 250);
+  }
+
+  // Click handler on any .vocab span
+  document.addEventListener('click', function(e){
+    const vocab = e.target.closest && e.target.closest('.vocab');
+    if (vocab) {
+      e.stopPropagation();
+      const id = parseInt(vocab.getAttribute('data-vocab-id'), 10);
+      openVocabSheet(id);
+      return;
+    }
+    // Click on vocab list row opens the sheet too
+    const vRow = e.target.closest && e.target.closest('.vocab-row');
+    if (vRow) {
+      const id = parseInt(vRow.getAttribute('data-vocab-id'), 10);
+      openVocabSheet(id);
+      return;
+    }
+  });
+
+  vocabSheetClose && vocabSheetClose.addEventListener('click', closeVocabSheet);
+  vocabBackdrop && vocabBackdrop.addEventListener('click', closeVocabSheet);
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeVocabSheet(); });
+
+  const speed = document.getElementById('speed');
+  const speedVal = document.getElementById('speed-val');
+  let rate = speed ? parseFloat(speed.value) : 0.9;
+  if (speed) speed.addEventListener('input', function(){
+    rate = parseFloat(speed.value);
+    speedVal.textContent = rate.toFixed(2).replace(/0$/, '') + '\u00d7';
+  });
+
+  const synth = window.speechSynthesis;
+  let chosenVoice = null;
+  function pickVoice(){
+    if (!synth) return;
+    const voices = synth.getVoices();
+    chosenVoice = voices.find(function(v){ return v.lang && v.lang.toLowerCase().indexOf('zh') === 0; }) || null;
+  }
+  if (synth) { pickVoice(); synth.addEventListener && synth.addEventListener('voiceschanged', pickVoice); }
+
+  function clearActive(){
+    document.querySelectorAll('.speaker-btn.playing').forEach(function(b){ b.classList.remove('playing'); });
+    document.querySelectorAll('.active-passage').forEach(function(p){ p.classList.remove('active-passage'); });
+  }
+
+  const playAllBtn = document.getElementById('play-all-btn');
+  let isPlayingAll = false;
+  let queue = [];
+
+  function setPlayAllState(playing){
+    isPlayingAll = playing;
+    if (!playAllBtn) return;
+    if (playing){
+      playAllBtn.classList.add('playing');
+      playAllBtn.innerHTML = STOP_SVG + '<span>\u505c\u6b62 Stop</span>';
+    } else {
+      playAllBtn.classList.remove('playing');
+      playAllBtn.innerHTML = PLAY_SVG + '<span>\u64ad\u653e\u5168\u6587 Play all</span>';
+      queue = [];
+    }
+  }
+
+  function speakOne(text, onDone){
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'zh-CN'; u.rate = rate;
+    if (chosenVoice) u.voice = chosenVoice;
+    u.onend = onDone; u.onerror = onDone;
+    synth.speak(u);
+  }
+
+  // Individual speaker buttons — each has data-audio attr containing the Chinese to speak,
+  // and data-active-selector saying which parent element to highlight
+  document.querySelectorAll('.speaker-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      if (!synth){ alert('Your browser does not support speech synthesis.'); return; }
+      synth.cancel(); clearActive(); setPlayAllState(false);
+      const text = btn.dataset.audio || '';
+      const activeEl = btn.closest('[data-playable]');
+      btn.classList.add('playing');
+      if (activeEl) activeEl.classList.add('active-passage');
+      speakOne(text, function(){
+        btn.classList.remove('playing');
+        if (activeEl) activeEl.classList.remove('active-passage');
+      });
+    });
+  });
+
+  if (playAllBtn){
+    playAllBtn.addEventListener('click', function(){
+      if (!synth){ alert('Your browser does not support speech synthesis.'); return; }
+      if (isPlayingAll){ synth.cancel(); clearActive(); setPlayAllState(false); return; }
+      synth.cancel(); clearActive();
+      queue = Array.from(document.querySelectorAll('[data-playable]'));
+      setPlayAllState(true);
+      function next(){
+        if (!isPlayingAll || queue.length === 0){ clearActive(); setPlayAllState(false); return; }
+        const el = queue.shift();
+        clearActive(); el.classList.add('active-passage');
+        el.scrollIntoView({behavior:'smooth', block:'center'});
+        const text = el.dataset.audio || el.querySelector('.speaker-btn').dataset.audio;
+        speakOne(text, next);
+      }
+      next();
+    });
+  }
+})();
+</script>
+</body>
+</html>
