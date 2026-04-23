@@ -89,11 +89,19 @@
 
   /* Level sections */
   main { max-width: 1100px; margin: 0 auto; padding: 3rem 2rem 6rem; }
-  .level-section { padding-top: 2rem; margin-bottom: 4rem; scroll-margin-top: 60px; }
+  .level-section { padding-top: 2rem; margin-bottom: 2.5rem; scroll-margin-top: 60px; }
   .level-header {
+    /* Make button visually indistinguishable from a header, but clickable */
     display: flex; align-items: baseline; gap: 1rem; flex-wrap: wrap;
-    padding-bottom: 0.5rem;
+    padding: 0.25rem 0 0.75rem;
+    width: 100%;
+    background: transparent; border: none; border-bottom: 1px solid transparent;
+    cursor: pointer; text-align: left;
+    font-family: inherit; color: inherit;
+    transition: border-color 0.15s;
   }
+  .level-header:hover { border-bottom-color: var(--rule-soft); }
+  .level-header:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 2px; }
   .level-header h2 {
     margin: 0; font-size: 32px; font-weight: 500;
     display: flex; align-items: baseline; gap: 0.75rem;
@@ -110,7 +118,24 @@
     width: 6px; height: 6px; border-radius: 50%; background: var(--ink-faint);
   }
   .level-header .progress-dot.has-live .dot { background: var(--accent); }
+  .level-header .level-chevron {
+    width: 22px; height: 22px; color: var(--ink-muted);
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+  }
+  .level-section[data-collapsed="true"] .level-chevron { transform: rotate(-90deg); }
   .level-blurb { color: var(--ink-muted); font-size: 14px; margin: 0.5rem 0 2rem; max-width: 620px; }
+
+  /* Collapsible body */
+  .level-body {
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.25s ease;
+  }
+  .level-section[data-collapsed="true"] .level-body {
+    max-height: 0 !important;
+    opacity: 0;
+    margin-bottom: 0;
+  }
 
   /* Unit grid — 2 column on desktop, 1 col on mobile */
   .unit-grid {
@@ -246,7 +271,7 @@
       to help students read on their own, at their own pace.
     </p>
     <div class="stats">
-      <div class="stat"><div class="num">18<span class="total"> / 69</span></div><div class="label">passages available</div></div>
+      <div class="stat"><div class="num">21<span class="total"> / 69</span></div><div class="label">passages available</div></div>
       <div class="stat"><div class="num">4</div><div class="label">levels · 中一 to 中四</div></div>
       <div class="stat"><div class="num">23</div><div class="label">units</div></div>
     </div>
@@ -265,13 +290,15 @@
 
   <main>
     
-  <section class="level-section" id="level-y1">
-    <header class="level-header">
+  <section class="level-section" id="level-y1" data-level="Y1">
+    <button type="button" class="level-header" aria-expanded="true" aria-controls="level-body-y1">
       <h2><span class="zh chinese"><ruby>中<rt>zhōng</rt></ruby><ruby>一<rt>yī</rt></ruby></span><span class="en">Secondary 1</span></h2>
       <span class="progress-dot has-live"><span class="dot"></span>9 of 18 texts available</span>
-    </header>
-    <p class="level-blurb">First year — new classmates, family reunions, and exploring Singapore</p>
-    <div class="unit-grid">
+      <svg class="level-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="level-body" id="level-body-y1">
+      <p class="level-blurb">First year — new classmates, family reunions, and exploring Singapore</p>
+      <div class="unit-grid">
     <article class="unit has-live">
       <header class="unit-head">
         <div>
@@ -446,15 +473,18 @@
         </li>
       </ul>
     </article>
+      </div>
     </div>
   </section>
-  <section class="level-section" id="level-y2">
-    <header class="level-header">
+  <section class="level-section" id="level-y2" data-level="Y2">
+    <button type="button" class="level-header" aria-expanded="true" aria-controls="level-body-y2">
       <h2><span class="zh chinese"><ruby>中<rt>zhōng</rt></ruby><ruby>二<rt>èr</rt></ruby></span><span class="en">Secondary 2</span></h2>
       <span class="progress-dot "><span class="dot"></span>0 of 18 texts available</span>
-    </header>
-    <p class="level-blurb">Second year — expressing love, caring for animals, and green living</p>
-    <div class="unit-grid">
+      <svg class="level-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="level-body" id="level-body-y2">
+      <p class="level-blurb">Second year — expressing love, caring for animals, and green living</p>
+      <div class="unit-grid">
     <article class="unit ">
       <header class="unit-head">
         <div>
@@ -629,15 +659,18 @@
         </li>
       </ul>
     </article>
+      </div>
     </div>
   </section>
-  <section class="level-section" id="level-y3">
-    <header class="level-header">
+  <section class="level-section" id="level-y3" data-level="Y3">
+    <button type="button" class="level-header" aria-expanded="true" aria-controls="level-body-y3">
       <h2><span class="zh chinese"><ruby>中<rt>zhōng</rt></ruby><ruby>三<rt>sān</rt></ruby></span><span class="en">Secondary 3</span></h2>
-      <span class="progress-dot has-live"><span class="dot"></span>9 of 18 texts available</span>
-    </header>
-    <p class="level-blurb">Third year — relationships, health, community, and lifelong learning</p>
-    <div class="unit-grid">
+      <span class="progress-dot has-live"><span class="dot"></span>12 of 18 texts available</span>
+      <svg class="level-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="level-body" id="level-body-y3">
+      <p class="level-blurb">Third year — relationships, health, community, and lifelong learning</p>
+      <div class="unit-grid">
     <article class="unit has-live">
       <header class="unit-head">
         <div>
@@ -725,7 +758,7 @@
         </li>
       </ul>
     </article>
-    <article class="unit ">
+    <article class="unit has-live">
       <header class="unit-head">
         <div>
           <div class="unit-num">Unit 4</div>
@@ -734,23 +767,23 @@
             <span class="unit-title-en">Communication Between Us</span>
           </div>
         </div>
-        <span class="unit-status">Coming soon</span>
+        <span class="unit-status live">3/3 live</span>
       </header>
       <ul class="text-list">
-        <li class="text-item ">
+        <li class="text-item live">
           <span class="cat-pill"><span class="cat-zh">生活空间</span><span class="cat-en">Daily Life</span></span>
-          <div class="text-col"><span class="text-title-zh">《<ruby>成<rt>chéng</rt></ruby><ruby>为<rt>wéi</rt></ruby><ruby>演<rt>yǎn</rt></ruby><ruby>说<rt>shuō</rt></ruby><ruby>高<rt>gāo</rt></ruby><ruby>手<rt>shǒu</rt></ruby>》</span><span class="text-title-en">Becoming a Skilled Speaker</span></div>
-          <span class="soon-tag">Soon</span>
+          <div class="text-col"><a class="text-title-zh" href="y3/y3-s1-u4-daily-yanshuogaoshou.html">《<ruby>成<rt>chéng</rt></ruby><ruby>为<rt>wéi</rt></ruby><ruby>演<rt>yǎn</rt></ruby><ruby>说<rt>shuō</rt></ruby><ruby>高<rt>gāo</rt></ruby><ruby>手<rt>shǒu</rt></ruby>》</a><span class="text-title-en">Becoming a Skilled Speaker</span></div>
+          <span class="arrow">→</span>
         </li>
-        <li class="text-item ">
+        <li class="text-item live">
           <span class="cat-pill"><span class="cat-zh">核心</span><span class="cat-en">Core</span></span>
-          <div class="text-col"><span class="text-title-zh">《<ruby>沟<rt>gōu</rt></ruby><ruby>通<rt>tōng</rt></ruby><ruby>面<rt>miàn</rt></ruby><ruby>面<rt>miàn</rt></ruby><ruby>观<rt>guān</rt></ruby>》</span><span class="text-title-en">The Many Faces of Communication</span></div>
-          <span class="soon-tag">Soon</span>
+          <div class="text-col"><a class="text-title-zh" href="y3/y3-s1-u4-core-goutong.html">《<ruby>沟<rt>gōu</rt></ruby><ruby>通<rt>tōng</rt></ruby><ruby>面<rt>miàn</rt></ruby><ruby>面<rt>miàn</rt></ruby><ruby>观<rt>guān</rt></ruby>》</a><span class="text-title-en">The Many Faces of Communication</span></div>
+          <span class="arrow">→</span>
         </li>
-        <li class="text-item ">
+        <li class="text-item live">
           <span class="cat-pill"><span class="cat-zh">巩固</span><span class="cat-en">Consolidation</span></span>
-          <div class="text-col"><span class="text-title-zh">《<ruby>社<rt>shè</rt></ruby><ruby>交<rt>jiāo</rt></ruby><ruby>媒<rt>méi</rt></ruby><ruby>体<rt>tǐ</rt></ruby>  <ruby>拉<rt>lā</rt></ruby><ruby>近<rt>jìn</rt></ruby><ruby>你<rt>nǐ</rt></ruby><ruby>我<rt>wǒ</rt></ruby><ruby>他<rt>tā</rt></ruby>》</span><span class="text-title-en">Social Media — Bringing Us Closer Together</span></div>
-          <span class="soon-tag">Soon</span>
+          <div class="text-col"><a class="text-title-zh" href="y3/y3-s1-u4-cons-shejiaomedia.html">《<ruby>社<rt>shè</rt></ruby><ruby>交<rt>jiāo</rt></ruby><ruby>媒<rt>méi</rt></ruby><ruby>体<rt>tǐ</rt></ruby>  <ruby>拉<rt>lā</rt></ruby><ruby>近<rt>jìn</rt></ruby><ruby>你<rt>nǐ</rt></ruby><ruby>我<rt>wǒ</rt></ruby><ruby>他<rt>tā</rt></ruby>》</a><span class="text-title-en">Social Media — Bringing Us Closer Together</span></div>
+          <span class="arrow">→</span>
         </li>
       </ul>
     </article>
@@ -812,15 +845,18 @@
         </li>
       </ul>
     </article>
+      </div>
     </div>
   </section>
-  <section class="level-section" id="level-y4">
-    <header class="level-header">
+  <section class="level-section" id="level-y4" data-level="Y4">
+    <button type="button" class="level-header" aria-expanded="true" aria-controls="level-body-y4">
       <h2><span class="zh chinese"><ruby>中<rt>zhōng</rt></ruby><ruby>四<rt>sì</rt></ruby></span><span class="en">Secondary 4</span></h2>
       <span class="progress-dot "><span class="dot"></span>0 of 15 texts available</span>
-    </header>
-    <p class="level-blurb">Fourth year — compassion, literature, balance, and pursuing dreams</p>
-    <div class="unit-grid">
+      <svg class="level-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="level-body" id="level-body-y4">
+      <p class="level-blurb">Fourth year — compassion, literature, balance, and pursuing dreams</p>
+      <div class="unit-grid">
     <article class="unit ">
       <header class="unit-head">
         <div>
@@ -966,6 +1002,7 @@
         </li>
       </ul>
     </article>
+      </div>
     </div>
   </section>
   </main>
@@ -976,6 +1013,91 @@
   </footer>
 
 <script>
+  // === Level collapse/expand ===
+  // Default: only levels with live content are expanded; others collapsed.
+  // User's manual toggles override the default and persist via localStorage.
+  const STORAGE_KEY = 'kjhw_collapsed_levels_v1';
+
+  function loadCollapsedSet() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) return new Set(JSON.parse(raw));
+    } catch (e) {}
+    return null;  // null signals "use smart defaults"
+  }
+
+  function saveCollapsedSet(set) {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(set)));
+    } catch (e) {}
+  }
+
+  const allLevelSections = Array.from(document.querySelectorAll('.level-section'));
+  let stored = loadCollapsedSet();
+  // If no stored state, use smart defaults: collapse levels with no live content.
+  if (stored === null) {
+    stored = new Set();
+    allLevelSections.forEach(function(s) {
+      const dot = s.querySelector('.progress-dot');
+      if (!dot.classList.contains('has-live')) {
+        stored.add(s.dataset.level);
+      }
+    });
+  }
+
+  function setCollapsed(section, collapsed) {
+    const body = section.querySelector('.level-body');
+    if (collapsed) {
+      // Set explicit max-height first (from current actual height), then transition to 0
+      body.style.maxHeight = body.scrollHeight + 'px';
+      requestAnimationFrame(function() {
+        section.dataset.collapsed = 'true';
+        body.style.maxHeight = '0';
+      });
+      section.querySelector('.level-header').setAttribute('aria-expanded', 'false');
+      stored.add(section.dataset.level);
+    } else {
+      section.dataset.collapsed = 'false';
+      section.querySelector('.level-header').setAttribute('aria-expanded', 'true');
+      body.style.maxHeight = body.scrollHeight + 'px';
+      // After expansion finishes, remove the inline max-height to allow natural sizing
+      setTimeout(function() {
+        if (section.dataset.collapsed !== 'true') body.style.maxHeight = '';
+      }, 350);
+      stored.delete(section.dataset.level);
+    }
+    saveCollapsedSet(stored);
+  }
+
+  // Apply initial state
+  allLevelSections.forEach(function(section) {
+    const shouldCollapse = stored.has(section.dataset.level);
+    if (shouldCollapse) {
+      section.dataset.collapsed = 'true';
+      section.querySelector('.level-header').setAttribute('aria-expanded', 'false');
+      section.querySelector('.level-body').style.maxHeight = '0';
+    }
+  });
+
+  // Wire the click handler on each level header
+  document.querySelectorAll('.level-header').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      const section = btn.closest('.level-section');
+      const isCollapsed = section.dataset.collapsed === 'true';
+      setCollapsed(section, !isCollapsed);
+    });
+  });
+
+  // Auto-expand the target section when user clicks a nav link
+  document.querySelectorAll('.level-link').forEach(function(link) {
+    link.addEventListener('click', function() {
+      const target = document.querySelector(link.getAttribute('href'));
+      if (target && target.dataset.collapsed === 'true') {
+        setCollapsed(target, false);
+      }
+    });
+  });
+
   // Highlight current level in the sticky nav as user scrolls
   const links = document.querySelectorAll('.level-link');
   const sections = Array.from(document.querySelectorAll('.level-section'));
