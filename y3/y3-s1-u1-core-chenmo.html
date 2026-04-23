@@ -1,0 +1,723 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>谢谢你的沉默 — 快捷华文</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --ink-muted: #6b7280;
+    --ink-faint: #9ca3af;
+    --accent: #2f7d4f;
+    --accent-soft: #e6f1ea;
+    --accent-dark: #26663f;
+    --rule: #e5e7eb;
+    --bg: #fafaf8;
+    --surface: #ffffff;
+    --bubble-a: #f0f4f2;
+    --bubble-b: #eef3f7;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+  }
+  .chinese { font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Source Han Sans SC", "Noto Sans CJK SC", sans-serif; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  header.top { max-width: 1100px; margin: 0 auto; padding: 2rem 2rem 1rem; }
+  .back-link { font-size: 13px; color: var(--ink-muted); display: inline-block; margin-bottom: 0.75rem; }
+  .back-link:hover { color: var(--accent); }
+  .breadcrumb {
+    font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--ink-muted); margin-bottom: 0.5rem;
+  }
+  .breadcrumb .sep { opacity: 0.5; margin: 0 0.5em; }
+  h1.title {
+    margin: 0; font-weight: 500; font-size: 28px;
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.75rem;
+  }
+  h1.title .zh { color: var(--ink); }
+  h1.title .en { color: var(--ink-muted); font-weight: 400; font-size: 16px; }
+
+  .controls {
+    max-width: 1100px; margin: 0 auto; padding: 1rem 2rem;
+    display: flex; gap: 1.25rem; flex-wrap: wrap; align-items: center;
+    border-bottom: 1px solid var(--rule);
+  }
+  .controls label {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 14px; color: var(--ink-muted); cursor: pointer; user-select: none;
+  }
+  .controls input[type=checkbox] { accent-color: var(--accent); width: 16px; height: 16px; }
+  .controls input[type=checkbox]:checked + span { color: var(--accent); font-weight: 500; }
+  .controls .speed { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ink-muted); }
+  .controls .speed input { width: 100px; accent-color: var(--accent); }
+  .controls .speed .val { min-width: 28px; font-weight: 500; color: var(--ink); }
+  .controls .speed .speed-hint { font-size: 11px; color: var(--ink-faint); font-style: italic; }
+  .controls .spacer { flex: 1; }
+  .controls button.play-all {
+    border: 1px solid var(--accent); background: var(--accent); color: #fff;
+    padding: 7px 14px; font-size: 13px; font-weight: 500; border-radius: 6px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s;
+  }
+  .controls button.play-all:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+  .controls button.play-all.playing { background: #b34545; border-color: #b34545; }
+  .controls button.play-all.playing:hover { background: #933838; border-color: #933838; }
+  .controls button.play-all svg { width: 11px; height: 11px; }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 1.5rem 2rem 5rem; }
+
+  /* Pinyin defaults */
+  ruby { ruby-position: over; }
+  ruby rt {
+    font-size: 11px; color: var(--accent);
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-weight: 400; letter-spacing: 0.02em;
+    padding-bottom: 6px;
+    transition: opacity 0.15s;
+  }
+  body.pinyin-off ruby rt { opacity: 0; }
+
+  .speaker-btn {
+    background: transparent; border: 1px solid var(--rule);
+    width: 28px; height: 28px; padding: 0; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--ink-muted); transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .speaker-btn:hover { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+  .speaker-btn.playing { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .speaker-btn svg { width: 12px; height: 12px; }
+
+  /* PROSE format — two-column */
+  .para {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2.5rem;
+    padding: 1.5rem 0; border-bottom: 1px solid var(--rule); align-items: start;
+  }
+  .para:last-child { border-bottom: none; }
+  .para .zh-col { display: grid; grid-template-columns: 28px 1fr; gap: 12px; align-items: start; }
+  .para .speaker-btn { margin-top: 8px; }
+  .para .zh-text { font-size: 22px; line-height: 2.6; }
+  .para .en-col {
+    font-size: 15px; line-height: 1.75; color: var(--ink-muted); padding-top: 6px;
+    transition: opacity 0.15s;
+  }
+  body.english-off .en-col { opacity: 0; pointer-events: none; }
+  .para-num {
+    color: var(--ink-faint); font-size: 13px; font-weight: 500;
+    margin-bottom: 4px; display: block;
+  }
+  .para.active-passage .zh-text {
+    background: var(--accent-soft); border-radius: 6px; padding: 4px 8px; margin-left: -8px;
+  }
+
+  /* Subheadings inside prose articles */
+  .subheading {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2.5rem;
+    padding: 1rem 0 0; align-items: baseline;
+    margin: 0;
+  }
+  .subheading-zh {
+    font-size: 18px; font-weight: 500; color: var(--accent-dark);
+    padding-left: 40px; line-height: 1.3;
+    margin: 0;
+  }
+  .subheading-en {
+    font-size: 14px; color: var(--ink-muted); font-weight: 500;
+    transition: opacity 0.15s;
+    letter-spacing: 0.02em;
+    line-height: 1.3;
+    margin: 0;
+  }
+  body.english-off .subheading-en { opacity: 0; }
+  /* Tight coupling — subheading sits directly on top of its paragraph */
+  .subheading + .para { border-top: none; padding-top: 0; }
+
+  /* TABLE format — stacked character cards */
+  .profile-card {
+    background: var(--surface); border: 1px solid var(--rule); border-radius: 12px;
+    padding: 1.5rem 1.75rem; margin-bottom: 1.25rem;
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start;
+  }
+  .profile-card:last-child { margin-bottom: 0; }
+  .profile-card .zh-side { display: grid; grid-template-columns: 28px 1fr; gap: 12px; }
+  .profile-card .name {
+    font-size: 24px; font-weight: 500; margin-bottom: 0.75rem;
+    line-height: 2;
+  }
+  .profile-card .traits { font-size: 18px; line-height: 2.4; }
+  .profile-card .trait { margin-bottom: 0.75rem; }
+  .profile-card .trait:last-child { margin-bottom: 0; }
+  .profile-card .trait-label {
+    display: inline-block; background: var(--accent-soft); color: var(--accent);
+    font-size: 14px; font-weight: 500; padding: 2px 12px; border-radius: 12px;
+    margin-right: 8px; vertical-align: baseline;
+    font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
+    position: relative; top: -2px;
+  }
+  .profile-card .trait-label ruby rt { color: var(--accent-dark); }
+  .profile-card .en-side {
+    font-size: 14px; line-height: 1.75; color: var(--ink-muted); padding-top: 8px;
+    transition: opacity 0.15s;
+  }
+  body.english-off .profile-card .en-side { opacity: 0; pointer-events: none; }
+  .profile-card .en-side .en-name { font-weight: 500; color: var(--ink); font-size: 16px; margin-bottom: 0.5rem; }
+  .profile-card .en-side .en-trait { margin-bottom: 0.5rem; }
+  .profile-card .en-side .en-trait-label { font-weight: 500; color: var(--ink); }
+
+  /* DIALOGUE format — chat bubbles */
+  .stage-direction {
+    text-align: center; color: var(--ink-muted);
+    font-size: 15px; padding: 1rem 2rem;
+    font-style: italic;
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start;
+  }
+  .stage-direction .zh-dir { font-style: normal; }
+  .stage-direction .zh-dir .zh-text { line-height: 2.4; }
+  .stage-direction .en-dir { font-size: 14px; }
+
+  .bubble-row {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;
+    margin-bottom: 1rem; align-items: start;
+  }
+  .bubble-zh { display: flex; gap: 10px; align-items: flex-start; }
+  .bubble-zh.align-right { justify-content: flex-end; }
+  .bubble-zh.align-right .bubble { background: var(--accent-soft); }
+  .bubble-zh .speaker-btn { margin-top: 6px; }
+  .bubble {
+    background: var(--bubble-a);
+    border-radius: 16px; padding: 10px 16px;
+    max-width: 85%;
+    line-height: 2.4; font-size: 18px;
+  }
+  .bubble-zh.align-right .bubble { border-bottom-right-radius: 4px; }
+  .bubble-zh.align-left .bubble { border-bottom-left-radius: 4px; }
+  .bubble-zh .speaker-name {
+    display: block; font-size: 12px; font-weight: 500; color: var(--accent-dark);
+    margin-bottom: 2px; letter-spacing: 0.02em;
+  }
+  .bubble-zh.align-right .speaker-name { text-align: right; }
+  .bubble-row.active-passage .bubble { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .bubble-en {
+    font-size: 14px; line-height: 1.6; color: var(--ink-muted); padding-top: 8px;
+    transition: opacity 0.15s;
+  }
+  .bubble-en .en-speaker { font-weight: 500; color: var(--ink); }
+  body.english-off .bubble-en, body.english-off .stage-direction .en-dir { opacity: 0; pointer-events: none; }
+
+  /* ===== Vocab inline highlighting + bottom sheet ===== */
+  .vocab {
+    cursor: pointer;
+    text-underline-offset: 6px;
+    text-decoration: underline dotted var(--accent);
+    text-decoration-thickness: 1.5px;
+    transition: background 0.15s;
+    border-radius: 3px;
+    padding: 0 1px;
+  }
+  .vocab:hover, .vocab:focus { background: var(--accent-soft); outline: none; }
+
+  /* Vocab list panel at top of passage (toggleable) */
+  .vocab-panel {
+    background: var(--surface); border: 1px solid var(--rule);
+    border-radius: 12px; padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .vocab-panel-title {
+    font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--ink-faint); font-weight: 500; margin: 0 0 1rem;
+  }
+  .vocab-list {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem 2rem;
+  }
+  .vocab-row {
+    display: grid; grid-template-columns: minmax(auto, 140px) 1fr; gap: 1rem;
+    padding: 0.5rem 0; border-top: 1px solid var(--rule-soft);
+    align-items: baseline;
+  }
+  .vocab-row:first-child, .vocab-row:nth-child(2) { border-top: none; }
+  .vocab-row-zh { font-size: 18px; font-family: "PingFang SC", "Hiragino Sans GB", sans-serif; line-height: 2; }
+  .vocab-row-en { font-size: 14px; color: var(--ink-muted); line-height: 1.5; }
+
+  /* Bottom sheet for single-word lookup */
+  .vocab-backdrop {
+    position: fixed; inset: 0; background: rgba(0, 0, 0, 0.25);
+    z-index: 100; opacity: 0; transition: opacity 0.2s;
+    pointer-events: none;
+  }
+  .vocab-backdrop.visible { opacity: 1; pointer-events: auto; }
+  .vocab-sheet {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--rule);
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.08);
+    padding: 1.5rem 2rem 2rem;
+    z-index: 101;
+    transform: translateY(100%); transition: transform 0.25s ease-out;
+    max-width: 600px; margin: 0 auto;
+    border-top-left-radius: 16px; border-top-right-radius: 16px;
+  }
+  .vocab-sheet.visible { transform: translateY(0); }
+  .vocab-sheet-close {
+    position: absolute; top: 10px; right: 14px;
+    background: transparent; border: none; font-size: 28px; line-height: 1;
+    color: var(--ink-faint); cursor: pointer; padding: 4px 10px;
+  }
+  .vocab-sheet-close:hover { color: var(--ink); }
+  .vocab-sheet-content .vs-zh {
+    font-size: 32px; font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
+    line-height: 2.2; margin: 0;
+  }
+  .vocab-sheet-content .vs-zh ruby rt { font-size: 14px; }
+  .vocab-sheet-content .vs-en {
+    font-size: 16px; color: var(--ink); line-height: 1.6;
+    margin: 0.5rem 0 0;
+  }
+
+  @media (max-width: 720px) {
+    .para { grid-template-columns: 1fr; gap: 0.75rem; }
+    .para .en-col { padding-top: 0; padding-left: 40px; font-style: italic; }
+    .para .zh-text { font-size: 20px; }
+    .profile-card { grid-template-columns: 1fr; gap: 1rem; padding: 1rem 1.25rem; }
+    .profile-card .en-side { padding-top: 0; padding-left: 40px; font-style: italic; border-top: 1px solid var(--rule); padding-top: 1rem; }
+    .profile-card .name { font-size: 22px; }
+    .profile-card .traits { font-size: 17px; line-height: 2.2; }
+    .bubble-row, .stage-direction { grid-template-columns: 1fr; gap: 0.5rem; }
+    .bubble-en { padding-left: 16px; padding-top: 0; font-style: italic; }
+    .bubble { font-size: 17px; }
+    header.top, .controls, main { padding-left: 1.25rem; padding-right: 1.25rem; }
+    .controls { gap: 0.75rem; }
+    .vocab-list { grid-template-columns: 1fr; gap: 0; }
+    .vocab-row { grid-template-columns: minmax(auto, 120px) 1fr; padding: 0.5rem 0; border-top: 1px solid var(--rule-soft); }
+    .vocab-row:nth-child(2) { border-top: 1px solid var(--rule-soft); }
+    .vocab-row:first-child { border-top: none; }
+    .vocab-sheet { padding: 1.25rem 1.5rem 1.75rem; }
+    .vocab-sheet-content .vs-zh { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+  <header class="top">
+    <a class="back-link" href="../index.html">← 返回 Back to all levels</a>
+    <div class="breadcrumb">Level 3 · Unit 1 · 有你做伴 Companions on the Journey <span class="sep">·</span> 核心 Core</div>
+    <h1 class="title">
+      <span class="zh chinese">《谢谢你的沉默》</span>
+      <span class="en">Thank You for Your Silence</span>
+    </h1>
+  </header>
+  <div class="controls">
+    <label><input type="checkbox" id="toggle-pinyin" checked><span>显示汉语拼音 Show pinyin</span></label>
+    <label><input type="checkbox" id="toggle-english" checked><span>显示英文 Show English</span></label>
+    <label><input type="checkbox" id="toggle-vocab-panel"><span>显示生词 Show vocab list</span></label>
+    <div class="speed">
+      <span>语速 Speed</span>
+      <input type="range" min="0.5" max="1.2" step="0.05" value="0.9" id="speed" title="Adjust before playing">
+      <span class="val" id="speed-val">0.9×</span>
+      <span class="speed-hint">(set before play)</span>
+    </div>
+    <div class="spacer"></div>
+    <button class="play-all" id="play-all-btn" type="button">
+      <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>
+      <span>播放全文 Play all</span>
+    </button>
+  </div>
+  <main>
+  <section class="vocab-panel" id="vocab-panel" hidden>
+    <h2 class="vocab-panel-title">生词 Vocabulary · 18 words</h2>
+    <div class="vocab-list">
+      <div class="vocab-row" data-vocab-id="0">
+        <div class="vocab-row-zh chinese"><ruby>橱<rt>chú</rt></ruby><ruby>窗<rt>chuāng</rt></ruby></div>
+        <div class="vocab-row-en">shop window; display window</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="1">
+        <div class="vocab-row-zh chinese"><ruby>狭<rt>xiá</rt></ruby><ruby>窄<rt>zhǎi</rt></ruby></div>
+        <div class="vocab-row-en">narrow; cramped</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="2">
+        <div class="vocab-row-zh chinese"><ruby>铅<rt>qiān</rt></ruby><ruby>笔<rt>bǐ</rt></ruby><ruby>盒<rt>hé</rt></ruby></div>
+        <div class="vocab-row-en">pencil case; pencil box</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="3">
+        <div class="vocab-row-zh chinese"><ruby>拧<rt>níng</rt></ruby></div>
+        <div class="vocab-row-en">to twist; to furrow (brows)</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="4">
+        <div class="vocab-row-zh chinese"><ruby>抿<rt>mǐn</rt></ruby></div>
+        <div class="vocab-row-en">to press together (lips); to purse</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="5">
+        <div class="vocab-row-zh chinese"><ruby>肺<rt>fèi</rt></ruby><ruby>炎<rt>yán</rt></ruby></div>
+        <div class="vocab-row-en">pneumonia</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="6">
+        <div class="vocab-row-zh chinese"><ruby>纸<rt>zhǐ</rt></ruby><ruby>屑<rt>xiè</rt></ruby></div>
+        <div class="vocab-row-en">scraps of paper</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="7">
+        <div class="vocab-row-zh chinese"><ruby>肿<rt>zhǒng</rt></ruby><ruby>瘤<rt>liú</rt></ruby></div>
+        <div class="vocab-row-en">tumour</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="8">
+        <div class="vocab-row-zh chinese"><ruby>癌<rt>ái</rt></ruby><ruby>症<rt>zhèng</rt></ruby></div>
+        <div class="vocab-row-en">cancer</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="9">
+        <div class="vocab-row-zh chinese"><ruby>徒<rt>tú</rt></ruby><ruby>劳<rt>láo</rt></ruby><ruby>无<rt>wú</rt></ruby><ruby>功<rt>gōng</rt></ruby></div>
+        <div class="vocab-row-en">futile; in vain; all effort wasted</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="10">
+        <div class="vocab-row-zh chinese"><ruby>擦<rt>cā</rt></ruby><ruby>拭<rt>shì</rt></ruby></div>
+        <div class="vocab-row-en">to wipe clean; to polish</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="11">
+        <div class="vocab-row-zh chinese"><ruby>某<rt>mǒu</rt></ruby></div>
+        <div class="vocab-row-en">a certain (day/person); some</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="12">
+        <div class="vocab-row-zh chinese"><ruby>苍<rt>cāng</rt></ruby><ruby>白<rt>bái</rt></ruby></div>
+        <div class="vocab-row-en">pale; pallid (esp. of complexion)</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="13">
+        <div class="vocab-row-zh chinese"><ruby>鼓<rt>gǔ</rt></ruby><ruby>掌<rt>zhǎng</rt></ruby></div>
+        <div class="vocab-row-en">to clap; to applaud</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="14">
+        <div class="vocab-row-zh chinese"><ruby>忠<rt>zhōng</rt></ruby><ruby>实<rt>shí</rt></ruby></div>
+        <div class="vocab-row-en">loyal; faithful; devoted</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="15">
+        <div class="vocab-row-zh chinese"><ruby>异<rt>yì</rt></ruby><ruby>乎<rt>hū</rt></ruby><ruby>寻<rt>xún</rt></ruby><ruby>常<rt>cháng</rt></ruby></div>
+        <div class="vocab-row-en">unusual; out of the ordinary</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="16">
+        <div class="vocab-row-zh chinese"><ruby>痊<rt>quán</rt></ruby><ruby>愈<rt>yù</rt></ruby></div>
+        <div class="vocab-row-en">to recover fully (from illness)</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="17">
+        <div class="vocab-row-zh chinese"><ruby>清<rt>qīng</rt></ruby><ruby>晰<rt>xī</rt></ruby></div>
+        <div class="vocab-row-en">clear; distinct (of memory or image)</div>
+      </div></div>
+  </section>
+<article class="para" data-playable data-audio="回家路上，他偶然发现，商店橱窗里的模特儿换上了白衣素裙。看着那套服装，他脑海中又闪现出那个沉默的女生，思绪一下子就回到了中学时的那段岁月。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="回家路上，他偶然发现，商店橱窗里的模特儿换上了白衣素裙。看着那套服装，他脑海中又闪现出那个沉默的女生，思绪一下子就回到了中学时的那段岁月。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">1</span>
+      <ruby>回<rt>huí</rt></ruby><ruby>家<rt>jiā</rt></ruby><ruby>路<rt>lù</rt></ruby><ruby>上<rt>shàng</rt></ruby>，<ruby>他<rt>tā</rt></ruby><ruby>偶<rt>ǒu</rt></ruby><ruby>然<rt>rán</rt></ruby><ruby>发<rt>fā</rt></ruby><ruby>现<rt>xiàn</rt></ruby>，<ruby>商<rt>shāng</rt></ruby><ruby>店<rt>diàn</rt></ruby><span class="vocab" data-vocab-id="0"><ruby>橱<rt>chú</rt></ruby><ruby>窗<rt>chuāng</rt></ruby></span><ruby>里<rt>lǐ</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>模<rt>mó</rt></ruby><ruby>特<rt>tè</rt></ruby><ruby>儿<rt>ér</rt></ruby><ruby>换<rt>huàn</rt></ruby><ruby>上<rt>shàng</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>白<rt>bái</rt></ruby><ruby>衣<rt>yī</rt></ruby><ruby>素<rt>sù</rt></ruby><ruby>裙<rt>qún</rt></ruby>。<ruby>看<rt>kàn</rt></ruby><ruby>着<rt>zhe</rt></ruby><ruby>那<rt>nà</rt></ruby><ruby>套<rt>tào</rt></ruby><ruby>服<rt>fú</rt></ruby><ruby>装<rt>zhuāng</rt></ruby>，<ruby>他<rt>tā</rt></ruby><ruby>脑<rt>nǎo</rt></ruby><ruby>海<rt>hǎi</rt></ruby><ruby>中<rt>zhōng</rt></ruby><ruby>又<rt>yòu</rt></ruby><ruby>闪<rt>shǎn</rt></ruby><ruby>现<rt>xiàn</rt></ruby><ruby>出<rt>chū</rt></ruby><ruby>那<rt>nà</rt></ruby><ruby>个<rt>ge</rt></ruby><ruby>沉<rt>chén</rt></ruby><ruby>默<rt>mò</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>女<rt>nǚ</rt></ruby><ruby>生<rt>shēng</rt></ruby>，<ruby>思<rt>sī</rt></ruby><ruby>绪<rt>xù</rt></ruby><ruby>一<rt>yí</rt></ruby><ruby>下<rt>xià</rt></ruby><ruby>子<rt>zi</rt></ruby><ruby>就<rt>jiù</rt></ruby><ruby>回<rt>huí</rt></ruby><ruby>到<rt>dào</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>中<rt>zhōng</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>时<rt>shí</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>那<rt>nà</rt></ruby><ruby>段<rt>duàn</rt></ruby><ruby>岁<rt>suì</rt></ruby><ruby>月<rt>yuè</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">1</span>On his way home, he happened to notice that the mannequin in the shop window had been dressed in a plain white blouse and skirt. Looking at the outfit, the image of that quiet girl flashed through his mind again — and in an instant his thoughts were back in those schooldays years ago.</div>
+</article>
+<article class="para" data-playable data-audio="那年，他念中三。隔着狭窄的过道，同排坐着一个女生，她的名字非常特别，叫冷月。冷月不轻易同人交往，总是穿着白衣素裙，下巴抬得高高的，有点儿拒人千里。有一次他背书包时，不小心把冷月漂亮的铅笔盒打落在地。她拧起眉毛望着不知所措的他，但始终抿着嘴没说一句不中听的话。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="那年，他念中三。隔着狭窄的过道，同排坐着一个女生，她的名字非常特别，叫冷月。冷月不轻易同人交往，总是穿着白衣素裙，下巴抬得高高的，有点儿拒人千里。有一次他背书包时，不小心把冷月漂亮的铅笔盒打落在地。她拧起眉毛望着不知所措的他，但始终抿着嘴没说一句不中听的话。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">2</span>
+      <ruby>那<rt>nà</rt></ruby><ruby>年<rt>nián</rt></ruby>，<ruby>他<rt>tā</rt></ruby><ruby>念<rt>niàn</rt></ruby><ruby>中<rt>zhōng</rt></ruby><ruby>三<rt>sān</rt></ruby>。<ruby>隔<rt>gé</rt></ruby><ruby>着<rt>zhe</rt></ruby><span class="vocab" data-vocab-id="1"><ruby>狭<rt>xiá</rt></ruby><ruby>窄<rt>zhǎi</rt></ruby></span><ruby>的<rt>de</rt></ruby><ruby>过<rt>guò</rt></ruby><ruby>道<rt>dào</rt></ruby>，<ruby>同<rt>tóng</rt></ruby><ruby>排<rt>pái</rt></ruby><ruby>坐<rt>zuò</rt></ruby><ruby>着<rt>zhe</rt></ruby><ruby>一<rt>yí</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>女<rt>nǚ</rt></ruby><ruby>生<rt>shēng</rt></ruby>，<ruby>她<rt>tā</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>名<rt>míng</rt></ruby><ruby>字<rt>zì</rt></ruby><ruby>非<rt>fēi</rt></ruby><ruby>常<rt>cháng</rt></ruby><ruby>特<rt>tè</rt></ruby><ruby>别<rt>bié</rt></ruby>，<ruby>叫<rt>jiào</rt></ruby><ruby>冷<rt>lěng</rt></ruby><ruby>月<rt>yuè</rt></ruby>。<ruby>冷<rt>lěng</rt></ruby><ruby>月<rt>yuè</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>轻<rt>qīng</rt></ruby><ruby>易<rt>yì</rt></ruby><ruby>同<rt>tóng</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>交<rt>jiāo</rt></ruby><ruby>往<rt>wǎng</rt></ruby>，<ruby>总<rt>zǒng</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>穿<rt>chuān</rt></ruby><ruby>着<rt>zhe</rt></ruby><ruby>白<rt>bái</rt></ruby><ruby>衣<rt>yī</rt></ruby><ruby>素<rt>sù</rt></ruby><ruby>裙<rt>qún</rt></ruby>，<ruby>下<rt>xià</rt></ruby><ruby>巴<rt>bā</rt></ruby><ruby>抬<rt>tái</rt></ruby><ruby>得<rt>dé</rt></ruby><ruby>高<rt>gāo</rt></ruby><ruby>高<rt>gāo</rt></ruby><ruby>的<rt>de</rt></ruby>，<ruby>有<rt>yǒu</rt></ruby><ruby>点<rt>diǎn</rt></ruby><ruby>儿<rt>ér</rt></ruby><ruby>拒<rt>jù</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>千<rt>qiān</rt></ruby><ruby>里<rt>lǐ</rt></ruby>。<ruby>有<rt>yǒu</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>次<rt>cì</rt></ruby><ruby>他<rt>tā</rt></ruby><ruby>背<rt>bèi</rt></ruby><ruby>书<rt>shū</rt></ruby><ruby>包<rt>bāo</rt></ruby><ruby>时<rt>shí</rt></ruby>，<ruby>不<rt>bù</rt></ruby><ruby>小<rt>xiǎo</rt></ruby><ruby>心<rt>xīn</rt></ruby><ruby>把<rt>bǎ</rt></ruby><ruby>冷<rt>lěng</rt></ruby><ruby>月<rt>yuè</rt></ruby><ruby>漂<rt>piào</rt></ruby><ruby>亮<rt>liàng</rt></ruby><ruby>的<rt>de</rt></ruby><span class="vocab" data-vocab-id="2"><ruby>铅<rt>qiān</rt></ruby><ruby>笔<rt>bǐ</rt></ruby><ruby>盒<rt>hé</rt></ruby></span><ruby>打<rt>dǎ</rt></ruby><ruby>落<rt>luò</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>地<rt>dì</rt></ruby>。<ruby>她<rt>tā</rt></ruby><span class="vocab" data-vocab-id="3"><ruby>拧<rt>níng</rt></ruby></span><ruby>起<rt>qǐ</rt></ruby><ruby>眉<rt>méi</rt></ruby><ruby>毛<rt>máo</rt></ruby><ruby>望<rt>wàng</rt></ruby><ruby>着<rt>zhe</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>知<rt>zhī</rt></ruby><ruby>所<rt>suǒ</rt></ruby><ruby>措<rt>cuò</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>他<rt>tā</rt></ruby>，<ruby>但<rt>dàn</rt></ruby><ruby>始<rt>shǐ</rt></ruby><ruby>终<rt>zhōng</rt></ruby><span class="vocab" data-vocab-id="4"><ruby>抿<rt>mǐn</rt></ruby></span><ruby>着<rt>zhe</rt></ruby><ruby>嘴<rt>zuǐ</rt></ruby><ruby>没<rt>méi</rt></ruby><ruby>说<rt>shuō</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>句<rt>jù</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>中<rt>zhōng</rt></ruby><ruby>听<rt>tīng</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>话<rt>huà</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">2</span>That year, he was in Secondary 3. Across the narrow aisle, in the same row, sat a girl with an unusual name — Leng Yue. She didn&#x27;t mingle easily; she was always in a plain white blouse and skirt, chin held high, keeping everyone at arm&#x27;s length. One time, when he was slinging his backpack on, he accidentally knocked her pretty pencil case to the floor. She knitted her brows and looked at him standing there flustered — but kept her lips pressed shut and said nothing unkind.</div>
+</article>
+<article class="para" data-playable data-audio="他对她的沉默心存感激。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="他对她的沉默心存感激。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">3</span>
+      <ruby>他<rt>tā</rt></ruby><ruby>对<rt>duì</rt></ruby><ruby>她<rt>tā</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>沉<rt>chén</rt></ruby><ruby>默<rt>mò</rt></ruby><ruby>心<rt>xīn</rt></ruby><ruby>存<rt>cún</rt></ruby><ruby>感<rt>gǎn</rt></ruby><ruby>激<rt>jī</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">3</span>He was grateful for her silence.</div>
+</article>
+<article class="para" data-playable data-audio="不久，冷月住院了，据说患了肺炎。他看着过道那边空座位上的纸屑，便悄悄地捡去扔了。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="不久，冷月住院了，据说患了肺炎。他看着过道那边空座位上的纸屑，便悄悄地捡去扔了。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">4</span>
+      <ruby>不<rt>bù</rt></ruby><ruby>久<rt>jiǔ</rt></ruby>，<ruby>冷<rt>lěng</rt></ruby><ruby>月<rt>yuè</rt></ruby><ruby>住<rt>zhù</rt></ruby><ruby>院<rt>yuàn</rt></ruby><ruby>了<rt>le</rt></ruby>，<ruby>据<rt>jù</rt></ruby><ruby>说<rt>shuō</rt></ruby><ruby>患<rt>huàn</rt></ruby><ruby>了<rt>le</rt></ruby><span class="vocab" data-vocab-id="5"><ruby>肺<rt>fèi</rt></ruby><ruby>炎<rt>yán</rt></ruby></span>。<ruby>他<rt>tā</rt></ruby><ruby>看<rt>kàn</rt></ruby><ruby>着<rt>zhe</rt></ruby><ruby>过<rt>guò</rt></ruby><ruby>道<rt>dào</rt></ruby><ruby>那<rt>nà</rt></ruby><ruby>边<rt>biān</rt></ruby><ruby>空<rt>kōng</rt></ruby><ruby>座<rt>zuò</rt></ruby><ruby>位<rt>wèi</rt></ruby><ruby>上<rt>shàng</rt></ruby><ruby>的<rt>de</rt></ruby><span class="vocab" data-vocab-id="6"><ruby>纸<rt>zhǐ</rt></ruby><ruby>屑<rt>xiè</rt></ruby></span>，<ruby>便<rt>biàn</rt></ruby><ruby>悄<rt>qiāo</rt></ruby><ruby>悄<rt>qiāo</rt></ruby><ruby>地<rt>dì</rt></ruby><ruby>捡<rt>jiǎn</rt></ruby><ruby>去<rt>qù</rt></ruby><ruby>扔<rt>rēng</rt></ruby><ruby>了<rt>le</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">4</span>Soon after, Leng Yue was admitted to hospital — pneumonia, people said. Seeing scraps of paper on her empty seat across the aisle, he quietly picked them up and threw them away.</div>
+</article>
+<article class="para" data-playable data-audio="男生的父亲是肿瘤医院的主治医生。有一天，他无意中听到父亲在与同事打电话时提到冷月这个名字。父亲说这个女孩得了癌症，即使做手术，也徒劳无功，只能等待那最可怕的结局。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="男生的父亲是肿瘤医院的主治医生。有一天，他无意中听到父亲在与同事打电话时提到冷月这个名字。父亲说这个女孩得了癌症，即使做手术，也徒劳无功，只能等待那最可怕的结局。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">5</span>
+      <ruby>男<rt>nán</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>父<rt>fù</rt></ruby><ruby>亲<rt>qīn</rt></ruby><ruby>是<rt>shì</rt></ruby><span class="vocab" data-vocab-id="7"><ruby>肿<rt>zhǒng</rt></ruby><ruby>瘤<rt>liú</rt></ruby></span><ruby>医<rt>yī</rt></ruby><ruby>院<rt>yuàn</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>主<rt>zhǔ</rt></ruby><ruby>治<rt>zhì</rt></ruby><ruby>医<rt>yī</rt></ruby><ruby>生<rt>shēng</rt></ruby>。<ruby>有<rt>yǒu</rt></ruby><ruby>一<rt>yì</rt></ruby><ruby>天<rt>tiān</rt></ruby>，<ruby>他<rt>tā</rt></ruby><ruby>无<rt>wú</rt></ruby><ruby>意<rt>yì</rt></ruby><ruby>中<rt>zhōng</rt></ruby><ruby>听<rt>tīng</rt></ruby><ruby>到<rt>dào</rt></ruby><ruby>父<rt>fù</rt></ruby><ruby>亲<rt>qīn</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>与<rt>yǔ</rt></ruby><ruby>同<rt>tóng</rt></ruby><ruby>事<rt>shì</rt></ruby><ruby>打<rt>dǎ</rt></ruby><ruby>电<rt>diàn</rt></ruby><ruby>话<rt>huà</rt></ruby><ruby>时<rt>shí</rt></ruby><ruby>提<rt>tí</rt></ruby><ruby>到<rt>dào</rt></ruby><ruby>冷<rt>lěng</rt></ruby><ruby>月<rt>yuè</rt></ruby><ruby>这<rt>zhè</rt></ruby><ruby>个<rt>ge</rt></ruby><ruby>名<rt>míng</rt></ruby><ruby>字<rt>zì</rt></ruby>。<ruby>父<rt>fù</rt></ruby><ruby>亲<rt>qīn</rt></ruby><ruby>说<rt>shuō</rt></ruby><ruby>这<rt>zhè</rt></ruby><ruby>个<rt>ge</rt></ruby><ruby>女<rt>nǚ</rt></ruby><ruby>孩<rt>hái</rt></ruby><ruby>得<rt>dé</rt></ruby><ruby>了<rt>le</rt></ruby><span class="vocab" data-vocab-id="8"><ruby>癌<rt>ái</rt></ruby><ruby>症<rt>zhèng</rt></ruby></span>，<ruby>即<rt>jí</rt></ruby><ruby>使<rt>shǐ</rt></ruby><ruby>做<rt>zuò</rt></ruby><ruby>手<rt>shǒu</rt></ruby><ruby>术<rt>shù</rt></ruby>，<ruby>也<rt>yě</rt></ruby><span class="vocab" data-vocab-id="9"><ruby>徒<rt>tú</rt></ruby><ruby>劳<rt>láo</rt></ruby><ruby>无<rt>wú</rt></ruby><ruby>功<rt>gōng</rt></ruby></span>，<ruby>只<rt>zhǐ</rt></ruby><ruby>能<rt>néng</rt></ruby><ruby>等<rt>děng</rt></ruby><ruby>待<rt>dài</rt></ruby><ruby>那<rt>nà</rt></ruby><ruby>最<rt>zuì</rt></ruby><ruby>可<rt>kě</rt></ruby><ruby>怕<rt>pà</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>结<rt>jié</rt></ruby><ruby>局<rt>jú</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">5</span>The boy&#x27;s father was a senior doctor at the cancer hospital. One day, he overheard his father mention the name Leng Yue while on a call with a colleague. His father said the girl had cancer — that even surgery would be futile, and they could only wait for the worst.</div>
+</article>
+<article class="para" data-playable data-audio="之后，他每天都把冷月的空座位擦拭一遍，但对冷月的病情，他始终保持沉默，没对任何人吐露过。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="之后，他每天都把冷月的空座位擦拭一遍，但对冷月的病情，他始终保持沉默，没对任何人吐露过。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">6</span>
+      <ruby>之<rt>zhī</rt></ruby><ruby>后<rt>hòu</rt></ruby>，<ruby>他<rt>tā</rt></ruby><ruby>每<rt>měi</rt></ruby><ruby>天<rt>tiān</rt></ruby><ruby>都<rt>dōu</rt></ruby><ruby>把<rt>bǎ</rt></ruby><ruby>冷<rt>lěng</rt></ruby><ruby>月<rt>yuè</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>空<rt>kōng</rt></ruby><ruby>座<rt>zuò</rt></ruby><ruby>位<rt>wèi</rt></ruby><span class="vocab" data-vocab-id="10"><ruby>擦<rt>cā</rt></ruby><ruby>拭<rt>shì</rt></ruby></span><ruby>一<rt>yī</rt></ruby><ruby>遍<rt>biàn</rt></ruby>，<ruby>但<rt>dàn</rt></ruby><ruby>对<rt>duì</rt></ruby><ruby>冷<rt>lěng</rt></ruby><ruby>月<rt>yuè</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>病<rt>bìng</rt></ruby><ruby>情<rt>qíng</rt></ruby>，<ruby>他<rt>tā</rt></ruby><ruby>始<rt>shǐ</rt></ruby><ruby>终<rt>zhōng</rt></ruby><ruby>保<rt>bǎo</rt></ruby><ruby>持<rt>chí</rt></ruby><ruby>沉<rt>chén</rt></ruby><ruby>默<rt>mò</rt></ruby>，<ruby>没<rt>méi</rt></ruby><ruby>对<rt>duì</rt></ruby><ruby>任<rt>rèn</rt></ruby><ruby>何<rt>hé</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>吐<rt>tǔ</rt></ruby><ruby>露<rt>lù</rt></ruby><ruby>过<rt>guò</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">6</span>After that, he wiped down Leng Yue&#x27;s empty seat every day. But about her illness, he stayed silent — he never breathed a word to anyone.</div>
+</article>
+<article class="para" data-playable data-audio="三个月后的某一天，冷月来上学了，还是那身白衣素裙，只是脸色苍白了许多。班里没有人知道真相，大家只知道她经常请病假，有些调皮的男生因此在背地里都叫她“林妹妹”。其实，连冷月本人也不知道真相，因为诊断书上仅仅写着肺炎。她患的是不治之症，而她又是个忧郁脆弱的女孩，她的父母把她送回学校，是为了让她安然度过最后的日子。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="三个月后的某一天，冷月来上学了，还是那身白衣素裙，只是脸色苍白了许多。班里没有人知道真相，大家只知道她经常请病假，有些调皮的男生因此在背地里都叫她“林妹妹”。其实，连冷月本人也不知道真相，因为诊断书上仅仅写着肺炎。她患的是不治之症，而她又是个忧郁脆弱的女孩，她的父母把她送回学校，是为了让她安然度过最后的日子。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">7</span>
+      <ruby>三<rt>sān</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>月<rt>yuè</rt></ruby><ruby>后<rt>hòu</rt></ruby><ruby>的<rt>de</rt></ruby><span class="vocab" data-vocab-id="11"><ruby>某<rt>mǒu</rt></ruby></span><ruby>一<rt>yì</rt></ruby><ruby>天<rt>tiān</rt></ruby>，<ruby>冷<rt>lěng</rt></ruby><ruby>月<rt>yuè</rt></ruby><ruby>来<rt>lái</rt></ruby><ruby>上<rt>shàng</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>了<rt>le</rt></ruby>，<ruby>还<rt>hái</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>那<rt>nà</rt></ruby><ruby>身<rt>shēn</rt></ruby><ruby>白<rt>bái</rt></ruby><ruby>衣<rt>yī</rt></ruby><ruby>素<rt>sù</rt></ruby><ruby>裙<rt>qún</rt></ruby>，<ruby>只<rt>zhǐ</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>脸<rt>liǎn</rt></ruby><ruby>色<rt>sè</rt></ruby><span class="vocab" data-vocab-id="12"><ruby>苍<rt>cāng</rt></ruby><ruby>白<rt>bái</rt></ruby></span><ruby>了<rt>le</rt></ruby><ruby>许<rt>xǔ</rt></ruby><ruby>多<rt>duō</rt></ruby>。<ruby>班<rt>bān</rt></ruby><ruby>里<rt>lǐ</rt></ruby><ruby>没<rt>méi</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>知<rt>zhī</rt></ruby><ruby>道<rt>dào</rt></ruby><ruby>真<rt>zhēn</rt></ruby><ruby>相<rt>xiàng</rt></ruby>，<ruby>大<rt>dà</rt></ruby><ruby>家<rt>jiā</rt></ruby><ruby>只<rt>zhǐ</rt></ruby><ruby>知<rt>zhī</rt></ruby><ruby>道<rt>dào</rt></ruby><ruby>她<rt>tā</rt></ruby><ruby>经<rt>jīng</rt></ruby><ruby>常<rt>cháng</rt></ruby><ruby>请<rt>qǐng</rt></ruby><ruby>病<rt>bìng</rt></ruby><ruby>假<rt>jià</rt></ruby>，<ruby>有<rt>yǒu</rt></ruby><ruby>些<rt>xiē</rt></ruby><ruby>调<rt>tiáo</rt></ruby><ruby>皮<rt>pí</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>男<rt>nán</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>因<rt>yīn</rt></ruby><ruby>此<rt>cǐ</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>背<rt>bèi</rt></ruby><ruby>地<rt>dì</rt></ruby><ruby>里<rt>lǐ</rt></ruby><ruby>都<rt>dōu</rt></ruby><ruby>叫<rt>jiào</rt></ruby><ruby>她<rt>tā</rt></ruby>“<ruby>林<rt>lín</rt></ruby><ruby>妹<rt>mèi</rt></ruby><ruby>妹<rt>mèi</rt></ruby>”。<ruby>其<rt>qí</rt></ruby><ruby>实<rt>shí</rt></ruby>，<ruby>连<rt>lián</rt></ruby><ruby>冷<rt>lěng</rt></ruby><ruby>月<rt>yuè</rt></ruby><ruby>本<rt>běn</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>也<rt>yě</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>知<rt>zhī</rt></ruby><ruby>道<rt>dào</rt></ruby><ruby>真<rt>zhēn</rt></ruby><ruby>相<rt>xiàng</rt></ruby>，<ruby>因<rt>yīn</rt></ruby><ruby>为<rt>wèi</rt></ruby><ruby>诊<rt>zhěn</rt></ruby><ruby>断<rt>duàn</rt></ruby><ruby>书<rt>shū</rt></ruby><ruby>上<rt>shàng</rt></ruby><ruby>仅<rt>jǐn</rt></ruby><ruby>仅<rt>jǐn</rt></ruby><ruby>写<rt>xiě</rt></ruby><ruby>着<rt>zhe</rt></ruby><span class="vocab" data-vocab-id="5"><ruby>肺<rt>fèi</rt></ruby><ruby>炎<rt>yán</rt></ruby></span>。<ruby>她<rt>tā</rt></ruby><ruby>患<rt>huàn</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>治<rt>zhì</rt></ruby><ruby>之<rt>zhī</rt></ruby><ruby>症<rt>zhèng</rt></ruby>，<ruby>而<rt>ér</rt></ruby><ruby>她<rt>tā</rt></ruby><ruby>又<rt>yòu</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>忧<rt>yōu</rt></ruby><ruby>郁<rt>yù</rt></ruby><ruby>脆<rt>cuì</rt></ruby><ruby>弱<rt>ruò</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>女<rt>nǚ</rt></ruby><ruby>孩<rt>hái</rt></ruby>，<ruby>她<rt>tā</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>父<rt>fù</rt></ruby><ruby>母<rt>mǔ</rt></ruby><ruby>把<rt>bǎ</rt></ruby><ruby>她<rt>tā</rt></ruby><ruby>送<rt>sòng</rt></ruby><ruby>回<rt>huí</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>校<rt>xiào</rt></ruby>，<ruby>是<rt>shì</rt></ruby><ruby>为<rt>wèi</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>让<rt>ràng</rt></ruby><ruby>她<rt>tā</rt></ruby><ruby>安<rt>ān</rt></ruby><ruby>然<rt>rán</rt></ruby><ruby>度<rt>dù</rt></ruby><ruby>过<rt>guò</rt></ruby><ruby>最<rt>zuì</rt></ruby><ruby>后<rt>hòu</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>日<rt>rì</rt></ruby><ruby>子<rt>zi</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">7</span>One day, three months later, Leng Yue came back to school — still in the same plain white blouse and skirt, only her face much paler. No one in the class knew the truth; they only knew she was often away on sick leave. Some of the more mischievous boys started calling her &quot;Little Sister Lin&quot; behind her back. In fact, even Leng Yue herself didn&#x27;t know the truth — her diagnosis slip only said &quot;pneumonia.&quot; What she actually had was incurable, and she was a melancholic, fragile girl. Her parents had sent her back to school so she could live out her last days in peace.</div>
+</article>
+<article class="para" data-playable data-audio="男生变了。他常常主动与冷月说话，时不时为她倒来热水；在她偶尔哼一支歌时为她热烈鼓掌；还有一次，听说她生日，他买来贺卡动员全班同学在卡上签名。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="男生变了。他常常主动与冷月说话，时不时为她倒来热水；在她偶尔哼一支歌时为她热烈鼓掌；还有一次，听说她生日，他买来贺卡动员全班同学在卡上签名。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">8</span>
+      <ruby>男<rt>nán</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>变<rt>biàn</rt></ruby><ruby>了<rt>le</rt></ruby>。<ruby>他<rt>tā</rt></ruby><ruby>常<rt>cháng</rt></ruby><ruby>常<rt>cháng</rt></ruby><ruby>主<rt>zhǔ</rt></ruby><ruby>动<rt>dòng</rt></ruby><ruby>与<rt>yǔ</rt></ruby><ruby>冷<rt>lěng</rt></ruby><ruby>月<rt>yuè</rt></ruby><ruby>说<rt>shuō</rt></ruby><ruby>话<rt>huà</rt></ruby>，<ruby>时<rt>shí</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>时<rt>shí</rt></ruby><ruby>为<rt>wèi</rt></ruby><ruby>她<rt>tā</rt></ruby><ruby>倒<rt>dào</rt></ruby><ruby>来<rt>lái</rt></ruby><ruby>热<rt>rè</rt></ruby><ruby>水<rt>shuǐ</rt></ruby>；<ruby>在<rt>zài</rt></ruby><ruby>她<rt>tā</rt></ruby><ruby>偶<rt>ǒu</rt></ruby><ruby>尔<rt>ěr</rt></ruby><ruby>哼<rt>hēng</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>支<rt>zhī</rt></ruby><ruby>歌<rt>gē</rt></ruby><ruby>时<rt>shí</rt></ruby><ruby>为<rt>wèi</rt></ruby><ruby>她<rt>tā</rt></ruby><ruby>热<rt>rè</rt></ruby><ruby>烈<rt>liè</rt></ruby><span class="vocab" data-vocab-id="13"><ruby>鼓<rt>gǔ</rt></ruby><ruby>掌<rt>zhǎng</rt></ruby></span>；<ruby>还<rt>hái</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>次<rt>cì</rt></ruby>，<ruby>听<rt>tīng</rt></ruby><ruby>说<rt>shuō</rt></ruby><ruby>她<rt>tā</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>日<rt>rì</rt></ruby>，<ruby>他<rt>tā</rt></ruby><ruby>买<rt>mǎi</rt></ruby><ruby>来<rt>lái</rt></ruby><ruby>贺<rt>hè</rt></ruby><ruby>卡<rt>kǎ</rt></ruby><ruby>动<rt>dòng</rt></ruby><ruby>员<rt>yuán</rt></ruby><ruby>全<rt>quán</rt></ruby><ruby>班<rt>bān</rt></ruby><ruby>同<rt>tóng</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>卡<rt>kǎ</rt></ruby><ruby>上<rt>shàng</rt></ruby><ruby>签<rt>qiān</rt></ruby><ruby>名<rt>míng</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">8</span>The boy changed. He often went out of his way to talk to Leng Yue, pouring her hot water now and then; applauding enthusiastically whenever she hummed a tune; and once, when he heard it was her birthday, he bought a card and got the whole class to sign it.</div>
+</article>
+<article class="para" data-playable data-audio="大家议论纷纷，相互挤眉弄眼。有人说他是冷月忠实的骑士，冷月听说后有意躲着他。可是他一如既往地照顾冷月，并且始终保持沉默。因为他知道，如果那消息传到冷月耳里，准是杀伤力很大的一把利刃。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="大家议论纷纷，相互挤眉弄眼。有人说他是冷月忠实的骑士，冷月听说后有意躲着他。可是他一如既往地照顾冷月，并且始终保持沉默。因为他知道，如果那消息传到冷月耳里，准是杀伤力很大的一把利刃。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">9</span>
+      <ruby>大<rt>dà</rt></ruby><ruby>家<rt>jiā</rt></ruby><ruby>议<rt>yì</rt></ruby><ruby>论<rt>lùn</rt></ruby><ruby>纷<rt>fēn</rt></ruby><ruby>纷<rt>fēn</rt></ruby>，<ruby>相<rt>xiāng</rt></ruby><ruby>互<rt>hù</rt></ruby><ruby>挤<rt>jǐ</rt></ruby><ruby>眉<rt>méi</rt></ruby><ruby>弄<rt>nòng</rt></ruby><ruby>眼<rt>yǎn</rt></ruby>。<ruby>有<rt>yǒu</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>说<rt>shuō</rt></ruby><ruby>他<rt>tā</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>冷<rt>lěng</rt></ruby><ruby>月<rt>yuè</rt></ruby><span class="vocab" data-vocab-id="14"><ruby>忠<rt>zhōng</rt></ruby><ruby>实<rt>shí</rt></ruby></span><ruby>的<rt>de</rt></ruby><ruby>骑<rt>qí</rt></ruby><ruby>士<rt>shì</rt></ruby>，<ruby>冷<rt>lěng</rt></ruby><ruby>月<rt>yuè</rt></ruby><ruby>听<rt>tīng</rt></ruby><ruby>说<rt>shuō</rt></ruby><ruby>后<rt>hòu</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>意<rt>yì</rt></ruby><ruby>躲<rt>duǒ</rt></ruby><ruby>着<rt>zhe</rt></ruby><ruby>他<rt>tā</rt></ruby>。<ruby>可<rt>kě</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>他<rt>tā</rt></ruby><ruby>一<rt>yì</rt></ruby><ruby>如<rt>rú</rt></ruby><ruby>既<rt>jì</rt></ruby><ruby>往<rt>wǎng</rt></ruby><ruby>地<rt>dì</rt></ruby><ruby>照<rt>zhào</rt></ruby><ruby>顾<rt>gù</rt></ruby><ruby>冷<rt>lěng</rt></ruby><ruby>月<rt>yuè</rt></ruby>，<ruby>并<rt>bìng</rt></ruby><ruby>且<rt>qiě</rt></ruby><ruby>始<rt>shǐ</rt></ruby><ruby>终<rt>zhōng</rt></ruby><ruby>保<rt>bǎo</rt></ruby><ruby>持<rt>chí</rt></ruby><ruby>沉<rt>chén</rt></ruby><ruby>默<rt>mò</rt></ruby>。<ruby>因<rt>yīn</rt></ruby><ruby>为<rt>wèi</rt></ruby><ruby>他<rt>tā</rt></ruby><ruby>知<rt>zhī</rt></ruby><ruby>道<rt>dào</rt></ruby>，<ruby>如<rt>rú</rt></ruby><ruby>果<rt>guǒ</rt></ruby><ruby>那<rt>nà</rt></ruby><ruby>消<rt>xiāo</rt></ruby><ruby>息<rt>xī</rt></ruby><ruby>传<rt>chuán</rt></ruby><ruby>到<rt>dào</rt></ruby><ruby>冷<rt>lěng</rt></ruby><ruby>月<rt>yuè</rt></ruby><ruby>耳<rt>ěr</rt></ruby><ruby>里<rt>lǐ</rt></ruby>，<ruby>准<rt>zhǔn</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>杀<rt>shā</rt></ruby><ruby>伤<rt>shāng</rt></ruby><ruby>力<rt>lì</rt></ruby><ruby>很<rt>hěn</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>把<rt>bǎ</rt></ruby><ruby>利<rt>lì</rt></ruby><ruby>刃<rt>rèn</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">9</span>The class gossiped, exchanged knowing looks. Some said he was Leng Yue&#x27;s devoted knight. When she heard that, she began to avoid him. But he went on looking out for her just as before — and he stayed silent through it all. Because he knew that if the truth ever reached her ears, it would cut like a dagger.</div>
+</article>
+<article class="para" data-playable data-audio="这期间，冷月高烧过几次，忽而住院，忽而来学校，但她的座位始终被擦拭得一尘不染。大家也渐渐习惯了他对冷月异乎寻常的关切。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="这期间，冷月高烧过几次，忽而住院，忽而来学校，但她的座位始终被擦拭得一尘不染。大家也渐渐习惯了他对冷月异乎寻常的关切。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">10</span>
+      <ruby>这<rt>zhè</rt></ruby><ruby>期<rt>qī</rt></ruby><ruby>间<rt>jiān</rt></ruby>，<ruby>冷<rt>lěng</rt></ruby><ruby>月<rt>yuè</rt></ruby><ruby>高<rt>gāo</rt></ruby><ruby>烧<rt>shāo</rt></ruby><ruby>过<rt>guò</rt></ruby><ruby>几<rt>jǐ</rt></ruby><ruby>次<rt>cì</rt></ruby>，<ruby>忽<rt>hū</rt></ruby><ruby>而<rt>ér</rt></ruby><ruby>住<rt>zhù</rt></ruby><ruby>院<rt>yuàn</rt></ruby>，<ruby>忽<rt>hū</rt></ruby><ruby>而<rt>ér</rt></ruby><ruby>来<rt>lái</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>校<rt>xiào</rt></ruby>，<ruby>但<rt>dàn</rt></ruby><ruby>她<rt>tā</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>座<rt>zuò</rt></ruby><ruby>位<rt>wèi</rt></ruby><ruby>始<rt>shǐ</rt></ruby><ruby>终<rt>zhōng</rt></ruby><ruby>被<rt>bèi</rt></ruby><span class="vocab" data-vocab-id="10"><ruby>擦<rt>cā</rt></ruby><ruby>拭<rt>shì</rt></ruby></span><ruby>得<rt>dé</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>尘<rt>chén</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>染<rt>rǎn</rt></ruby>。<ruby>大<rt>dà</rt></ruby><ruby>家<rt>jiā</rt></ruby><ruby>也<rt>yě</rt></ruby><ruby>渐<rt>jiàn</rt></ruby><ruby>渐<rt>jiàn</rt></ruby><ruby>习<rt>xí</rt></ruby><ruby>惯<rt>guàn</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>他<rt>tā</rt></ruby><ruby>对<rt>duì</rt></ruby><ruby>冷<rt>lěng</rt></ruby><ruby>月<rt>yuè</rt></ruby><span class="vocab" data-vocab-id="15"><ruby>异<rt>yì</rt></ruby><ruby>乎<rt>hū</rt></ruby><ruby>寻<rt>xún</rt></ruby><ruby>常<rt>cháng</rt></ruby></span><ruby>的<rt>de</rt></ruby><ruby>关<rt>guān</rt></ruby><ruby>切<rt>qiè</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">10</span>During that time, Leng Yue ran high fevers more than once — going in and out of hospital and school. But her seat was always kept spotless. The class gradually grew used to his unusual attentiveness towards her.</div>
+</article>
+<article class="para" data-playable data-audio="直到有一天，奇迹发生了。冷月痊愈了，体内再也找不到癌细胞。医生说这种情况发生的概率也许是十万分之一，简直就是奇迹。这时，冷月才知道发生的一切，才知道邻桌的他竟是她主治医生的儿子。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="直到有一天，奇迹发生了。冷月痊愈了，体内再也找不到癌细胞。医生说这种情况发生的概率也许是十万分之一，简直就是奇迹。这时，冷月才知道发生的一切，才知道邻桌的他竟是她主治医生的儿子。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">11</span>
+      <ruby>直<rt>zhí</rt></ruby><ruby>到<rt>dào</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>一<rt>yì</rt></ruby><ruby>天<rt>tiān</rt></ruby>，<ruby>奇<rt>qí</rt></ruby><ruby>迹<rt>jì</rt></ruby><ruby>发<rt>fā</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>了<rt>le</rt></ruby>。<ruby>冷<rt>lěng</rt></ruby><ruby>月<rt>yuè</rt></ruby><span class="vocab" data-vocab-id="16"><ruby>痊<rt>quán</rt></ruby><ruby>愈<rt>yù</rt></ruby></span><ruby>了<rt>le</rt></ruby>，<ruby>体<rt>tǐ</rt></ruby><ruby>内<rt>nèi</rt></ruby><ruby>再<rt>zài</rt></ruby><ruby>也<rt>yě</rt></ruby><ruby>找<rt>zhǎo</rt></ruby><ruby>不<rt>bú</rt></ruby><ruby>到<rt>dào</rt></ruby><ruby>癌<rt>ái</rt></ruby><ruby>细<rt>xì</rt></ruby><ruby>胞<rt>bāo</rt></ruby>。<ruby>医<rt>yī</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>说<rt>shuō</rt></ruby><ruby>这<rt>zhè</rt></ruby><ruby>种<rt>zhǒng</rt></ruby><ruby>情<rt>qíng</rt></ruby><ruby>况<rt>kuàng</rt></ruby><ruby>发<rt>fā</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>概<rt>gài</rt></ruby><ruby>率<rt>lǜ</rt></ruby><ruby>也<rt>yě</rt></ruby><ruby>许<rt>xǔ</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>十<rt>shí</rt></ruby><ruby>万<rt>wàn</rt></ruby><ruby>分<rt>fēn</rt></ruby><ruby>之<rt>zhī</rt></ruby><ruby>一<rt>yī</rt></ruby>，<ruby>简<rt>jiǎn</rt></ruby><ruby>直<rt>zhí</rt></ruby><ruby>就<rt>jiù</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>奇<rt>qí</rt></ruby><ruby>迹<rt>jì</rt></ruby>。<ruby>这<rt>zhè</rt></ruby><ruby>时<rt>shí</rt></ruby>，<ruby>冷<rt>lěng</rt></ruby><ruby>月<rt>yuè</rt></ruby><ruby>才<rt>cái</rt></ruby><ruby>知<rt>zhī</rt></ruby><ruby>道<rt>dào</rt></ruby><ruby>发<rt>fā</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>切<rt>qiè</rt></ruby>，<ruby>才<rt>cái</rt></ruby><ruby>知<rt>zhī</rt></ruby><ruby>道<rt>dào</rt></ruby><ruby>邻<rt>lín</rt></ruby><ruby>桌<rt>zhuō</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>他<rt>tā</rt></ruby><ruby>竟<rt>jìng</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>她<rt>tā</rt></ruby><ruby>主<rt>zhǔ</rt></ruby><ruby>治<rt>zhì</rt></ruby><ruby>医<rt>yī</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>儿<rt>ér</rt></ruby><ruby>子<rt>zi</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">11</span>Then one day, a miracle happened. Leng Yue made a full recovery — no cancer cells could be found in her body anymore. The doctors said the odds of this were perhaps one in a hundred thousand; it was nothing short of a miracle. Only then did Leng Yue learn everything — including that the boy who sat next to her was, of all people, her doctor&#x27;s son.</div>
+</article>
+<article class="para" data-playable data-audio="冷月给他写了一张纸条，上面只有六个字：谢谢你的沉默。男生没有说什么，他看着纸条上的字，想起了以前她对那件小事的沉默……">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="冷月给他写了一张纸条，上面只有六个字：谢谢你的沉默。男生没有说什么，他看着纸条上的字，想起了以前她对那件小事的沉默……"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">12</span>
+      <ruby>冷<rt>lěng</rt></ruby><ruby>月<rt>yuè</rt></ruby><ruby>给<rt>gěi</rt></ruby><ruby>他<rt>tā</rt></ruby><ruby>写<rt>xiě</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>张<rt>zhāng</rt></ruby><ruby>纸<rt>zhǐ</rt></ruby><ruby>条<rt>tiáo</rt></ruby>，<ruby>上<rt>shàng</rt></ruby><ruby>面<rt>miàn</rt></ruby><ruby>只<rt>zhǐ</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>六<rt>liù</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>字<rt>zì</rt></ruby>：<ruby>谢<rt>xiè</rt></ruby><ruby>谢<rt>xiè</rt></ruby><ruby>你<rt>nǐ</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>沉<rt>chén</rt></ruby><ruby>默<rt>mò</rt></ruby>。<ruby>男<rt>nán</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>没<rt>méi</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>说<rt>shuō</rt></ruby><ruby>什<rt>shén</rt></ruby><ruby>么<rt>me</rt></ruby>，<ruby>他<rt>tā</rt></ruby><ruby>看<rt>kàn</rt></ruby><ruby>着<rt>zhe</rt></ruby><ruby>纸<rt>zhǐ</rt></ruby><ruby>条<rt>tiáo</rt></ruby><ruby>上<rt>shàng</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>字<rt>zì</rt></ruby>，<ruby>想<rt>xiǎng</rt></ruby><ruby>起<rt>qǐ</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>以<rt>yǐ</rt></ruby><ruby>前<rt>qián</rt></ruby><ruby>她<rt>tā</rt></ruby><ruby>对<rt>duì</rt></ruby><ruby>那<rt>nà</rt></ruby><ruby>件<rt>jiàn</rt></ruby><ruby>小<rt>xiǎo</rt></ruby><ruby>事<rt>shì</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>沉<rt>chén</rt></ruby><ruby>默<rt>mò</rt></ruby>……
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">12</span>Leng Yue wrote him a short note — just six characters: &quot;Thank you for your silence.&quot; The boy said nothing. Looking at the words on the paper, he thought back to her silence over that small incident all those years ago…</div>
+</article>
+<article class="para" data-playable data-audio="多年过去，男生对那段往事的记忆依然十分清晰。他望着橱窗里的白衣素裙，默默在心里祝福：希望你一切安好，一生健康。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="多年过去，男生对那段往事的记忆依然十分清晰。他望着橱窗里的白衣素裙，默默在心里祝福：希望你一切安好，一生健康。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">13</span>
+      <ruby>多<rt>duō</rt></ruby><ruby>年<rt>nián</rt></ruby><ruby>过<rt>guò</rt></ruby><ruby>去<rt>qù</rt></ruby>，<ruby>男<rt>nán</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>对<rt>duì</rt></ruby><ruby>那<rt>nà</rt></ruby><ruby>段<rt>duàn</rt></ruby><ruby>往<rt>wǎng</rt></ruby><ruby>事<rt>shì</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>记<rt>jì</rt></ruby><ruby>忆<rt>yì</rt></ruby><ruby>依<rt>yī</rt></ruby><ruby>然<rt>rán</rt></ruby><ruby>十<rt>shí</rt></ruby><ruby>分<rt>fēn</rt></ruby><span class="vocab" data-vocab-id="17"><ruby>清<rt>qīng</rt></ruby><ruby>晰<rt>xī</rt></ruby></span>。<ruby>他<rt>tā</rt></ruby><ruby>望<rt>wàng</rt></ruby><ruby>着<rt>zhe</rt></ruby><span class="vocab" data-vocab-id="0"><ruby>橱<rt>chú</rt></ruby><ruby>窗<rt>chuāng</rt></ruby></span><ruby>里<rt>lǐ</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>白<rt>bái</rt></ruby><ruby>衣<rt>yī</rt></ruby><ruby>素<rt>sù</rt></ruby><ruby>裙<rt>qún</rt></ruby>，<ruby>默<rt>mò</rt></ruby><ruby>默<rt>mò</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>心<rt>xīn</rt></ruby><ruby>里<rt>lǐ</rt></ruby><ruby>祝<rt>zhù</rt></ruby><ruby>福<rt>fú</rt></ruby>：<ruby>希<rt>xī</rt></ruby><ruby>望<rt>wàng</rt></ruby><ruby>你<rt>nǐ</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>切<rt>qiè</rt></ruby><ruby>安<rt>ān</rt></ruby><ruby>好<rt>hǎo</rt></ruby>，<ruby>一<rt>yī</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>健<rt>jiàn</rt></ruby><ruby>康<rt>kāng</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">13</span>Years have passed, but the boy remembers it all with perfect clarity. Looking at the plain white blouse and skirt in the shop window, he offers a silent wish: I hope you are well — I hope you stay healthy, always.</div>
+</article></main>
+  <div id="vocab-sheet" class="vocab-sheet" hidden>
+    <button class="vocab-sheet-close" id="vocab-sheet-close" aria-label="Close">×</button>
+    <div class="vocab-sheet-content"></div>
+  </div>
+  <div id="vocab-backdrop" class="vocab-backdrop" hidden></div>
+<script>window.__VOCAB__ = [{"zh": "橱窗", "pinyin": "chú chuāng", "en": "shop window; display window"}, {"zh": "狭窄", "pinyin": "xiá zhǎi", "en": "narrow; cramped"}, {"zh": "铅笔盒", "pinyin": "qiān bǐ hé", "en": "pencil case; pencil box"}, {"zh": "拧", "pinyin": "nǐng", "en": "to twist; to furrow (brows)"}, {"zh": "抿", "pinyin": "mǐn", "en": "to press together (lips); to purse"}, {"zh": "肺炎", "pinyin": "fèi yán", "en": "pneumonia"}, {"zh": "纸屑", "pinyin": "zhǐ xiè", "en": "scraps of paper"}, {"zh": "肿瘤", "pinyin": "zhǒng liú", "en": "tumour"}, {"zh": "癌症", "pinyin": "ái zhèng", "en": "cancer"}, {"zh": "徒劳无功", "pinyin": "tú láo wú gōng", "en": "futile; in vain; all effort wasted"}, {"zh": "擦拭", "pinyin": "cā shì", "en": "to wipe clean; to polish"}, {"zh": "某", "pinyin": "mǒu", "en": "a certain (day/person); some"}, {"zh": "苍白", "pinyin": "cāng bái", "en": "pale; pallid (esp. of complexion)"}, {"zh": "鼓掌", "pinyin": "gǔ zhǎng", "en": "to clap; to applaud"}, {"zh": "忠实", "pinyin": "zhōng shí", "en": "loyal; faithful; devoted"}, {"zh": "异乎寻常", "pinyin": "yì hū xún cháng", "en": "unusual; out of the ordinary"}, {"zh": "痊愈", "pinyin": "quán yù", "en": "to recover fully (from illness)"}, {"zh": "清晰", "pinyin": "qīng xī", "en": "clear; distinct (of memory or image)"}];</script>
+<script>
+(function () {
+  const SPEAKER_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>';
+  const STOP_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="5" y="5" width="14" height="14" rx="1"></rect></svg>';
+  const PLAY_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>';
+
+  // Inject speaker icons into all .speaker-btn elements
+  document.querySelectorAll('.speaker-btn').forEach(function(b){ b.innerHTML = SPEAKER_SVG; });
+
+  const togglePy = document.getElementById('toggle-pinyin');
+  const toggleEn = document.getElementById('toggle-english');
+  togglePy && togglePy.addEventListener('change', function(){ document.body.classList.toggle('pinyin-off', !togglePy.checked); });
+  toggleEn && toggleEn.addEventListener('change', function(){ document.body.classList.toggle('english-off', !toggleEn.checked); });
+
+  // ===== Vocab panel toggle =====
+  const vocabPanelToggle = document.getElementById('toggle-vocab-panel');
+  const vocabPanel = document.getElementById('vocab-panel');
+  if (vocabPanelToggle && vocabPanel) {
+    vocabPanelToggle.addEventListener('change', function(){
+      vocabPanel.hidden = !vocabPanelToggle.checked;
+    });
+  }
+
+  // ===== Vocab bottom sheet =====
+  const vocabSheet = document.getElementById('vocab-sheet');
+  const vocabBackdrop = document.getElementById('vocab-backdrop');
+  const vocabSheetClose = document.getElementById('vocab-sheet-close');
+  const vocabData = window.__VOCAB__ || [];
+
+  function buildRuby(zh, pinyinStr) {
+    // Split pinyin by space, line up with chars of zh
+    const chars = Array.from(zh);
+    const syllables = (pinyinStr || '').split(/\s+/).filter(Boolean);
+    let out = '';
+    let si = 0;
+    for (const ch of chars) {
+      // Only attach pinyin to CJK characters
+      if (/[\u4e00-\u9fff]/.test(ch)) {
+        const p = syllables[si++] || '';
+        out += '<ruby>' + ch + '<rt>' + p + '</rt></ruby>';
+      } else {
+        out += ch;
+      }
+    }
+    return out;
+  }
+
+  function openVocabSheet(vocabId) {
+    const v = vocabData[vocabId];
+    if (!v || !vocabSheet || !vocabBackdrop) return;
+    const content = vocabSheet.querySelector('.vocab-sheet-content');
+    content.innerHTML = '<p class="vs-zh chinese">' + buildRuby(v.zh, v.pinyin || '') + '</p>' +
+                        '<p class="vs-en">' + v.en + '</p>';
+    vocabSheet.hidden = false;
+    vocabBackdrop.hidden = false;
+    // allow transition
+    requestAnimationFrame(function(){
+      vocabSheet.classList.add('visible');
+      vocabBackdrop.classList.add('visible');
+    });
+  }
+
+  function closeVocabSheet() {
+    if (!vocabSheet || !vocabBackdrop) return;
+    vocabSheet.classList.remove('visible');
+    vocabBackdrop.classList.remove('visible');
+    setTimeout(function(){
+      vocabSheet.hidden = true;
+      vocabBackdrop.hidden = true;
+    }, 250);
+  }
+
+  // Click handler on any .vocab span
+  document.addEventListener('click', function(e){
+    const vocab = e.target.closest && e.target.closest('.vocab');
+    if (vocab) {
+      e.stopPropagation();
+      const id = parseInt(vocab.getAttribute('data-vocab-id'), 10);
+      openVocabSheet(id);
+      return;
+    }
+    // Click on vocab list row opens the sheet too
+    const vRow = e.target.closest && e.target.closest('.vocab-row');
+    if (vRow) {
+      const id = parseInt(vRow.getAttribute('data-vocab-id'), 10);
+      openVocabSheet(id);
+      return;
+    }
+  });
+
+  vocabSheetClose && vocabSheetClose.addEventListener('click', closeVocabSheet);
+  vocabBackdrop && vocabBackdrop.addEventListener('click', closeVocabSheet);
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeVocabSheet(); });
+
+  const speed = document.getElementById('speed');
+  const speedVal = document.getElementById('speed-val');
+  let rate = speed ? parseFloat(speed.value) : 0.9;
+  if (speed) speed.addEventListener('input', function(){
+    rate = parseFloat(speed.value);
+    speedVal.textContent = rate.toFixed(2).replace(/0$/, '') + '\u00d7';
+  });
+
+  const synth = window.speechSynthesis;
+  let chosenVoice = null;
+  function pickVoice(){
+    if (!synth) return;
+    const voices = synth.getVoices();
+    chosenVoice = voices.find(function(v){ return v.lang && v.lang.toLowerCase().indexOf('zh') === 0; }) || null;
+  }
+  if (synth) { pickVoice(); synth.addEventListener && synth.addEventListener('voiceschanged', pickVoice); }
+
+  function clearActive(){
+    document.querySelectorAll('.speaker-btn.playing').forEach(function(b){ b.classList.remove('playing'); });
+    document.querySelectorAll('.active-passage').forEach(function(p){ p.classList.remove('active-passage'); });
+  }
+
+  const playAllBtn = document.getElementById('play-all-btn');
+  let isPlayingAll = false;
+  let queue = [];
+
+  function setPlayAllState(playing){
+    isPlayingAll = playing;
+    if (!playAllBtn) return;
+    if (playing){
+      playAllBtn.classList.add('playing');
+      playAllBtn.innerHTML = STOP_SVG + '<span>\u505c\u6b62 Stop</span>';
+    } else {
+      playAllBtn.classList.remove('playing');
+      playAllBtn.innerHTML = PLAY_SVG + '<span>\u64ad\u653e\u5168\u6587 Play all</span>';
+      queue = [];
+    }
+  }
+
+  function speakOne(text, onDone){
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'zh-CN'; u.rate = rate;
+    if (chosenVoice) u.voice = chosenVoice;
+    u.onend = onDone; u.onerror = onDone;
+    synth.speak(u);
+  }
+
+  // Individual speaker buttons — each has data-audio attr containing the Chinese to speak,
+  // and data-active-selector saying which parent element to highlight
+  document.querySelectorAll('.speaker-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      if (!synth){ alert('Your browser does not support speech synthesis.'); return; }
+      synth.cancel(); clearActive(); setPlayAllState(false);
+      const text = btn.dataset.audio || '';
+      const activeEl = btn.closest('[data-playable]');
+      btn.classList.add('playing');
+      if (activeEl) activeEl.classList.add('active-passage');
+      speakOne(text, function(){
+        btn.classList.remove('playing');
+        if (activeEl) activeEl.classList.remove('active-passage');
+      });
+    });
+  });
+
+  if (playAllBtn){
+    playAllBtn.addEventListener('click', function(){
+      if (!synth){ alert('Your browser does not support speech synthesis.'); return; }
+      if (isPlayingAll){ synth.cancel(); clearActive(); setPlayAllState(false); return; }
+      synth.cancel(); clearActive();
+      queue = Array.from(document.querySelectorAll('[data-playable]'));
+      setPlayAllState(true);
+      function next(){
+        if (!isPlayingAll || queue.length === 0){ clearActive(); setPlayAllState(false); return; }
+        const el = queue.shift();
+        clearActive(); el.classList.add('active-passage');
+        el.scrollIntoView({behavior:'smooth', block:'center'});
+        const text = el.dataset.audio || el.querySelector('.speaker-btn').dataset.audio;
+        speakOne(text, next);
+      }
+      next();
+    });
+  }
+})();
+</script>
+</body>
+</html>
