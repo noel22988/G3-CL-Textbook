@@ -1,0 +1,627 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>差不多先生 — 快捷华文</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --ink-muted: #6b7280;
+    --ink-faint: #9ca3af;
+    --accent: #2f7d4f;
+    --accent-soft: #e6f1ea;
+    --accent-dark: #26663f;
+    --rule: #e5e7eb;
+    --bg: #fafaf8;
+    --surface: #ffffff;
+    --bubble-a: #f0f4f2;
+    --bubble-b: #eef3f7;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+  }
+  .chinese { font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Source Han Sans SC", "Noto Sans CJK SC", sans-serif; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  header.top { max-width: 1100px; margin: 0 auto; padding: 2rem 2rem 1rem; }
+  .back-link { font-size: 13px; color: var(--ink-muted); display: inline-block; margin-bottom: 0.75rem; }
+  .back-link:hover { color: var(--accent); }
+  .breadcrumb {
+    font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--ink-muted); margin-bottom: 0.5rem;
+  }
+  .breadcrumb .sep { opacity: 0.5; margin: 0 0.5em; }
+  h1.title {
+    margin: 0; font-weight: 500; font-size: 28px;
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.75rem;
+  }
+  h1.title .zh { color: var(--ink); }
+  h1.title .en { color: var(--ink-muted); font-weight: 400; font-size: 16px; }
+
+  .controls {
+    max-width: 1100px; margin: 0 auto; padding: 1rem 2rem;
+    display: flex; gap: 1.25rem; flex-wrap: wrap; align-items: center;
+    border-bottom: 1px solid var(--rule);
+  }
+  .controls label {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 14px; color: var(--ink-muted); cursor: pointer; user-select: none;
+  }
+  .controls input[type=checkbox] { accent-color: var(--accent); width: 16px; height: 16px; }
+  .controls input[type=checkbox]:checked + span { color: var(--accent); font-weight: 500; }
+  .controls .speed { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ink-muted); }
+  .controls .speed input { width: 100px; accent-color: var(--accent); }
+  .controls .speed .val { min-width: 28px; font-weight: 500; color: var(--ink); }
+  .controls .speed .speed-hint { font-size: 11px; color: var(--ink-faint); font-style: italic; }
+  .controls .spacer { flex: 1; }
+  .controls button.play-all {
+    border: 1px solid var(--accent); background: var(--accent); color: #fff;
+    padding: 7px 14px; font-size: 13px; font-weight: 500; border-radius: 6px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s;
+  }
+  .controls button.play-all:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+  .controls button.play-all.playing { background: #b34545; border-color: #b34545; }
+  .controls button.play-all.playing:hover { background: #933838; border-color: #933838; }
+  .controls button.play-all svg { width: 11px; height: 11px; }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 1.5rem 2rem 5rem; }
+
+  /* Pinyin defaults */
+  ruby { ruby-position: over; }
+  ruby rt {
+    font-size: 11px; color: var(--accent);
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-weight: 400; letter-spacing: 0.02em;
+    padding-bottom: 6px;
+    transition: opacity 0.15s;
+  }
+  body.pinyin-off ruby rt { opacity: 0; }
+
+  .speaker-btn {
+    background: transparent; border: 1px solid var(--rule);
+    width: 28px; height: 28px; padding: 0; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--ink-muted); transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .speaker-btn:hover { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+  .speaker-btn.playing { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .speaker-btn svg { width: 12px; height: 12px; }
+
+  /* PROSE format — two-column */
+  .para {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2.5rem;
+    padding: 1.5rem 0; border-bottom: 1px solid var(--rule); align-items: start;
+  }
+  .para:last-child { border-bottom: none; }
+  .para .zh-col { display: grid; grid-template-columns: 28px 1fr; gap: 12px; align-items: start; }
+  .para .speaker-btn { margin-top: 8px; }
+  .para .zh-text { font-size: 22px; line-height: 2.6; }
+  .para .en-col {
+    font-size: 15px; line-height: 1.75; color: var(--ink-muted); padding-top: 6px;
+    transition: opacity 0.15s;
+  }
+  body.english-off .en-col { opacity: 0; pointer-events: none; }
+  .para-num {
+    color: var(--ink-faint); font-size: 13px; font-weight: 500;
+    margin-bottom: 4px; display: block;
+  }
+  .para.active-passage .zh-text {
+    background: var(--accent-soft); border-radius: 6px; padding: 4px 8px; margin-left: -8px;
+  }
+
+  /* Subheadings inside prose articles */
+  .subheading {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2.5rem;
+    padding: 1rem 0 0; align-items: baseline;
+    margin: 0;
+  }
+  .subheading-zh {
+    font-size: 18px; font-weight: 500; color: var(--accent-dark);
+    padding-left: 40px; line-height: 1.3;
+    margin: 0;
+  }
+  .subheading-en {
+    font-size: 14px; color: var(--ink-muted); font-weight: 500;
+    transition: opacity 0.15s;
+    letter-spacing: 0.02em;
+    line-height: 1.3;
+    margin: 0;
+  }
+  body.english-off .subheading-en { opacity: 0; }
+  /* Tight coupling — subheading sits directly on top of its paragraph */
+  .subheading + .para { border-top: none; padding-top: 0; }
+
+  /* TABLE format — stacked character cards */
+  .profile-card {
+    background: var(--surface); border: 1px solid var(--rule); border-radius: 12px;
+    padding: 1.5rem 1.75rem; margin-bottom: 1.25rem;
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start;
+  }
+  .profile-card:last-child { margin-bottom: 0; }
+  .profile-card .zh-side { display: grid; grid-template-columns: 28px 1fr; gap: 12px; }
+  .profile-card .name {
+    font-size: 24px; font-weight: 500; margin-bottom: 0.75rem;
+    line-height: 2;
+  }
+  .profile-card .traits { font-size: 18px; line-height: 2.4; }
+  .profile-card .trait { margin-bottom: 0.75rem; }
+  .profile-card .trait:last-child { margin-bottom: 0; }
+  .profile-card .trait-label {
+    display: inline-block; background: var(--accent-soft); color: var(--accent);
+    font-size: 14px; font-weight: 500; padding: 2px 12px; border-radius: 12px;
+    margin-right: 8px; vertical-align: baseline;
+    font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
+    position: relative; top: -2px;
+  }
+  .profile-card .trait-label ruby rt { color: var(--accent-dark); }
+  .profile-card .en-side {
+    font-size: 14px; line-height: 1.75; color: var(--ink-muted); padding-top: 8px;
+    transition: opacity 0.15s;
+  }
+  body.english-off .profile-card .en-side { opacity: 0; pointer-events: none; }
+  .profile-card .en-side .en-name { font-weight: 500; color: var(--ink); font-size: 16px; margin-bottom: 0.5rem; }
+  .profile-card .en-side .en-trait { margin-bottom: 0.5rem; }
+  .profile-card .en-side .en-trait-label { font-weight: 500; color: var(--ink); }
+
+  /* DIALOGUE format — chat bubbles */
+  .stage-direction {
+    text-align: center; color: var(--ink-muted);
+    font-size: 15px; padding: 1rem 2rem;
+    font-style: italic;
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start;
+  }
+  .stage-direction .zh-dir { font-style: normal; }
+  .stage-direction .zh-dir .zh-text { line-height: 2.4; }
+  .stage-direction .en-dir { font-size: 14px; }
+
+  .bubble-row {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;
+    margin-bottom: 1rem; align-items: start;
+  }
+  .bubble-zh { display: flex; gap: 10px; align-items: flex-start; }
+  .bubble-zh.align-right { justify-content: flex-end; }
+  .bubble-zh.align-right .bubble { background: var(--accent-soft); }
+  .bubble-zh .speaker-btn { margin-top: 6px; }
+  .bubble {
+    background: var(--bubble-a);
+    border-radius: 16px; padding: 10px 16px;
+    max-width: 85%;
+    line-height: 2.4; font-size: 18px;
+  }
+  .bubble-zh.align-right .bubble { border-bottom-right-radius: 4px; }
+  .bubble-zh.align-left .bubble { border-bottom-left-radius: 4px; }
+  .bubble-zh .speaker-name {
+    display: block; font-size: 12px; font-weight: 500; color: var(--accent-dark);
+    margin-bottom: 2px; letter-spacing: 0.02em;
+  }
+  .bubble-zh.align-right .speaker-name { text-align: right; }
+  .bubble-row.active-passage .bubble { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .bubble-en {
+    font-size: 14px; line-height: 1.6; color: var(--ink-muted); padding-top: 8px;
+    transition: opacity 0.15s;
+  }
+  .bubble-en .en-speaker { font-weight: 500; color: var(--ink); }
+  body.english-off .bubble-en, body.english-off .stage-direction .en-dir { opacity: 0; pointer-events: none; }
+
+  /* ===== Vocab inline highlighting + bottom sheet ===== */
+  .vocab {
+    cursor: pointer;
+    text-underline-offset: 6px;
+    text-decoration: underline dotted var(--accent);
+    text-decoration-thickness: 1.5px;
+    transition: background 0.15s;
+    border-radius: 3px;
+    padding: 0 1px;
+  }
+  .vocab:hover, .vocab:focus { background: var(--accent-soft); outline: none; }
+
+  /* Vocab list panel at top of passage (toggleable) */
+  .vocab-panel {
+    background: var(--surface); border: 1px solid var(--rule);
+    border-radius: 12px; padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .vocab-panel-title {
+    font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--ink-faint); font-weight: 500; margin: 0 0 1rem;
+  }
+  .vocab-list {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem 2rem;
+  }
+  .vocab-row {
+    display: grid; grid-template-columns: minmax(auto, 140px) 1fr; gap: 1rem;
+    padding: 0.5rem 0; border-top: 1px solid var(--rule-soft);
+    align-items: baseline;
+  }
+  .vocab-row:first-child, .vocab-row:nth-child(2) { border-top: none; }
+  .vocab-row-zh { font-size: 18px; font-family: "PingFang SC", "Hiragino Sans GB", sans-serif; line-height: 2; }
+  .vocab-row-en { font-size: 14px; color: var(--ink-muted); line-height: 1.5; }
+
+  /* Bottom sheet for single-word lookup */
+  .vocab-backdrop {
+    position: fixed; inset: 0; background: rgba(0, 0, 0, 0.25);
+    z-index: 100; opacity: 0; transition: opacity 0.2s;
+    pointer-events: none;
+  }
+  .vocab-backdrop.visible { opacity: 1; pointer-events: auto; }
+  .vocab-sheet {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--rule);
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.08);
+    padding: 1.5rem 2rem 2rem;
+    z-index: 101;
+    transform: translateY(100%); transition: transform 0.25s ease-out;
+    max-width: 600px; margin: 0 auto;
+    border-top-left-radius: 16px; border-top-right-radius: 16px;
+  }
+  .vocab-sheet.visible { transform: translateY(0); }
+  .vocab-sheet-close {
+    position: absolute; top: 10px; right: 14px;
+    background: transparent; border: none; font-size: 28px; line-height: 1;
+    color: var(--ink-faint); cursor: pointer; padding: 4px 10px;
+  }
+  .vocab-sheet-close:hover { color: var(--ink); }
+  .vocab-sheet-content .vs-zh {
+    font-size: 32px; font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
+    line-height: 2.2; margin: 0;
+  }
+  .vocab-sheet-content .vs-zh ruby rt { font-size: 14px; }
+  .vocab-sheet-content .vs-en {
+    font-size: 16px; color: var(--ink); line-height: 1.6;
+    margin: 0.5rem 0 0;
+  }
+
+  @media (max-width: 720px) {
+    .para { grid-template-columns: 1fr; gap: 0.75rem; }
+    .para .en-col { padding-top: 0; padding-left: 40px; font-style: italic; }
+    .para .zh-text { font-size: 20px; }
+    .profile-card { grid-template-columns: 1fr; gap: 1rem; padding: 1rem 1.25rem; }
+    .profile-card .en-side { padding-top: 0; padding-left: 40px; font-style: italic; border-top: 1px solid var(--rule); padding-top: 1rem; }
+    .profile-card .name { font-size: 22px; }
+    .profile-card .traits { font-size: 17px; line-height: 2.2; }
+    .bubble-row, .stage-direction { grid-template-columns: 1fr; gap: 0.5rem; }
+    .bubble-en { padding-left: 16px; padding-top: 0; font-style: italic; }
+    .bubble { font-size: 17px; }
+    header.top, .controls, main { padding-left: 1.25rem; padding-right: 1.25rem; }
+    .controls { gap: 0.75rem; }
+    .vocab-list { grid-template-columns: 1fr; gap: 0; }
+    .vocab-row { grid-template-columns: minmax(auto, 120px) 1fr; padding: 0.5rem 0; border-top: 1px solid var(--rule-soft); }
+    .vocab-row:nth-child(2) { border-top: 1px solid var(--rule-soft); }
+    .vocab-row:first-child { border-top: none; }
+    .vocab-sheet { padding: 1.25rem 1.5rem 1.75rem; }
+    .vocab-sheet-content .vs-zh { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+  <header class="top">
+    <a class="back-link" href="../index.html">← 返回 Back to all levels</a>
+    <div class="breadcrumb">Level 1 · Unit 4 · 习惯的力量 The Power of Habit <span class="sep">·</span> 巩固 Consolidation</div>
+    <h1 class="title">
+      <span class="zh chinese">《差不多先生》</span>
+      <span class="en">Mr. Close-Enough</span>
+    </h1>
+  </header>
+  <div class="controls">
+    <label><input type="checkbox" id="toggle-pinyin" checked><span>显示汉语拼音 Show pinyin</span></label>
+    <label><input type="checkbox" id="toggle-english" checked><span>显示英文 Show English</span></label>
+    <label><input type="checkbox" id="toggle-vocab-panel"><span>显示生词 Show vocab list</span></label>
+    <div class="speed">
+      <span>语速 Speed</span>
+      <input type="range" min="0.5" max="1.2" step="0.05" value="0.9" id="speed" title="Adjust before playing">
+      <span class="val" id="speed-val">0.9×</span>
+      <span class="speed-hint">(set before play)</span>
+    </div>
+    <div class="spacer"></div>
+    <button class="play-all" id="play-all-btn" type="button">
+      <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>
+      <span>播放全文 Play all</span>
+    </button>
+  </div>
+  <main>
+  <section class="vocab-panel" id="vocab-panel" hidden>
+    <h2 class="vocab-panel-title">生词 Vocabulary · 9 words</h2>
+    <div class="vocab-list">
+      <div class="vocab-row" data-vocab-id="0">
+        <div class="vocab-row-zh chinese"><ruby>相<rt>xiàng</rt></ruby><ruby>貌<rt>mào</rt></ruby></div>
+        <div class="vocab-row-en">appearance; looks (of a person)</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="1">
+        <div class="vocab-row-zh chinese"><ruby>讲<rt>jiǎng</rt></ruby><ruby>究<rt>jiū</rt></ruby></div>
+        <div class="vocab-row-en">to be particular about; to care about details</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="2">
+        <div class="vocab-row-zh chinese"><ruby>何<rt>hé</rt></ruby><ruby>必<rt>bì</rt></ruby></div>
+        <div class="vocab-row-en">why bother; there&#x27;s no need to</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="3">
+        <div class="vocab-row-zh chinese"><ruby>记<rt>jì</rt></ruby><ruby>账<rt>zhàng</rt></ruby></div>
+        <div class="vocab-row-en">to keep accounts; to record in a ledger</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="4">
+        <div class="vocab-row-zh chinese"><ruby>亏<rt>kuī</rt></ruby></div>
+        <div class="vocab-row-en">to lose (money); to suffer a loss</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="5">
+        <div class="vocab-row-zh chinese"><ruby>撇<rt>piē</rt></ruby></div>
+        <div class="vocab-row-en">a left-falling stroke (in Chinese characters)</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="6">
+        <div class="vocab-row-zh chinese"><ruby>慢<rt>màn</rt></ruby><ruby>条<rt>tiáo</rt></ruby><ruby>斯<rt>sī</rt></ruby><ruby>理<rt>lǐ</rt></ruby></div>
+        <div class="vocab-row-en">unhurried; taking one&#x27;s leisurely time</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="7">
+        <div class="vocab-row-zh chinese"><ruby>起<rt>qǐ</rt></ruby><ruby>航<rt>háng</rt></ruby></div>
+        <div class="vocab-row-en">to set sail; to depart (of a ship)</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="8">
+        <div class="vocab-row-zh chinese"><ruby>焦<rt>jiāo</rt></ruby><ruby>急<rt>jí</rt></ruby></div>
+        <div class="vocab-row-en">anxious; anxiously impatient</div>
+      </div></div>
+  </section>
+<article class="para" data-playable data-audio="有这么一个人，他姓差，名不多。你一定见过他，一定听别人谈起过他。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="有这么一个人，他姓差，名不多。你一定见过他，一定听别人谈起过他。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">1</span>
+      <ruby>有<rt>yǒu</rt></ruby><ruby>这<rt>zhè</rt></ruby><ruby>么<rt>me</rt></ruby><ruby>一<rt>yí</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>人<rt>rén</rt></ruby>，<ruby>他<rt>tā</rt></ruby><ruby>姓<rt>xìng</rt></ruby><ruby>差<rt>chà</rt></ruby>，<ruby>名<rt>míng</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>多<rt>duō</rt></ruby>。<ruby>你<rt>nǐ</rt></ruby><ruby>一<rt>yí</rt></ruby><ruby>定<rt>dìng</rt></ruby><ruby>见<rt>jiàn</rt></ruby><ruby>过<rt>guò</rt></ruby><ruby>他<rt>tā</rt></ruby>，<ruby>一<rt>yí</rt></ruby><ruby>定<rt>dìng</rt></ruby><ruby>听<rt>tīng</rt></ruby><ruby>别<rt>bié</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>谈<rt>tán</rt></ruby><ruby>起<rt>qǐ</rt></ruby><ruby>过<rt>guò</rt></ruby><ruby>他<rt>tā</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">1</span>There&#x27;s a man whose surname is &quot;Close,&quot; and whose given name is &quot;Enough.&quot; You&#x27;ve definitely seen him before — you&#x27;ve definitely heard people talk about him.</div>
+</article>
+<article class="para" data-playable data-audio="差不多先生的相貌和你和我都差不多。他有一双眼睛，但看得不太清楚；有两只耳朵，但听得不太清楚；有鼻子和嘴，但他对于气味和口味都不太讲究。他的脑子也不小，但他的记性却不太好。他常常说：“凡事只要差不多就好了，何必太精明呢？”">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="差不多先生的相貌和你和我都差不多。他有一双眼睛，但看得不太清楚；有两只耳朵，但听得不太清楚；有鼻子和嘴，但他对于气味和口味都不太讲究。他的脑子也不小，但他的记性却不太好。他常常说：“凡事只要差不多就好了，何必太精明呢？”"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">2</span>
+      <ruby>差<rt>chà</rt></ruby><ruby>不<rt>bu</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>先<rt>xiān</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>的<rt>de</rt></ruby><span class="vocab" data-vocab-id="0"><ruby>相<rt>xiàng</rt></ruby><ruby>貌<rt>mào</rt></ruby></span><ruby>和<rt>hé</rt></ruby><ruby>你<rt>nǐ</rt></ruby><ruby>和<rt>hé</rt></ruby><ruby>我<rt>wǒ</rt></ruby><ruby>都<rt>dōu</rt></ruby><ruby>差<rt>chà</rt></ruby><ruby>不<rt>bu</rt></ruby><ruby>多<rt>duō</rt></ruby>。<ruby>他<rt>tā</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>双<rt>shuāng</rt></ruby><ruby>眼<rt>yǎn</rt></ruby><ruby>睛<rt>jīng</rt></ruby>，<ruby>但<rt>dàn</rt></ruby><ruby>看<rt>kàn</rt></ruby><ruby>得<rt>dé</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>太<rt>tài</rt></ruby><ruby>清<rt>qīng</rt></ruby><ruby>楚<rt>chǔ</rt></ruby>；<ruby>有<rt>yǒu</rt></ruby><ruby>两<rt>liǎng</rt></ruby><ruby>只<rt>zhǐ</rt></ruby><ruby>耳<rt>ěr</rt></ruby><ruby>朵<rt>duǒ</rt></ruby>，<ruby>但<rt>dàn</rt></ruby><ruby>听<rt>tīng</rt></ruby><ruby>得<rt>dé</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>太<rt>tài</rt></ruby><ruby>清<rt>qīng</rt></ruby><ruby>楚<rt>chǔ</rt></ruby>；<ruby>有<rt>yǒu</rt></ruby><ruby>鼻<rt>bí</rt></ruby><ruby>子<rt>zi</rt></ruby><ruby>和<rt>hé</rt></ruby><ruby>嘴<rt>zuǐ</rt></ruby>，<ruby>但<rt>dàn</rt></ruby><ruby>他<rt>tā</rt></ruby><ruby>对<rt>duì</rt></ruby><ruby>于<rt>yú</rt></ruby><ruby>气<rt>qì</rt></ruby><ruby>味<rt>wèi</rt></ruby><ruby>和<rt>hé</rt></ruby><ruby>口<rt>kǒu</rt></ruby><ruby>味<rt>wèi</rt></ruby><ruby>都<rt>dōu</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>太<rt>tài</rt></ruby><span class="vocab" data-vocab-id="1"><ruby>讲<rt>jiǎng</rt></ruby><ruby>究<rt>jiū</rt></ruby></span>。<ruby>他<rt>tā</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>脑<rt>nǎo</rt></ruby><ruby>子<rt>zi</rt></ruby><ruby>也<rt>yě</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>小<rt>xiǎo</rt></ruby>，<ruby>但<rt>dàn</rt></ruby><ruby>他<rt>tā</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>记<rt>jì</rt></ruby><ruby>性<rt>xìng</rt></ruby><ruby>却<rt>què</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>太<rt>tài</rt></ruby><ruby>好<rt>hǎo</rt></ruby>。<ruby>他<rt>tā</rt></ruby><ruby>常<rt>cháng</rt></ruby><ruby>常<rt>cháng</rt></ruby><ruby>说<rt>shuō</rt></ruby>：“<ruby>凡<rt>fán</rt></ruby><ruby>事<rt>shì</rt></ruby><ruby>只<rt>zhǐ</rt></ruby><ruby>要<rt>yào</rt></ruby><ruby>差<rt>chà</rt></ruby><ruby>不<rt>bu</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>就<rt>jiù</rt></ruby><ruby>好<rt>hǎo</rt></ruby><ruby>了<rt>le</rt></ruby>，<span class="vocab" data-vocab-id="2"><ruby>何<rt>hé</rt></ruby><ruby>必<rt>bì</rt></ruby></span><ruby>太<rt>tài</rt></ruby><ruby>精<rt>jīng</rt></ruby><ruby>明<rt>míng</rt></ruby><ruby>呢<rt>ne</rt></ruby>？”
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">2</span>Mr. Close-Enough&#x27;s face looks more or less like yours and mine. He has two eyes, but doesn&#x27;t see very clearly; two ears, but doesn&#x27;t hear very clearly; a nose and a mouth, but he isn&#x27;t very particular about smells or tastes. His brain isn&#x27;t small either — but his memory isn&#x27;t very good. His favourite saying: &quot;As long as things are close enough, that&#x27;s good enough. Why bother being too precise?&quot;</div>
+</article>
+<article class="para" data-playable data-audio="他小的时候，妈妈叫他去买红糖，他买了白糖回来。妈妈骂他，他摇摇头说：“红糖白糖不是差不多吗？”">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="他小的时候，妈妈叫他去买红糖，他买了白糖回来。妈妈骂他，他摇摇头说：“红糖白糖不是差不多吗？”"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">3</span>
+      <ruby>他<rt>tā</rt></ruby><ruby>小<rt>xiǎo</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>时<rt>shí</rt></ruby><ruby>候<rt>hòu</rt></ruby>，<ruby>妈<rt>mā</rt></ruby><ruby>妈<rt>mā</rt></ruby><ruby>叫<rt>jiào</rt></ruby><ruby>他<rt>tā</rt></ruby><ruby>去<rt>qù</rt></ruby><ruby>买<rt>mǎi</rt></ruby><ruby>红<rt>hóng</rt></ruby><ruby>糖<rt>táng</rt></ruby>，<ruby>他<rt>tā</rt></ruby><ruby>买<rt>mǎi</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>白<rt>bái</rt></ruby><ruby>糖<rt>táng</rt></ruby><ruby>回<rt>huí</rt></ruby><ruby>来<rt>lái</rt></ruby>。<ruby>妈<rt>mā</rt></ruby><ruby>妈<rt>mā</rt></ruby><ruby>骂<rt>mà</rt></ruby><ruby>他<rt>tā</rt></ruby>，<ruby>他<rt>tā</rt></ruby><ruby>摇<rt>yáo</rt></ruby><ruby>摇<rt>yáo</rt></ruby><ruby>头<rt>tóu</rt></ruby><ruby>说<rt>shuō</rt></ruby>：“<ruby>红<rt>hóng</rt></ruby><ruby>糖<rt>táng</rt></ruby><ruby>白<rt>bái</rt></ruby><ruby>糖<rt>táng</rt></ruby><ruby>不<rt>bú</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>差<rt>chà</rt></ruby><ruby>不<rt>bu</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>吗<rt>ma</rt></ruby>？”
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">3</span>When he was little, his mother sent him out to buy brown sugar, and he came back with white sugar. When she scolded him, he just shook his head and said: &quot;Brown sugar, white sugar — aren&#x27;t they close enough?&quot;</div>
+</article>
+<article class="para" data-playable data-audio="后来他在一家店里做事，在记账时常常把“十”写成“千”，把“千”写成“十”，害得店里亏了不少钱。老板气得骂他，他却笑嘻嘻地说：“‘千’字比‘十’字只多一小撇，不是差不多吗？”">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="后来他在一家店里做事，在记账时常常把“十”写成“千”，把“千”写成“十”，害得店里亏了不少钱。老板气得骂他，他却笑嘻嘻地说：“‘千’字比‘十’字只多一小撇，不是差不多吗？”"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">4</span>
+      <ruby>后<rt>hòu</rt></ruby><ruby>来<rt>lái</rt></ruby><ruby>他<rt>tā</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>一<rt>yì</rt></ruby><ruby>家<rt>jiā</rt></ruby><ruby>店<rt>diàn</rt></ruby><ruby>里<rt>lǐ</rt></ruby><ruby>做<rt>zuò</rt></ruby><ruby>事<rt>shì</rt></ruby>，<ruby>在<rt>zài</rt></ruby><span class="vocab" data-vocab-id="3"><ruby>记<rt>jì</rt></ruby><ruby>账<rt>zhàng</rt></ruby></span><ruby>时<rt>shí</rt></ruby><ruby>常<rt>cháng</rt></ruby><ruby>常<rt>cháng</rt></ruby><ruby>把<rt>bǎ</rt></ruby>“<ruby>十<rt>shí</rt></ruby>”<ruby>写<rt>xiě</rt></ruby><ruby>成<rt>chéng</rt></ruby>“<ruby>千<rt>qiān</rt></ruby>”，<ruby>把<rt>bǎ</rt></ruby>“<ruby>千<rt>qiān</rt></ruby>”<ruby>写<rt>xiě</rt></ruby><ruby>成<rt>chéng</rt></ruby>“<ruby>十<rt>shí</rt></ruby>”，<ruby>害<rt>hài</rt></ruby><ruby>得<rt>dé</rt></ruby><ruby>店<rt>diàn</rt></ruby><ruby>里<rt>lǐ</rt></ruby><span class="vocab" data-vocab-id="4"><ruby>亏<rt>kuī</rt></ruby></span><ruby>了<rt>le</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>少<rt>shǎo</rt></ruby><ruby>钱<rt>qián</rt></ruby>。<ruby>老<rt>lǎo</rt></ruby><ruby>板<rt>bǎn</rt></ruby><ruby>气<rt>qì</rt></ruby><ruby>得<rt>dé</rt></ruby><ruby>骂<rt>mà</rt></ruby><ruby>他<rt>tā</rt></ruby>，<ruby>他<rt>tā</rt></ruby><ruby>却<rt>què</rt></ruby><ruby>笑<rt>xiào</rt></ruby><ruby>嘻<rt>xī</rt></ruby><ruby>嘻<rt>xī</rt></ruby><ruby>地<rt>dì</rt></ruby><ruby>说<rt>shuō</rt></ruby>：“‘<ruby>千<rt>qiān</rt></ruby>’<ruby>字<rt>zì</rt></ruby><ruby>比<rt>bǐ</rt></ruby>‘<ruby>十<rt>shí</rt></ruby>’<ruby>字<rt>zì</rt></ruby><ruby>只<rt>zhǐ</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>小<rt>xiǎo</rt></ruby><span class="vocab" data-vocab-id="5"><ruby>撇<rt>piē</rt></ruby></span>，<ruby>不<rt>bú</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>差<rt>chà</rt></ruby><ruby>不<rt>bu</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>吗<rt>ma</rt></ruby>？”
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">4</span>Later he worked at a shop, and kept writing &quot;ten&quot; (十) as &quot;thousand&quot; (千) and &quot;thousand&quot; as &quot;ten&quot; in the ledgers — causing the shop to lose a considerable sum. When the boss scolded him in a fury, he just grinned and said: &quot;The character &#x27;thousand&#x27; is only one little stroke more than &#x27;ten&#x27; — aren&#x27;t they close enough?&quot;</div>
+</article>
+<article class="para" data-playable data-audio="有一天，他为了一件重要的事，要乘船到外地去。他慢条斯理地走到码头，结果迟了两分钟，轮船已经起航了。他没有办法，望着远去的轮船，摇摇头道：“只好明天再走了，今天走同明天走，也还差不多。可是轮船公司未免太认真了。8点30分开船，同8点32分开船，不是差不多吗？”他一面说，一面慢慢地走回家，心里不明白为什么轮船不肯等他两分钟。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="有一天，他为了一件重要的事，要乘船到外地去。他慢条斯理地走到码头，结果迟了两分钟，轮船已经起航了。他没有办法，望着远去的轮船，摇摇头道：“只好明天再走了，今天走同明天走，也还差不多。可是轮船公司未免太认真了。8点30分开船，同8点32分开船，不是差不多吗？”他一面说，一面慢慢地走回家，心里不明白为什么轮船不肯等他两分钟。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">5</span>
+      <ruby>有<rt>yǒu</rt></ruby><ruby>一<rt>yì</rt></ruby><ruby>天<rt>tiān</rt></ruby>，<ruby>他<rt>tā</rt></ruby><ruby>为<rt>wèi</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>件<rt>jiàn</rt></ruby><ruby>重<rt>zhòng</rt></ruby><ruby>要<rt>yào</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>事<rt>shì</rt></ruby>，<ruby>要<rt>yào</rt></ruby><ruby>乘<rt>chéng</rt></ruby><ruby>船<rt>chuán</rt></ruby><ruby>到<rt>dào</rt></ruby><ruby>外<rt>wài</rt></ruby><ruby>地<rt>dì</rt></ruby><ruby>去<rt>qù</rt></ruby>。<ruby>他<rt>tā</rt></ruby><span class="vocab" data-vocab-id="6"><ruby>慢<rt>màn</rt></ruby><ruby>条<rt>tiáo</rt></ruby><ruby>斯<rt>sī</rt></ruby><ruby>理<rt>lǐ</rt></ruby></span><ruby>地<rt>dì</rt></ruby><ruby>走<rt>zǒu</rt></ruby><ruby>到<rt>dào</rt></ruby><ruby>码<rt>mǎ</rt></ruby><ruby>头<rt>tóu</rt></ruby>，<ruby>结<rt>jié</rt></ruby><ruby>果<rt>guǒ</rt></ruby><ruby>迟<rt>chí</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>两<rt>liǎng</rt></ruby><ruby>分<rt>fēn</rt></ruby><ruby>钟<rt>zhōng</rt></ruby>，<ruby>轮<rt>lún</rt></ruby><ruby>船<rt>chuán</rt></ruby><ruby>已<rt>yǐ</rt></ruby><ruby>经<rt>jīng</rt></ruby><span class="vocab" data-vocab-id="7"><ruby>起<rt>qǐ</rt></ruby><ruby>航<rt>háng</rt></ruby></span><ruby>了<rt>le</rt></ruby>。<ruby>他<rt>tā</rt></ruby><ruby>没<rt>méi</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>办<rt>bàn</rt></ruby><ruby>法<rt>fǎ</rt></ruby>，<ruby>望<rt>wàng</rt></ruby><ruby>着<rt>zhe</rt></ruby><ruby>远<rt>yuǎn</rt></ruby><ruby>去<rt>qù</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>轮<rt>lún</rt></ruby><ruby>船<rt>chuán</rt></ruby>，<ruby>摇<rt>yáo</rt></ruby><ruby>摇<rt>yáo</rt></ruby><ruby>头<rt>tóu</rt></ruby><ruby>道<rt>dào</rt></ruby>：“<ruby>只<rt>zhǐ</rt></ruby><ruby>好<rt>hǎo</rt></ruby><ruby>明<rt>míng</rt></ruby><ruby>天<rt>tiān</rt></ruby><ruby>再<rt>zài</rt></ruby><ruby>走<rt>zǒu</rt></ruby><ruby>了<rt>le</rt></ruby>，<ruby>今<rt>jīn</rt></ruby><ruby>天<rt>tiān</rt></ruby><ruby>走<rt>zǒu</rt></ruby><ruby>同<rt>tóng</rt></ruby><ruby>明<rt>míng</rt></ruby><ruby>天<rt>tiān</rt></ruby><ruby>走<rt>zǒu</rt></ruby>，<ruby>也<rt>yě</rt></ruby><ruby>还<rt>hái</rt></ruby><ruby>差<rt>chà</rt></ruby><ruby>不<rt>bu</rt></ruby><ruby>多<rt>duō</rt></ruby>。<ruby>可<rt>kě</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>轮<rt>lún</rt></ruby><ruby>船<rt>chuán</rt></ruby><ruby>公<rt>gōng</rt></ruby><ruby>司<rt>sī</rt></ruby><ruby>未<rt>wèi</rt></ruby><ruby>免<rt>miǎn</rt></ruby><ruby>太<rt>tài</rt></ruby><ruby>认<rt>rèn</rt></ruby><ruby>真<rt>zhēn</rt></ruby><ruby>了<rt>le</rt></ruby>。8<ruby>点<rt>diǎn</rt></ruby>30<ruby>分<rt>fēn</rt></ruby><ruby>开<rt>kāi</rt></ruby><ruby>船<rt>chuán</rt></ruby>，<ruby>同<rt>tóng</rt></ruby>8<ruby>点<rt>diǎn</rt></ruby>32<ruby>分<rt>fēn</rt></ruby><ruby>开<rt>kāi</rt></ruby><ruby>船<rt>chuán</rt></ruby>，<ruby>不<rt>bú</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>差<rt>chà</rt></ruby><ruby>不<rt>bu</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>吗<rt>ma</rt></ruby>？”<ruby>他<rt>tā</rt></ruby><ruby>一<rt>yí</rt></ruby><ruby>面<rt>miàn</rt></ruby><ruby>说<rt>shuō</rt></ruby>，<ruby>一<rt>yí</rt></ruby><ruby>面<rt>miàn</rt></ruby><ruby>慢<rt>màn</rt></ruby><ruby>慢<rt>màn</rt></ruby><ruby>地<rt>dì</rt></ruby><ruby>走<rt>zǒu</rt></ruby><ruby>回<rt>huí</rt></ruby><ruby>家<rt>jiā</rt></ruby>，<ruby>心<rt>xīn</rt></ruby><ruby>里<rt>lǐ</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>明<rt>míng</rt></ruby><ruby>白<rt>bái</rt></ruby><ruby>为<rt>wèi</rt></ruby><ruby>什<rt>shén</rt></ruby><ruby>么<rt>me</rt></ruby><ruby>轮<rt>lún</rt></ruby><ruby>船<rt>chuán</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>肯<rt>kěn</rt></ruby><ruby>等<rt>děng</rt></ruby><ruby>他<rt>tā</rt></ruby><ruby>两<rt>liǎng</rt></ruby><ruby>分<rt>fēn</rt></ruby><ruby>钟<rt>zhōng</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">5</span>One day, he needed to take a boat out of town on an important matter. He strolled leisurely to the dock — and arrived two minutes late. The boat had already set sail. Helpless, he gazed at the departing steamer, shook his head, and said: &quot;I&#x27;ll just have to go tomorrow instead. Leaving today or leaving tomorrow — it&#x27;s close enough. But the steamship company is just too serious about this. Sailing at 8:30 or sailing at 8:32 — aren&#x27;t they close enough?&quot; He said all this as he walked slowly home, unable to understand why the steamer wouldn&#x27;t wait two minutes for him.</div>
+</article>
+<article class="para" data-playable data-audio="有一天，他忽然得了急病，赶快叫家人去请东街的汪大夫。家人急急忙忙地跑去，一时找不着东街的汪大夫，却把西街的兽医王大夫请来了。差不多先生躺在床上，知道找错了人，但病急了，身上痛苦，心里焦急，等不得了。他想：好在王大夫同汪大夫也差不多，让他试试看吧。于是这位王大夫走近床前，用医牛的方法给差不多先生治病。结果不到一个小时，差不多先生就断气了。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="有一天，他忽然得了急病，赶快叫家人去请东街的汪大夫。家人急急忙忙地跑去，一时找不着东街的汪大夫，却把西街的兽医王大夫请来了。差不多先生躺在床上，知道找错了人，但病急了，身上痛苦，心里焦急，等不得了。他想：好在王大夫同汪大夫也差不多，让他试试看吧。于是这位王大夫走近床前，用医牛的方法给差不多先生治病。结果不到一个小时，差不多先生就断气了。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">6</span>
+      <ruby>有<rt>yǒu</rt></ruby><ruby>一<rt>yì</rt></ruby><ruby>天<rt>tiān</rt></ruby>，<ruby>他<rt>tā</rt></ruby><ruby>忽<rt>hū</rt></ruby><ruby>然<rt>rán</rt></ruby><ruby>得<rt>dé</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>急<rt>jí</rt></ruby><ruby>病<rt>bìng</rt></ruby>，<ruby>赶<rt>gǎn</rt></ruby><ruby>快<rt>kuài</rt></ruby><ruby>叫<rt>jiào</rt></ruby><ruby>家<rt>jiā</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>去<rt>qù</rt></ruby><ruby>请<rt>qǐng</rt></ruby><ruby>东<rt>dōng</rt></ruby><ruby>街<rt>jiē</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>汪<rt>wāng</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>夫<rt>fū</rt></ruby>。<ruby>家<rt>jiā</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>急<rt>jí</rt></ruby><ruby>急<rt>jí</rt></ruby><ruby>忙<rt>máng</rt></ruby><ruby>忙<rt>máng</rt></ruby><ruby>地<rt>dì</rt></ruby><ruby>跑<rt>pǎo</rt></ruby><ruby>去<rt>qù</rt></ruby>，<ruby>一<rt>yì</rt></ruby><ruby>时<rt>shí</rt></ruby><ruby>找<rt>zhǎo</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>着<rt>zhe</rt></ruby><ruby>东<rt>dōng</rt></ruby><ruby>街<rt>jiē</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>汪<rt>wāng</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>夫<rt>fū</rt></ruby>，<ruby>却<rt>què</rt></ruby><ruby>把<rt>bǎ</rt></ruby><ruby>西<rt>xī</rt></ruby><ruby>街<rt>jiē</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>兽<rt>shòu</rt></ruby><ruby>医<rt>yī</rt></ruby><ruby>王<rt>wáng</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>夫<rt>fū</rt></ruby><ruby>请<rt>qǐng</rt></ruby><ruby>来<rt>lái</rt></ruby><ruby>了<rt>le</rt></ruby>。<ruby>差<rt>chà</rt></ruby><ruby>不<rt>bu</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>先<rt>xiān</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>躺<rt>tǎng</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>床<rt>chuáng</rt></ruby><ruby>上<rt>shàng</rt></ruby>，<ruby>知<rt>zhī</rt></ruby><ruby>道<rt>dào</rt></ruby><ruby>找<rt>zhǎo</rt></ruby><ruby>错<rt>cuò</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>人<rt>rén</rt></ruby>，<ruby>但<rt>dàn</rt></ruby><ruby>病<rt>bìng</rt></ruby><ruby>急<rt>jí</rt></ruby><ruby>了<rt>le</rt></ruby>，<ruby>身<rt>shēn</rt></ruby><ruby>上<rt>shàng</rt></ruby><ruby>痛<rt>tòng</rt></ruby><ruby>苦<rt>kǔ</rt></ruby>，<ruby>心<rt>xīn</rt></ruby><ruby>里<rt>lǐ</rt></ruby><span class="vocab" data-vocab-id="8"><ruby>焦<rt>jiāo</rt></ruby><ruby>急<rt>jí</rt></ruby></span>，<ruby>等<rt>děng</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>得<rt>dé</rt></ruby><ruby>了<rt>le</rt></ruby>。<ruby>他<rt>tā</rt></ruby><ruby>想<rt>xiǎng</rt></ruby>：<ruby>好<rt>hǎo</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>王<rt>wáng</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>夫<rt>fū</rt></ruby><ruby>同<rt>tóng</rt></ruby><ruby>汪<rt>wāng</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>夫<rt>fū</rt></ruby><ruby>也<rt>yě</rt></ruby><ruby>差<rt>chà</rt></ruby><ruby>不<rt>bu</rt></ruby><ruby>多<rt>duō</rt></ruby>，<ruby>让<rt>ràng</rt></ruby><ruby>他<rt>tā</rt></ruby><ruby>试<rt>shì</rt></ruby><ruby>试<rt>shì</rt></ruby><ruby>看<rt>kàn</rt></ruby><ruby>吧<rt>ba</rt></ruby>。<ruby>于<rt>yú</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>这<rt>zhè</rt></ruby><ruby>位<rt>wèi</rt></ruby><ruby>王<rt>wáng</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>夫<rt>fū</rt></ruby><ruby>走<rt>zǒu</rt></ruby><ruby>近<rt>jìn</rt></ruby><ruby>床<rt>chuáng</rt></ruby><ruby>前<rt>qián</rt></ruby>，<ruby>用<rt>yòng</rt></ruby><ruby>医<rt>yī</rt></ruby><ruby>牛<rt>niú</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>方<rt>fāng</rt></ruby><ruby>法<rt>fǎ</rt></ruby><ruby>给<rt>gěi</rt></ruby><ruby>差<rt>chà</rt></ruby><ruby>不<rt>bu</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>先<rt>xiān</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>治<rt>zhì</rt></ruby><ruby>病<rt>bìng</rt></ruby>。<ruby>结<rt>jié</rt></ruby><ruby>果<rt>guǒ</rt></ruby><ruby>不<rt>bú</rt></ruby><ruby>到<rt>dào</rt></ruby><ruby>一<rt>yí</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>小<rt>xiǎo</rt></ruby><ruby>时<rt>shí</rt></ruby>，<ruby>差<rt>chà</rt></ruby><ruby>不<rt>bu</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>先<rt>xiān</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>就<rt>jiù</rt></ruby><ruby>断<rt>duàn</rt></ruby><ruby>气<rt>qì</rt></ruby><ruby>了<rt>le</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">6</span>One day, he suddenly came down with a serious illness, and hurriedly told his family to fetch Dr. Wang (汪) from East Street. The family rushed out, but couldn&#x27;t find Dr. Wang right away — so they brought back Dr. Wang (王) the veterinarian from West Street instead. Lying on his sickbed, Mr. Close-Enough realised they&#x27;d got the wrong man, but his condition was critical, his body was in pain, his heart anxious — he couldn&#x27;t wait. Well, he thought, vet Wang and Dr. Wang are close enough, so let&#x27;s see what he can do. And so this Dr. Wang stepped up to the bed and treated Mr. Close-Enough with the methods he used on cattle. In under an hour, Mr. Close-Enough had breathed his last.</div>
+</article>
+<article class="para" data-playable data-audio="差不多先生临死前说：“活人同死人也差……差不多。凡事只要差……差不多就好了，何……何必太……太认真呢？”">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="差不多先生临死前说：“活人同死人也差……差不多。凡事只要差……差不多就好了，何……何必太……太认真呢？”"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">7</span>
+      <ruby>差<rt>chà</rt></ruby><ruby>不<rt>bu</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>先<rt>xiān</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>临<rt>lín</rt></ruby><ruby>死<rt>sǐ</rt></ruby><ruby>前<rt>qián</rt></ruby><ruby>说<rt>shuō</rt></ruby>：“<ruby>活<rt>huó</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>同<rt>tóng</rt></ruby><ruby>死<rt>sǐ</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>也<rt>yě</rt></ruby><ruby>差<rt>chà</rt></ruby>……<ruby>差<rt>chà</rt></ruby><ruby>不<rt>bu</rt></ruby><ruby>多<rt>duō</rt></ruby>。<ruby>凡<rt>fán</rt></ruby><ruby>事<rt>shì</rt></ruby><ruby>只<rt>zhǐ</rt></ruby><ruby>要<rt>yào</rt></ruby><ruby>差<rt>chà</rt></ruby>……<ruby>差<rt>chà</rt></ruby><ruby>不<rt>bu</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>就<rt>jiù</rt></ruby><ruby>好<rt>hǎo</rt></ruby><ruby>了<rt>le</rt></ruby>，<ruby>何<rt>hé</rt></ruby>……<span class="vocab" data-vocab-id="2"><ruby>何<rt>hé</rt></ruby><ruby>必<rt>bì</rt></ruby></span><ruby>太<rt>tài</rt></ruby>……<ruby>太<rt>tài</rt></ruby><ruby>认<rt>rèn</rt></ruby><ruby>真<rt>zhēn</rt></ruby><ruby>呢<rt>ne</rt></ruby>？”
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">7</span>Just before he died, Mr. Close-Enough gasped: &quot;Living people and dead people… are also close… close enough. As long as things are close… close enough, it&#x27;s fine. Why… why be so… so serious?&quot;</div>
+</article></main>
+  <div id="vocab-sheet" class="vocab-sheet" hidden>
+    <button class="vocab-sheet-close" id="vocab-sheet-close" aria-label="Close">×</button>
+    <div class="vocab-sheet-content"></div>
+  </div>
+  <div id="vocab-backdrop" class="vocab-backdrop" hidden></div>
+<script>window.__VOCAB__ = [{"zh": "相貌", "pinyin": "xiàng mào", "en": "appearance; looks (of a person)"}, {"zh": "讲究", "pinyin": "jiǎng jiu", "en": "to be particular about; to care about details"}, {"zh": "何必", "pinyin": "hé bì", "en": "why bother; there's no need to"}, {"zh": "记账", "pinyin": "jì zhàng", "en": "to keep accounts; to record in a ledger"}, {"zh": "亏", "pinyin": "kuī", "en": "to lose (money); to suffer a loss"}, {"zh": "撇", "pinyin": "piě", "en": "a left-falling stroke (in Chinese characters)"}, {"zh": "慢条斯理", "pinyin": "màn tiáo sī lǐ", "en": "unhurried; taking one's leisurely time"}, {"zh": "起航", "pinyin": "qǐ háng", "en": "to set sail; to depart (of a ship)"}, {"zh": "焦急", "pinyin": "jiāo jí", "en": "anxious; anxiously impatient"}];</script>
+<script>
+(function () {
+  const SPEAKER_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>';
+  const STOP_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="5" y="5" width="14" height="14" rx="1"></rect></svg>';
+  const PLAY_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>';
+
+  // Inject speaker icons into all .speaker-btn elements
+  document.querySelectorAll('.speaker-btn').forEach(function(b){ b.innerHTML = SPEAKER_SVG; });
+
+  const togglePy = document.getElementById('toggle-pinyin');
+  const toggleEn = document.getElementById('toggle-english');
+  togglePy && togglePy.addEventListener('change', function(){ document.body.classList.toggle('pinyin-off', !togglePy.checked); });
+  toggleEn && toggleEn.addEventListener('change', function(){ document.body.classList.toggle('english-off', !toggleEn.checked); });
+
+  // ===== Vocab panel toggle =====
+  const vocabPanelToggle = document.getElementById('toggle-vocab-panel');
+  const vocabPanel = document.getElementById('vocab-panel');
+  if (vocabPanelToggle && vocabPanel) {
+    vocabPanelToggle.addEventListener('change', function(){
+      vocabPanel.hidden = !vocabPanelToggle.checked;
+    });
+  }
+
+  // ===== Vocab bottom sheet =====
+  const vocabSheet = document.getElementById('vocab-sheet');
+  const vocabBackdrop = document.getElementById('vocab-backdrop');
+  const vocabSheetClose = document.getElementById('vocab-sheet-close');
+  const vocabData = window.__VOCAB__ || [];
+
+  function buildRuby(zh, pinyinStr) {
+    // Split pinyin by space, line up with chars of zh
+    const chars = Array.from(zh);
+    const syllables = (pinyinStr || '').split(/\s+/).filter(Boolean);
+    let out = '';
+    let si = 0;
+    for (const ch of chars) {
+      // Only attach pinyin to CJK characters
+      if (/[\u4e00-\u9fff]/.test(ch)) {
+        const p = syllables[si++] || '';
+        out += '<ruby>' + ch + '<rt>' + p + '</rt></ruby>';
+      } else {
+        out += ch;
+      }
+    }
+    return out;
+  }
+
+  function openVocabSheet(vocabId) {
+    const v = vocabData[vocabId];
+    if (!v || !vocabSheet || !vocabBackdrop) return;
+    const content = vocabSheet.querySelector('.vocab-sheet-content');
+    content.innerHTML = '<p class="vs-zh chinese">' + buildRuby(v.zh, v.pinyin || '') + '</p>' +
+                        '<p class="vs-en">' + v.en + '</p>';
+    vocabSheet.hidden = false;
+    vocabBackdrop.hidden = false;
+    // allow transition
+    requestAnimationFrame(function(){
+      vocabSheet.classList.add('visible');
+      vocabBackdrop.classList.add('visible');
+    });
+  }
+
+  function closeVocabSheet() {
+    if (!vocabSheet || !vocabBackdrop) return;
+    vocabSheet.classList.remove('visible');
+    vocabBackdrop.classList.remove('visible');
+    setTimeout(function(){
+      vocabSheet.hidden = true;
+      vocabBackdrop.hidden = true;
+    }, 250);
+  }
+
+  // Click handler on any .vocab span
+  document.addEventListener('click', function(e){
+    const vocab = e.target.closest && e.target.closest('.vocab');
+    if (vocab) {
+      e.stopPropagation();
+      const id = parseInt(vocab.getAttribute('data-vocab-id'), 10);
+      openVocabSheet(id);
+      return;
+    }
+    // Click on vocab list row opens the sheet too
+    const vRow = e.target.closest && e.target.closest('.vocab-row');
+    if (vRow) {
+      const id = parseInt(vRow.getAttribute('data-vocab-id'), 10);
+      openVocabSheet(id);
+      return;
+    }
+  });
+
+  vocabSheetClose && vocabSheetClose.addEventListener('click', closeVocabSheet);
+  vocabBackdrop && vocabBackdrop.addEventListener('click', closeVocabSheet);
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeVocabSheet(); });
+
+  const speed = document.getElementById('speed');
+  const speedVal = document.getElementById('speed-val');
+  let rate = speed ? parseFloat(speed.value) : 0.9;
+  if (speed) speed.addEventListener('input', function(){
+    rate = parseFloat(speed.value);
+    speedVal.textContent = rate.toFixed(2).replace(/0$/, '') + '\u00d7';
+  });
+
+  const synth = window.speechSynthesis;
+  let chosenVoice = null;
+  function pickVoice(){
+    if (!synth) return;
+    const voices = synth.getVoices();
+    chosenVoice = voices.find(function(v){ return v.lang && v.lang.toLowerCase().indexOf('zh') === 0; }) || null;
+  }
+  if (synth) { pickVoice(); synth.addEventListener && synth.addEventListener('voiceschanged', pickVoice); }
+
+  function clearActive(){
+    document.querySelectorAll('.speaker-btn.playing').forEach(function(b){ b.classList.remove('playing'); });
+    document.querySelectorAll('.active-passage').forEach(function(p){ p.classList.remove('active-passage'); });
+  }
+
+  const playAllBtn = document.getElementById('play-all-btn');
+  let isPlayingAll = false;
+  let queue = [];
+
+  function setPlayAllState(playing){
+    isPlayingAll = playing;
+    if (!playAllBtn) return;
+    if (playing){
+      playAllBtn.classList.add('playing');
+      playAllBtn.innerHTML = STOP_SVG + '<span>\u505c\u6b62 Stop</span>';
+    } else {
+      playAllBtn.classList.remove('playing');
+      playAllBtn.innerHTML = PLAY_SVG + '<span>\u64ad\u653e\u5168\u6587 Play all</span>';
+      queue = [];
+    }
+  }
+
+  function speakOne(text, onDone){
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'zh-CN'; u.rate = rate;
+    if (chosenVoice) u.voice = chosenVoice;
+    u.onend = onDone; u.onerror = onDone;
+    synth.speak(u);
+  }
+
+  // Individual speaker buttons — each has data-audio attr containing the Chinese to speak,
+  // and data-active-selector saying which parent element to highlight
+  document.querySelectorAll('.speaker-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      if (!synth){ alert('Your browser does not support speech synthesis.'); return; }
+      synth.cancel(); clearActive(); setPlayAllState(false);
+      const text = btn.dataset.audio || '';
+      const activeEl = btn.closest('[data-playable]');
+      btn.classList.add('playing');
+      if (activeEl) activeEl.classList.add('active-passage');
+      speakOne(text, function(){
+        btn.classList.remove('playing');
+        if (activeEl) activeEl.classList.remove('active-passage');
+      });
+    });
+  });
+
+  if (playAllBtn){
+    playAllBtn.addEventListener('click', function(){
+      if (!synth){ alert('Your browser does not support speech synthesis.'); return; }
+      if (isPlayingAll){ synth.cancel(); clearActive(); setPlayAllState(false); return; }
+      synth.cancel(); clearActive();
+      queue = Array.from(document.querySelectorAll('[data-playable]'));
+      setPlayAllState(true);
+      function next(){
+        if (!isPlayingAll || queue.length === 0){ clearActive(); setPlayAllState(false); return; }
+        const el = queue.shift();
+        clearActive(); el.classList.add('active-passage');
+        el.scrollIntoView({behavior:'smooth', block:'center'});
+        const text = el.dataset.audio || el.querySelector('.speaker-btn').dataset.audio;
+        speakOne(text, next);
+      }
+      next();
+    });
+  }
+})();
+</script>
+</body>
+</html>

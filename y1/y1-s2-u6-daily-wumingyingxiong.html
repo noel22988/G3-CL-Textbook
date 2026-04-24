@@ -1,0 +1,625 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>我们的无名英雄 — 快捷华文</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --ink-muted: #6b7280;
+    --ink-faint: #9ca3af;
+    --accent: #2f7d4f;
+    --accent-soft: #e6f1ea;
+    --accent-dark: #26663f;
+    --rule: #e5e7eb;
+    --bg: #fafaf8;
+    --surface: #ffffff;
+    --bubble-a: #f0f4f2;
+    --bubble-b: #eef3f7;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+  }
+  .chinese { font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Source Han Sans SC", "Noto Sans CJK SC", sans-serif; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  header.top { max-width: 1100px; margin: 0 auto; padding: 2rem 2rem 1rem; }
+  .back-link { font-size: 13px; color: var(--ink-muted); display: inline-block; margin-bottom: 0.75rem; }
+  .back-link:hover { color: var(--accent); }
+  .breadcrumb {
+    font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--ink-muted); margin-bottom: 0.5rem;
+  }
+  .breadcrumb .sep { opacity: 0.5; margin: 0 0.5em; }
+  h1.title {
+    margin: 0; font-weight: 500; font-size: 28px;
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.75rem;
+  }
+  h1.title .zh { color: var(--ink); }
+  h1.title .en { color: var(--ink-muted); font-weight: 400; font-size: 16px; }
+
+  .controls {
+    max-width: 1100px; margin: 0 auto; padding: 1rem 2rem;
+    display: flex; gap: 1.25rem; flex-wrap: wrap; align-items: center;
+    border-bottom: 1px solid var(--rule);
+  }
+  .controls label {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 14px; color: var(--ink-muted); cursor: pointer; user-select: none;
+  }
+  .controls input[type=checkbox] { accent-color: var(--accent); width: 16px; height: 16px; }
+  .controls input[type=checkbox]:checked + span { color: var(--accent); font-weight: 500; }
+  .controls .speed { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ink-muted); }
+  .controls .speed input { width: 100px; accent-color: var(--accent); }
+  .controls .speed .val { min-width: 28px; font-weight: 500; color: var(--ink); }
+  .controls .speed .speed-hint { font-size: 11px; color: var(--ink-faint); font-style: italic; }
+  .controls .spacer { flex: 1; }
+  .controls button.play-all {
+    border: 1px solid var(--accent); background: var(--accent); color: #fff;
+    padding: 7px 14px; font-size: 13px; font-weight: 500; border-radius: 6px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s;
+  }
+  .controls button.play-all:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+  .controls button.play-all.playing { background: #b34545; border-color: #b34545; }
+  .controls button.play-all.playing:hover { background: #933838; border-color: #933838; }
+  .controls button.play-all svg { width: 11px; height: 11px; }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 1.5rem 2rem 5rem; }
+
+  /* Pinyin defaults */
+  ruby { ruby-position: over; }
+  ruby rt {
+    font-size: 11px; color: var(--accent);
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-weight: 400; letter-spacing: 0.02em;
+    padding-bottom: 6px;
+    transition: opacity 0.15s;
+  }
+  body.pinyin-off ruby rt { opacity: 0; }
+
+  .speaker-btn {
+    background: transparent; border: 1px solid var(--rule);
+    width: 28px; height: 28px; padding: 0; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--ink-muted); transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .speaker-btn:hover { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+  .speaker-btn.playing { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .speaker-btn svg { width: 12px; height: 12px; }
+
+  /* PROSE format — two-column */
+  .para {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2.5rem;
+    padding: 1.5rem 0; border-bottom: 1px solid var(--rule); align-items: start;
+  }
+  .para:last-child { border-bottom: none; }
+  .para .zh-col { display: grid; grid-template-columns: 28px 1fr; gap: 12px; align-items: start; }
+  .para .speaker-btn { margin-top: 8px; }
+  .para .zh-text { font-size: 22px; line-height: 2.6; }
+  .para .en-col {
+    font-size: 15px; line-height: 1.75; color: var(--ink-muted); padding-top: 6px;
+    transition: opacity 0.15s;
+  }
+  body.english-off .en-col { opacity: 0; pointer-events: none; }
+  .para-num {
+    color: var(--ink-faint); font-size: 13px; font-weight: 500;
+    margin-bottom: 4px; display: block;
+  }
+  .para.active-passage .zh-text {
+    background: var(--accent-soft); border-radius: 6px; padding: 4px 8px; margin-left: -8px;
+  }
+
+  /* Subheadings inside prose articles */
+  .subheading {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2.5rem;
+    padding: 1rem 0 0; align-items: baseline;
+    margin: 0;
+  }
+  .subheading-zh {
+    font-size: 18px; font-weight: 500; color: var(--accent-dark);
+    padding-left: 40px; line-height: 1.3;
+    margin: 0;
+  }
+  .subheading-en {
+    font-size: 14px; color: var(--ink-muted); font-weight: 500;
+    transition: opacity 0.15s;
+    letter-spacing: 0.02em;
+    line-height: 1.3;
+    margin: 0;
+  }
+  body.english-off .subheading-en { opacity: 0; }
+  /* Tight coupling — subheading sits directly on top of its paragraph */
+  .subheading + .para { border-top: none; padding-top: 0; }
+
+  /* TABLE format — stacked character cards */
+  .profile-card {
+    background: var(--surface); border: 1px solid var(--rule); border-radius: 12px;
+    padding: 1.5rem 1.75rem; margin-bottom: 1.25rem;
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start;
+  }
+  .profile-card:last-child { margin-bottom: 0; }
+  .profile-card .zh-side { display: grid; grid-template-columns: 28px 1fr; gap: 12px; }
+  .profile-card .name {
+    font-size: 24px; font-weight: 500; margin-bottom: 0.75rem;
+    line-height: 2;
+  }
+  .profile-card .traits { font-size: 18px; line-height: 2.4; }
+  .profile-card .trait { margin-bottom: 0.75rem; }
+  .profile-card .trait:last-child { margin-bottom: 0; }
+  .profile-card .trait-label {
+    display: inline-block; background: var(--accent-soft); color: var(--accent);
+    font-size: 14px; font-weight: 500; padding: 2px 12px; border-radius: 12px;
+    margin-right: 8px; vertical-align: baseline;
+    font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
+    position: relative; top: -2px;
+  }
+  .profile-card .trait-label ruby rt { color: var(--accent-dark); }
+  .profile-card .en-side {
+    font-size: 14px; line-height: 1.75; color: var(--ink-muted); padding-top: 8px;
+    transition: opacity 0.15s;
+  }
+  body.english-off .profile-card .en-side { opacity: 0; pointer-events: none; }
+  .profile-card .en-side .en-name { font-weight: 500; color: var(--ink); font-size: 16px; margin-bottom: 0.5rem; }
+  .profile-card .en-side .en-trait { margin-bottom: 0.5rem; }
+  .profile-card .en-side .en-trait-label { font-weight: 500; color: var(--ink); }
+
+  /* DIALOGUE format — chat bubbles */
+  .stage-direction {
+    text-align: center; color: var(--ink-muted);
+    font-size: 15px; padding: 1rem 2rem;
+    font-style: italic;
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start;
+  }
+  .stage-direction .zh-dir { font-style: normal; }
+  .stage-direction .zh-dir .zh-text { line-height: 2.4; }
+  .stage-direction .en-dir { font-size: 14px; }
+
+  .bubble-row {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;
+    margin-bottom: 1rem; align-items: start;
+  }
+  .bubble-zh { display: flex; gap: 10px; align-items: flex-start; }
+  .bubble-zh.align-right { justify-content: flex-end; }
+  .bubble-zh.align-right .bubble { background: var(--accent-soft); }
+  .bubble-zh .speaker-btn { margin-top: 6px; }
+  .bubble {
+    background: var(--bubble-a);
+    border-radius: 16px; padding: 10px 16px;
+    max-width: 85%;
+    line-height: 2.4; font-size: 18px;
+  }
+  .bubble-zh.align-right .bubble { border-bottom-right-radius: 4px; }
+  .bubble-zh.align-left .bubble { border-bottom-left-radius: 4px; }
+  .bubble-zh .speaker-name {
+    display: block; font-size: 12px; font-weight: 500; color: var(--accent-dark);
+    margin-bottom: 2px; letter-spacing: 0.02em;
+  }
+  .bubble-zh.align-right .speaker-name { text-align: right; }
+  .bubble-row.active-passage .bubble { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .bubble-en {
+    font-size: 14px; line-height: 1.6; color: var(--ink-muted); padding-top: 8px;
+    transition: opacity 0.15s;
+  }
+  .bubble-en .en-speaker { font-weight: 500; color: var(--ink); }
+  body.english-off .bubble-en, body.english-off .stage-direction .en-dir { opacity: 0; pointer-events: none; }
+
+  /* ===== Vocab inline highlighting + bottom sheet ===== */
+  .vocab {
+    cursor: pointer;
+    text-underline-offset: 6px;
+    text-decoration: underline dotted var(--accent);
+    text-decoration-thickness: 1.5px;
+    transition: background 0.15s;
+    border-radius: 3px;
+    padding: 0 1px;
+  }
+  .vocab:hover, .vocab:focus { background: var(--accent-soft); outline: none; }
+
+  /* Vocab list panel at top of passage (toggleable) */
+  .vocab-panel {
+    background: var(--surface); border: 1px solid var(--rule);
+    border-radius: 12px; padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .vocab-panel-title {
+    font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--ink-faint); font-weight: 500; margin: 0 0 1rem;
+  }
+  .vocab-list {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem 2rem;
+  }
+  .vocab-row {
+    display: grid; grid-template-columns: minmax(auto, 140px) 1fr; gap: 1rem;
+    padding: 0.5rem 0; border-top: 1px solid var(--rule-soft);
+    align-items: baseline;
+  }
+  .vocab-row:first-child, .vocab-row:nth-child(2) { border-top: none; }
+  .vocab-row-zh { font-size: 18px; font-family: "PingFang SC", "Hiragino Sans GB", sans-serif; line-height: 2; }
+  .vocab-row-en { font-size: 14px; color: var(--ink-muted); line-height: 1.5; }
+
+  /* Bottom sheet for single-word lookup */
+  .vocab-backdrop {
+    position: fixed; inset: 0; background: rgba(0, 0, 0, 0.25);
+    z-index: 100; opacity: 0; transition: opacity 0.2s;
+    pointer-events: none;
+  }
+  .vocab-backdrop.visible { opacity: 1; pointer-events: auto; }
+  .vocab-sheet {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--rule);
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.08);
+    padding: 1.5rem 2rem 2rem;
+    z-index: 101;
+    transform: translateY(100%); transition: transform 0.25s ease-out;
+    max-width: 600px; margin: 0 auto;
+    border-top-left-radius: 16px; border-top-right-radius: 16px;
+  }
+  .vocab-sheet.visible { transform: translateY(0); }
+  .vocab-sheet-close {
+    position: absolute; top: 10px; right: 14px;
+    background: transparent; border: none; font-size: 28px; line-height: 1;
+    color: var(--ink-faint); cursor: pointer; padding: 4px 10px;
+  }
+  .vocab-sheet-close:hover { color: var(--ink); }
+  .vocab-sheet-content .vs-zh {
+    font-size: 32px; font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
+    line-height: 2.2; margin: 0;
+  }
+  .vocab-sheet-content .vs-zh ruby rt { font-size: 14px; }
+  .vocab-sheet-content .vs-en {
+    font-size: 16px; color: var(--ink); line-height: 1.6;
+    margin: 0.5rem 0 0;
+  }
+
+  @media (max-width: 720px) {
+    .para { grid-template-columns: 1fr; gap: 0.75rem; }
+    .para .en-col { padding-top: 0; padding-left: 40px; font-style: italic; }
+    .para .zh-text { font-size: 20px; }
+    .profile-card { grid-template-columns: 1fr; gap: 1rem; padding: 1rem 1.25rem; }
+    .profile-card .en-side { padding-top: 0; padding-left: 40px; font-style: italic; border-top: 1px solid var(--rule); padding-top: 1rem; }
+    .profile-card .name { font-size: 22px; }
+    .profile-card .traits { font-size: 17px; line-height: 2.2; }
+    .bubble-row, .stage-direction { grid-template-columns: 1fr; gap: 0.5rem; }
+    .bubble-en { padding-left: 16px; padding-top: 0; font-style: italic; }
+    .bubble { font-size: 17px; }
+    header.top, .controls, main { padding-left: 1.25rem; padding-right: 1.25rem; }
+    .controls { gap: 0.75rem; }
+    .vocab-list { grid-template-columns: 1fr; gap: 0; }
+    .vocab-row { grid-template-columns: minmax(auto, 120px) 1fr; padding: 0.5rem 0; border-top: 1px solid var(--rule-soft); }
+    .vocab-row:nth-child(2) { border-top: 1px solid var(--rule-soft); }
+    .vocab-row:first-child { border-top: none; }
+    .vocab-sheet { padding: 1.25rem 1.5rem 1.75rem; }
+    .vocab-sheet-content .vs-zh { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+  <header class="top">
+    <a class="back-link" href="../index.html">← 返回 Back to all levels</a>
+    <div class="breadcrumb">Level 1 · Unit 6 · 我为狮城做贡献 My Contribution to the Lion City <span class="sep">·</span> 生活空间 Daily Life</div>
+    <h1 class="title">
+      <span class="zh chinese">《我们的无名英雄》</span>
+      <span class="en">Our Unsung Heroes</span>
+    </h1>
+  </header>
+  <div class="controls">
+    <label><input type="checkbox" id="toggle-pinyin" checked><span>显示汉语拼音 Show pinyin</span></label>
+    <label><input type="checkbox" id="toggle-english" checked><span>显示英文 Show English</span></label>
+    <label><input type="checkbox" id="toggle-vocab-panel"><span>显示生词 Show vocab list</span></label>
+    <div class="speed">
+      <span>语速 Speed</span>
+      <input type="range" min="0.5" max="1.2" step="0.05" value="0.9" id="speed" title="Adjust before playing">
+      <span class="val" id="speed-val">0.9×</span>
+      <span class="speed-hint">(set before play)</span>
+    </div>
+    <div class="spacer"></div>
+    <button class="play-all" id="play-all-btn" type="button">
+      <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>
+      <span>播放全文 Play all</span>
+    </button>
+  </div>
+  <main>
+  <section class="vocab-panel" id="vocab-panel" hidden>
+    <h2 class="vocab-panel-title">生词 Vocabulary · 13 words</h2>
+    <div class="vocab-list">
+      <div class="vocab-row" data-vocab-id="0">
+        <div class="vocab-row-zh chinese"><ruby>油<rt>yóu</rt></ruby><ruby>漆<rt>qī</rt></ruby></div>
+        <div class="vocab-row-en">to paint; paint</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="1">
+        <div class="vocab-row-zh chinese"><ruby>栏<rt>lán</rt></ruby><ruby>杆<rt>gān</rt></ruby></div>
+        <div class="vocab-row-en">railing; guardrail</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="2">
+        <div class="vocab-row-zh chinese"><ruby>宿<rt>sù</rt></ruby><ruby>舍<rt>shè</rt></ruby></div>
+        <div class="vocab-row-en">dormitory; workers&#x27; quarters</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="3">
+        <div class="vocab-row-zh chinese"><ruby>凭<rt>píng</rt></ruby></div>
+        <div class="vocab-row-en">by means of; relying on</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="4">
+        <div class="vocab-row-zh chinese"><ruby>欣<rt>xīn</rt></ruby><ruby>慰<rt>wèi</rt></ruby></div>
+        <div class="vocab-row-en">gratified; quietly pleased</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="5">
+        <div class="vocab-row-zh chinese"><ruby>订<rt>dìng</rt></ruby><ruby>购<rt>gòu</rt></ruby></div>
+        <div class="vocab-row-en">to place an order; to order (for delivery)</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="6">
+        <div class="vocab-row-zh chinese"><ruby>塔<rt>tǎ</rt></ruby><ruby>台<rt>tái</rt></ruby></div>
+        <div class="vocab-row-en">control tower (at an airport)</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="7">
+        <div class="vocab-row-zh chinese"><ruby>范<rt>fàn</rt></ruby><ruby>围<rt>wéi</rt></ruby></div>
+        <div class="vocab-row-en">scope; range</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="8">
+        <div class="vocab-row-zh chinese"><ruby>特<rt>tè</rt></ruby><ruby>殊<rt>shū</rt></ruby></div>
+        <div class="vocab-row-en">special; unusual (situation)</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="9">
+        <div class="vocab-row-zh chinese"><ruby>警<rt>jǐng</rt></ruby><ruby>惕<rt>tì</rt></ruby></div>
+        <div class="vocab-row-en">alert; on guard</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="10">
+        <div class="vocab-row-zh chinese"><ruby>失<rt>shī</rt></ruby><ruby>误<rt>wù</rt></ruby></div>
+        <div class="vocab-row-en">mistake; slip-up</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="11">
+        <div class="vocab-row-zh chinese"><ruby>不<rt>bù</rt></ruby><ruby>堪<rt>kān</rt></ruby><ruby>设<rt>shè</rt></ruby><ruby>想<rt>xiǎng</rt></ruby></div>
+        <div class="vocab-row-en">unthinkable; too awful to contemplate</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="12">
+        <div class="vocab-row-zh chinese"><ruby>脂<rt>zhī</rt></ruby><ruby>肪<rt>fáng</rt></ruby></div>
+        <div class="vocab-row-en">fat (dietary); body fat</div>
+      </div></div>
+  </section>
+<article class="profile-card" data-playable data-audio="客工。我的工作：我是一名客工，离乡背井到新加坡打拼。我在工地搬运砖头、水泥，油漆门窗、栏杆，搭建鹰架。我每天早出晚归，回到宿舍天已经黑了。这份工作虽然很辛苦，但我凭着自己的双手改善了家人的生活，我感到很欣慰。">
+  <div class="zh-side">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="客工。我的工作：我是一名客工，离乡背井到新加坡打拼。我在工地搬运砖头、水泥，油漆门窗、栏杆，搭建鹰架。我每天早出晚归，回到宿舍天已经黑了。这份工作虽然很辛苦，但我凭着自己的双手改善了家人的生活，我感到很欣慰。"></button>
+    <div>
+      <div class="name chinese"><ruby>客<rt>kè</rt></ruby><ruby>工<rt>gōng</rt></ruby></div>
+      <div class="traits chinese"><div class="trait"><span class="trait-label"><ruby>我<rt>wǒ</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>工<rt>gōng</rt></ruby><ruby>作<rt>zuò</rt></ruby></span><ruby>我<rt>wǒ</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>名<rt>míng</rt></ruby><ruby>客<rt>kè</rt></ruby><ruby>工<rt>gōng</rt></ruby>，<ruby>离<rt>lí</rt></ruby><ruby>乡<rt>xiāng</rt></ruby><ruby>背<rt>bèi</rt></ruby><ruby>井<rt>jǐng</rt></ruby><ruby>到<rt>dào</rt></ruby><ruby>新<rt>xīn</rt></ruby><ruby>加<rt>jiā</rt></ruby><ruby>坡<rt>pō</rt></ruby><ruby>打<rt>dǎ</rt></ruby><ruby>拼<rt>pīn</rt></ruby>。<ruby>我<rt>wǒ</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>工<rt>gōng</rt></ruby><ruby>地<rt>dì</rt></ruby><ruby>搬<rt>bān</rt></ruby><ruby>运<rt>yùn</rt></ruby><ruby>砖<rt>zhuān</rt></ruby><ruby>头<rt>tóu</rt></ruby>、<ruby>水<rt>shuǐ</rt></ruby><ruby>泥<rt>ní</rt></ruby>，<span class="vocab" data-vocab-id="0"><ruby>油<rt>yóu</rt></ruby><ruby>漆<rt>qī</rt></ruby></span><ruby>门<rt>mén</rt></ruby><ruby>窗<rt>chuāng</rt></ruby>、<span class="vocab" data-vocab-id="1"><ruby>栏<rt>lán</rt></ruby><ruby>杆<rt>gān</rt></ruby></span>，<ruby>搭<rt>dā</rt></ruby><ruby>建<rt>jiàn</rt></ruby><ruby>鹰<rt>yīng</rt></ruby><ruby>架<rt>jià</rt></ruby>。<ruby>我<rt>wǒ</rt></ruby><ruby>每<rt>měi</rt></ruby><ruby>天<rt>tiān</rt></ruby><ruby>早<rt>zǎo</rt></ruby><ruby>出<rt>chū</rt></ruby><ruby>晚<rt>wǎn</rt></ruby><ruby>归<rt>guī</rt></ruby>，<ruby>回<rt>huí</rt></ruby><ruby>到<rt>dào</rt></ruby><span class="vocab" data-vocab-id="2"><ruby>宿<rt>sù</rt></ruby><ruby>舍<rt>shè</rt></ruby></span><ruby>天<rt>tiān</rt></ruby><ruby>已<rt>yǐ</rt></ruby><ruby>经<rt>jīng</rt></ruby><ruby>黑<rt>hēi</rt></ruby><ruby>了<rt>le</rt></ruby>。<ruby>这<rt>zhè</rt></ruby><ruby>份<rt>fèn</rt></ruby><ruby>工<rt>gōng</rt></ruby><ruby>作<rt>zuò</rt></ruby><ruby>虽<rt>suī</rt></ruby><ruby>然<rt>rán</rt></ruby><ruby>很<rt>hěn</rt></ruby><ruby>辛<rt>xīn</rt></ruby><ruby>苦<rt>kǔ</rt></ruby>，<ruby>但<rt>dàn</rt></ruby><ruby>我<rt>wǒ</rt></ruby><span class="vocab" data-vocab-id="3"><ruby>凭<rt>píng</rt></ruby></span><ruby>着<rt>zhe</rt></ruby><ruby>自<rt>zì</rt></ruby><ruby>己<rt>jǐ</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>双<rt>shuāng</rt></ruby><ruby>手<rt>shǒu</rt></ruby><ruby>改<rt>gǎi</rt></ruby><ruby>善<rt>shàn</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>家<rt>jiā</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>活<rt>huó</rt></ruby>，<ruby>我<rt>wǒ</rt></ruby><ruby>感<rt>gǎn</rt></ruby><ruby>到<rt>dào</rt></ruby><ruby>很<rt>hěn</rt></ruby><span class="vocab" data-vocab-id="4"><ruby>欣<rt>xīn</rt></ruby><ruby>慰<rt>wèi</rt></ruby></span>。</div></div>
+    </div>
+  </div>
+  <div class="en-side">
+    <div class="en-name">Migrant Construction Worker</div>
+    <div class="en-trait"><span class="en-trait-label">About My Work.</span> I&#x27;m a migrant worker — I left home to come to Singapore to make a living. On the construction site, I carry bricks and cement, paint doors, windows, and railings, and put up scaffolding. I leave early and come home late; by the time I get back to the dormitory, it&#x27;s already dark. The work is hard, but with my own two hands I&#x27;ve made life better for my family — and that gives me real comfort.</div>
+  </div>
+</article>
+<article class="profile-card" data-playable data-audio="送餐员。我的工作：我是一名送餐员。我的工作是将顾客订购的餐点及时送到他们的手中。我对自己的要求是：接的订单要多、餐点送得要快、服务要好。我希望趁年轻多存一些钱，有朝一日能实现自己的梦想。">
+  <div class="zh-side">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="送餐员。我的工作：我是一名送餐员。我的工作是将顾客订购的餐点及时送到他们的手中。我对自己的要求是：接的订单要多、餐点送得要快、服务要好。我希望趁年轻多存一些钱，有朝一日能实现自己的梦想。"></button>
+    <div>
+      <div class="name chinese"><ruby>送<rt>sòng</rt></ruby><ruby>餐<rt>cān</rt></ruby><ruby>员<rt>yuán</rt></ruby></div>
+      <div class="traits chinese"><div class="trait"><span class="trait-label"><ruby>我<rt>wǒ</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>工<rt>gōng</rt></ruby><ruby>作<rt>zuò</rt></ruby></span><ruby>我<rt>wǒ</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>名<rt>míng</rt></ruby><ruby>送<rt>sòng</rt></ruby><ruby>餐<rt>cān</rt></ruby><ruby>员<rt>yuán</rt></ruby>。<ruby>我<rt>wǒ</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>工<rt>gōng</rt></ruby><ruby>作<rt>zuò</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>将<rt>jiāng</rt></ruby><ruby>顾<rt>gù</rt></ruby><ruby>客<rt>kè</rt></ruby><span class="vocab" data-vocab-id="5"><ruby>订<rt>dìng</rt></ruby><ruby>购<rt>gòu</rt></ruby></span><ruby>的<rt>de</rt></ruby><ruby>餐<rt>cān</rt></ruby><ruby>点<rt>diǎn</rt></ruby><ruby>及<rt>jí</rt></ruby><ruby>时<rt>shí</rt></ruby><ruby>送<rt>sòng</rt></ruby><ruby>到<rt>dào</rt></ruby><ruby>他<rt>tā</rt></ruby><ruby>们<rt>men</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>手<rt>shǒu</rt></ruby><ruby>中<rt>zhōng</rt></ruby>。<ruby>我<rt>wǒ</rt></ruby><ruby>对<rt>duì</rt></ruby><ruby>自<rt>zì</rt></ruby><ruby>己<rt>jǐ</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>要<rt>yāo</rt></ruby><ruby>求<rt>qiú</rt></ruby><ruby>是<rt>shì</rt></ruby>：<ruby>接<rt>jiē</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>订<rt>dìng</rt></ruby><ruby>单<rt>dān</rt></ruby><ruby>要<rt>yào</rt></ruby><ruby>多<rt>duō</rt></ruby>、<ruby>餐<rt>cān</rt></ruby><ruby>点<rt>diǎn</rt></ruby><ruby>送<rt>sòng</rt></ruby><ruby>得<rt>dé</rt></ruby><ruby>要<rt>yào</rt></ruby><ruby>快<rt>kuài</rt></ruby>、<ruby>服<rt>fú</rt></ruby><ruby>务<rt>wù</rt></ruby><ruby>要<rt>yào</rt></ruby><ruby>好<rt>hǎo</rt></ruby>。<ruby>我<rt>wǒ</rt></ruby><ruby>希<rt>xī</rt></ruby><ruby>望<rt>wàng</rt></ruby><ruby>趁<rt>chèn</rt></ruby><ruby>年<rt>nián</rt></ruby><ruby>轻<rt>qīng</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>存<rt>cún</rt></ruby><ruby>一<rt>yì</rt></ruby><ruby>些<rt>xiē</rt></ruby><ruby>钱<rt>qián</rt></ruby>，<ruby>有<rt>yǒu</rt></ruby><ruby>朝<rt>zhāo</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>日<rt>rì</rt></ruby><ruby>能<rt>néng</rt></ruby><ruby>实<rt>shí</rt></ruby><ruby>现<rt>xiàn</rt></ruby><ruby>自<rt>zì</rt></ruby><ruby>己<rt>jǐ</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>梦<rt>mèng</rt></ruby><ruby>想<rt>xiǎng</rt></ruby>。</div></div>
+    </div>
+  </div>
+  <div class="en-side">
+    <div class="en-name">Food Delivery Rider</div>
+    <div class="en-trait"><span class="en-trait-label">About My Work.</span> I&#x27;m a food delivery rider. My job is getting customers their orders on time. My standards for myself: take on plenty of orders, deliver them fast, and give good service. I want to save up while I&#x27;m still young — so one day I can make my own dreams a reality.</div>
+  </div>
+</article>
+<article class="profile-card" data-playable data-audio="空中交通管制员。我的工作：我是一名在机场塔台工作的空中交通管制员。我的工作范围很广，包括指挥空中交通，确保飞机安全起降，协助机长处理特殊情况等。我必须时刻保持警惕，因为一旦失误，后果不堪设想。我很喜欢这份工作，我觉得很有成就感。">
+  <div class="zh-side">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="空中交通管制员。我的工作：我是一名在机场塔台工作的空中交通管制员。我的工作范围很广，包括指挥空中交通，确保飞机安全起降，协助机长处理特殊情况等。我必须时刻保持警惕，因为一旦失误，后果不堪设想。我很喜欢这份工作，我觉得很有成就感。"></button>
+    <div>
+      <div class="name chinese"><ruby>空<rt>kōng</rt></ruby><ruby>中<rt>zhōng</rt></ruby><ruby>交<rt>jiāo</rt></ruby><ruby>通<rt>tōng</rt></ruby><ruby>管<rt>guǎn</rt></ruby><ruby>制<rt>zhì</rt></ruby><ruby>员<rt>yuán</rt></ruby></div>
+      <div class="traits chinese"><div class="trait"><span class="trait-label"><ruby>我<rt>wǒ</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>工<rt>gōng</rt></ruby><ruby>作<rt>zuò</rt></ruby></span><ruby>我<rt>wǒ</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>名<rt>míng</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>机<rt>jī</rt></ruby><ruby>场<rt>chǎng</rt></ruby><span class="vocab" data-vocab-id="6"><ruby>塔<rt>tǎ</rt></ruby><ruby>台<rt>tái</rt></ruby></span><ruby>工<rt>gōng</rt></ruby><ruby>作<rt>zuò</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>空<rt>kōng</rt></ruby><ruby>中<rt>zhōng</rt></ruby><ruby>交<rt>jiāo</rt></ruby><ruby>通<rt>tōng</rt></ruby><ruby>管<rt>guǎn</rt></ruby><ruby>制<rt>zhì</rt></ruby><ruby>员<rt>yuán</rt></ruby>。<ruby>我<rt>wǒ</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>工<rt>gōng</rt></ruby><ruby>作<rt>zuò</rt></ruby><span class="vocab" data-vocab-id="7"><ruby>范<rt>fàn</rt></ruby><ruby>围<rt>wéi</rt></ruby></span><ruby>很<rt>hěn</rt></ruby><ruby>广<rt>guǎng</rt></ruby>，<ruby>包<rt>bāo</rt></ruby><ruby>括<rt>kuò</rt></ruby><ruby>指<rt>zhǐ</rt></ruby><ruby>挥<rt>huī</rt></ruby><ruby>空<rt>kōng</rt></ruby><ruby>中<rt>zhōng</rt></ruby><ruby>交<rt>jiāo</rt></ruby><ruby>通<rt>tōng</rt></ruby>，<ruby>确<rt>què</rt></ruby><ruby>保<rt>bǎo</rt></ruby><ruby>飞<rt>fēi</rt></ruby><ruby>机<rt>jī</rt></ruby><ruby>安<rt>ān</rt></ruby><ruby>全<rt>quán</rt></ruby><ruby>起<rt>qǐ</rt></ruby><ruby>降<rt>jiàng</rt></ruby>，<ruby>协<rt>xié</rt></ruby><ruby>助<rt>zhù</rt></ruby><ruby>机<rt>jī</rt></ruby><ruby>长<rt>zhǎng</rt></ruby><ruby>处<rt>chǔ</rt></ruby><ruby>理<rt>lǐ</rt></ruby><span class="vocab" data-vocab-id="8"><ruby>特<rt>tè</rt></ruby><ruby>殊<rt>shū</rt></ruby></span><ruby>情<rt>qíng</rt></ruby><ruby>况<rt>kuàng</rt></ruby><ruby>等<rt>děng</rt></ruby>。<ruby>我<rt>wǒ</rt></ruby><ruby>必<rt>bì</rt></ruby><ruby>须<rt>xū</rt></ruby><ruby>时<rt>shí</rt></ruby><ruby>刻<rt>kè</rt></ruby><ruby>保<rt>bǎo</rt></ruby><ruby>持<rt>chí</rt></ruby><span class="vocab" data-vocab-id="9"><ruby>警<rt>jǐng</rt></ruby><ruby>惕<rt>tì</rt></ruby></span>，<ruby>因<rt>yīn</rt></ruby><ruby>为<rt>wèi</rt></ruby><ruby>一<rt>yí</rt></ruby><ruby>旦<rt>dàn</rt></ruby><span class="vocab" data-vocab-id="10"><ruby>失<rt>shī</rt></ruby><ruby>误<rt>wù</rt></ruby></span>，<ruby>后<rt>hòu</rt></ruby><ruby>果<rt>guǒ</rt></ruby><span class="vocab" data-vocab-id="11"><ruby>不<rt>bù</rt></ruby><ruby>堪<rt>kān</rt></ruby><ruby>设<rt>shè</rt></ruby><ruby>想<rt>xiǎng</rt></ruby></span>。<ruby>我<rt>wǒ</rt></ruby><ruby>很<rt>hěn</rt></ruby><ruby>喜<rt>xǐ</rt></ruby><ruby>欢<rt>huān</rt></ruby><ruby>这<rt>zhè</rt></ruby><ruby>份<rt>fèn</rt></ruby><ruby>工<rt>gōng</rt></ruby><ruby>作<rt>zuò</rt></ruby>，<ruby>我<rt>wǒ</rt></ruby><ruby>觉<rt>jué</rt></ruby><ruby>得<rt>de</rt></ruby><ruby>很<rt>hěn</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>成<rt>chéng</rt></ruby><ruby>就<rt>jiù</rt></ruby><ruby>感<rt>gǎn</rt></ruby>。</div></div>
+    </div>
+  </div>
+  <div class="en-side">
+    <div class="en-name">Air Traffic Controller</div>
+    <div class="en-trait"><span class="en-trait-label">About My Work.</span> I&#x27;m an air traffic controller working in the airport control tower. My responsibilities are wide-ranging: directing air traffic, ensuring aircraft land and take off safely, helping captains handle unusual situations, and more. I have to stay alert every single moment — because one slip-up could have unthinkable consequences. I love this job; it gives me a real sense of achievement.</div>
+  </div>
+</article>
+<article class="profile-card" data-playable data-audio="食堂摊主。我的工作：我是学校食堂的摊主。我早晨五点就开始工作，为学生准备食物。食物里的脂肪和盐分不能过量。虽然工作很忙碌，不过只要学生吃得好，吃得健康，我就心满意足了。">
+  <div class="zh-side">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="食堂摊主。我的工作：我是学校食堂的摊主。我早晨五点就开始工作，为学生准备食物。食物里的脂肪和盐分不能过量。虽然工作很忙碌，不过只要学生吃得好，吃得健康，我就心满意足了。"></button>
+    <div>
+      <div class="name chinese"><ruby>食<rt>shí</rt></ruby><ruby>堂<rt>táng</rt></ruby><ruby>摊<rt>tān</rt></ruby><ruby>主<rt>zhǔ</rt></ruby></div>
+      <div class="traits chinese"><div class="trait"><span class="trait-label"><ruby>我<rt>wǒ</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>工<rt>gōng</rt></ruby><ruby>作<rt>zuò</rt></ruby></span><ruby>我<rt>wǒ</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>校<rt>xiào</rt></ruby><ruby>食<rt>shí</rt></ruby><ruby>堂<rt>táng</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>摊<rt>tān</rt></ruby><ruby>主<rt>zhǔ</rt></ruby>。<ruby>我<rt>wǒ</rt></ruby><ruby>早<rt>zǎo</rt></ruby><ruby>晨<rt>chén</rt></ruby><ruby>五<rt>wǔ</rt></ruby><ruby>点<rt>diǎn</rt></ruby><ruby>就<rt>jiù</rt></ruby><ruby>开<rt>kāi</rt></ruby><ruby>始<rt>shǐ</rt></ruby><ruby>工<rt>gōng</rt></ruby><ruby>作<rt>zuò</rt></ruby>，<ruby>为<rt>wèi</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>准<rt>zhǔn</rt></ruby><ruby>备<rt>bèi</rt></ruby><ruby>食<rt>shí</rt></ruby><ruby>物<rt>wù</rt></ruby>。<ruby>食<rt>shí</rt></ruby><ruby>物<rt>wù</rt></ruby><ruby>里<rt>lǐ</rt></ruby><ruby>的<rt>de</rt></ruby><span class="vocab" data-vocab-id="12"><ruby>脂<rt>zhī</rt></ruby><ruby>肪<rt>fáng</rt></ruby></span><ruby>和<rt>hé</rt></ruby><ruby>盐<rt>yán</rt></ruby><ruby>分<rt>fèn</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>能<rt>néng</rt></ruby><ruby>过<rt>guò</rt></ruby><ruby>量<rt>liàng</rt></ruby>。<ruby>虽<rt>suī</rt></ruby><ruby>然<rt>rán</rt></ruby><ruby>工<rt>gōng</rt></ruby><ruby>作<rt>zuò</rt></ruby><ruby>很<rt>hěn</rt></ruby><ruby>忙<rt>máng</rt></ruby><ruby>碌<rt>lù</rt></ruby>，<ruby>不<rt>bù</rt></ruby><ruby>过<rt>guò</rt></ruby><ruby>只<rt>zhǐ</rt></ruby><ruby>要<rt>yào</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>吃<rt>chī</rt></ruby><ruby>得<rt>dé</rt></ruby><ruby>好<rt>hǎo</rt></ruby>，<ruby>吃<rt>chī</rt></ruby><ruby>得<rt>dé</rt></ruby><ruby>健<rt>jiàn</rt></ruby><ruby>康<rt>kāng</rt></ruby>，<ruby>我<rt>wǒ</rt></ruby><ruby>就<rt>jiù</rt></ruby><ruby>心<rt>xīn</rt></ruby><ruby>满<rt>mǎn</rt></ruby><ruby>意<rt>yì</rt></ruby><ruby>足<rt>zú</rt></ruby><ruby>了<rt>le</rt></ruby>。</div></div>
+    </div>
+  </div>
+  <div class="en-side">
+    <div class="en-name">School Canteen Stall Owner</div>
+    <div class="en-trait"><span class="en-trait-label">About My Work.</span> I run a stall at the school canteen. I start work at five in the morning, preparing food for the students. The fat and salt in what I serve have to be kept in check. The work is busy, but as long as the students are eating well and eating healthily, I&#x27;m completely content.</div>
+  </div>
+</article></main>
+  <div id="vocab-sheet" class="vocab-sheet" hidden>
+    <button class="vocab-sheet-close" id="vocab-sheet-close" aria-label="Close">×</button>
+    <div class="vocab-sheet-content"></div>
+  </div>
+  <div id="vocab-backdrop" class="vocab-backdrop" hidden></div>
+<script>window.__VOCAB__ = [{"zh": "油漆", "pinyin": "yóu qī", "en": "to paint; paint"}, {"zh": "栏杆", "pinyin": "lán gān", "en": "railing; guardrail"}, {"zh": "宿舍", "pinyin": "sù shè", "en": "dormitory; workers' quarters"}, {"zh": "凭", "pinyin": "píng", "en": "by means of; relying on"}, {"zh": "欣慰", "pinyin": "xīn wèi", "en": "gratified; quietly pleased"}, {"zh": "订购", "pinyin": "dìng gòu", "en": "to place an order; to order (for delivery)"}, {"zh": "塔台", "pinyin": "tǎ tái", "en": "control tower (at an airport)"}, {"zh": "范围", "pinyin": "fàn wéi", "en": "scope; range"}, {"zh": "特殊", "pinyin": "tè shū", "en": "special; unusual (situation)"}, {"zh": "警惕", "pinyin": "jǐng tì", "en": "alert; on guard"}, {"zh": "失误", "pinyin": "shī wù", "en": "mistake; slip-up"}, {"zh": "不堪设想", "pinyin": "bù kān shè xiǎng", "en": "unthinkable; too awful to contemplate"}, {"zh": "脂肪", "pinyin": "zhī fáng", "en": "fat (dietary); body fat"}];</script>
+<script>
+(function () {
+  const SPEAKER_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>';
+  const STOP_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="5" y="5" width="14" height="14" rx="1"></rect></svg>';
+  const PLAY_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>';
+
+  // Inject speaker icons into all .speaker-btn elements
+  document.querySelectorAll('.speaker-btn').forEach(function(b){ b.innerHTML = SPEAKER_SVG; });
+
+  const togglePy = document.getElementById('toggle-pinyin');
+  const toggleEn = document.getElementById('toggle-english');
+  togglePy && togglePy.addEventListener('change', function(){ document.body.classList.toggle('pinyin-off', !togglePy.checked); });
+  toggleEn && toggleEn.addEventListener('change', function(){ document.body.classList.toggle('english-off', !toggleEn.checked); });
+
+  // ===== Vocab panel toggle =====
+  const vocabPanelToggle = document.getElementById('toggle-vocab-panel');
+  const vocabPanel = document.getElementById('vocab-panel');
+  if (vocabPanelToggle && vocabPanel) {
+    vocabPanelToggle.addEventListener('change', function(){
+      vocabPanel.hidden = !vocabPanelToggle.checked;
+    });
+  }
+
+  // ===== Vocab bottom sheet =====
+  const vocabSheet = document.getElementById('vocab-sheet');
+  const vocabBackdrop = document.getElementById('vocab-backdrop');
+  const vocabSheetClose = document.getElementById('vocab-sheet-close');
+  const vocabData = window.__VOCAB__ || [];
+
+  function buildRuby(zh, pinyinStr) {
+    // Split pinyin by space, line up with chars of zh
+    const chars = Array.from(zh);
+    const syllables = (pinyinStr || '').split(/\s+/).filter(Boolean);
+    let out = '';
+    let si = 0;
+    for (const ch of chars) {
+      // Only attach pinyin to CJK characters
+      if (/[\u4e00-\u9fff]/.test(ch)) {
+        const p = syllables[si++] || '';
+        out += '<ruby>' + ch + '<rt>' + p + '</rt></ruby>';
+      } else {
+        out += ch;
+      }
+    }
+    return out;
+  }
+
+  function openVocabSheet(vocabId) {
+    const v = vocabData[vocabId];
+    if (!v || !vocabSheet || !vocabBackdrop) return;
+    const content = vocabSheet.querySelector('.vocab-sheet-content');
+    content.innerHTML = '<p class="vs-zh chinese">' + buildRuby(v.zh, v.pinyin || '') + '</p>' +
+                        '<p class="vs-en">' + v.en + '</p>';
+    vocabSheet.hidden = false;
+    vocabBackdrop.hidden = false;
+    // allow transition
+    requestAnimationFrame(function(){
+      vocabSheet.classList.add('visible');
+      vocabBackdrop.classList.add('visible');
+    });
+  }
+
+  function closeVocabSheet() {
+    if (!vocabSheet || !vocabBackdrop) return;
+    vocabSheet.classList.remove('visible');
+    vocabBackdrop.classList.remove('visible');
+    setTimeout(function(){
+      vocabSheet.hidden = true;
+      vocabBackdrop.hidden = true;
+    }, 250);
+  }
+
+  // Click handler on any .vocab span
+  document.addEventListener('click', function(e){
+    const vocab = e.target.closest && e.target.closest('.vocab');
+    if (vocab) {
+      e.stopPropagation();
+      const id = parseInt(vocab.getAttribute('data-vocab-id'), 10);
+      openVocabSheet(id);
+      return;
+    }
+    // Click on vocab list row opens the sheet too
+    const vRow = e.target.closest && e.target.closest('.vocab-row');
+    if (vRow) {
+      const id = parseInt(vRow.getAttribute('data-vocab-id'), 10);
+      openVocabSheet(id);
+      return;
+    }
+  });
+
+  vocabSheetClose && vocabSheetClose.addEventListener('click', closeVocabSheet);
+  vocabBackdrop && vocabBackdrop.addEventListener('click', closeVocabSheet);
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeVocabSheet(); });
+
+  const speed = document.getElementById('speed');
+  const speedVal = document.getElementById('speed-val');
+  let rate = speed ? parseFloat(speed.value) : 0.9;
+  if (speed) speed.addEventListener('input', function(){
+    rate = parseFloat(speed.value);
+    speedVal.textContent = rate.toFixed(2).replace(/0$/, '') + '\u00d7';
+  });
+
+  const synth = window.speechSynthesis;
+  let chosenVoice = null;
+  function pickVoice(){
+    if (!synth) return;
+    const voices = synth.getVoices();
+    chosenVoice = voices.find(function(v){ return v.lang && v.lang.toLowerCase().indexOf('zh') === 0; }) || null;
+  }
+  if (synth) { pickVoice(); synth.addEventListener && synth.addEventListener('voiceschanged', pickVoice); }
+
+  function clearActive(){
+    document.querySelectorAll('.speaker-btn.playing').forEach(function(b){ b.classList.remove('playing'); });
+    document.querySelectorAll('.active-passage').forEach(function(p){ p.classList.remove('active-passage'); });
+  }
+
+  const playAllBtn = document.getElementById('play-all-btn');
+  let isPlayingAll = false;
+  let queue = [];
+
+  function setPlayAllState(playing){
+    isPlayingAll = playing;
+    if (!playAllBtn) return;
+    if (playing){
+      playAllBtn.classList.add('playing');
+      playAllBtn.innerHTML = STOP_SVG + '<span>\u505c\u6b62 Stop</span>';
+    } else {
+      playAllBtn.classList.remove('playing');
+      playAllBtn.innerHTML = PLAY_SVG + '<span>\u64ad\u653e\u5168\u6587 Play all</span>';
+      queue = [];
+    }
+  }
+
+  function speakOne(text, onDone){
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'zh-CN'; u.rate = rate;
+    if (chosenVoice) u.voice = chosenVoice;
+    u.onend = onDone; u.onerror = onDone;
+    synth.speak(u);
+  }
+
+  // Individual speaker buttons — each has data-audio attr containing the Chinese to speak,
+  // and data-active-selector saying which parent element to highlight
+  document.querySelectorAll('.speaker-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      if (!synth){ alert('Your browser does not support speech synthesis.'); return; }
+      synth.cancel(); clearActive(); setPlayAllState(false);
+      const text = btn.dataset.audio || '';
+      const activeEl = btn.closest('[data-playable]');
+      btn.classList.add('playing');
+      if (activeEl) activeEl.classList.add('active-passage');
+      speakOne(text, function(){
+        btn.classList.remove('playing');
+        if (activeEl) activeEl.classList.remove('active-passage');
+      });
+    });
+  });
+
+  if (playAllBtn){
+    playAllBtn.addEventListener('click', function(){
+      if (!synth){ alert('Your browser does not support speech synthesis.'); return; }
+      if (isPlayingAll){ synth.cancel(); clearActive(); setPlayAllState(false); return; }
+      synth.cancel(); clearActive();
+      queue = Array.from(document.querySelectorAll('[data-playable]'));
+      setPlayAllState(true);
+      function next(){
+        if (!isPlayingAll || queue.length === 0){ clearActive(); setPlayAllState(false); return; }
+        const el = queue.shift();
+        clearActive(); el.classList.add('active-passage');
+        el.scrollIntoView({behavior:'smooth', block:'center'});
+        const text = el.dataset.audio || el.querySelector('.speaker-btn').dataset.audio;
+        speakOne(text, next);
+      }
+      next();
+    });
+  }
+})();
+</script>
+</body>
+</html>
