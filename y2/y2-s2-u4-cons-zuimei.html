@@ -1,0 +1,657 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>最美的姿势 — 快捷华文</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --ink-muted: #6b7280;
+    --ink-faint: #9ca3af;
+    --accent: #2f7d4f;
+    --accent-soft: #e6f1ea;
+    --accent-dark: #26663f;
+    --rule: #e5e7eb;
+    --bg: #fafaf8;
+    --surface: #ffffff;
+    --bubble-a: #f0f4f2;
+    --bubble-b: #eef3f7;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+  }
+  .chinese { font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Source Han Sans SC", "Noto Sans CJK SC", sans-serif; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  header.top { max-width: 1100px; margin: 0 auto; padding: 2rem 2rem 1rem; }
+  .back-link { font-size: 13px; color: var(--ink-muted); display: inline-block; margin-bottom: 0.75rem; }
+  .back-link:hover { color: var(--accent); }
+  .breadcrumb {
+    font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--ink-muted); margin-bottom: 0.5rem;
+  }
+  .breadcrumb .sep { opacity: 0.5; margin: 0 0.5em; }
+  h1.title {
+    margin: 0; font-weight: 500; font-size: 28px;
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.75rem;
+  }
+  h1.title .zh { color: var(--ink); }
+  h1.title .en { color: var(--ink-muted); font-weight: 400; font-size: 16px; }
+
+  .controls {
+    max-width: 1100px; margin: 0 auto; padding: 1rem 2rem;
+    display: flex; gap: 1.25rem; flex-wrap: wrap; align-items: center;
+    border-bottom: 1px solid var(--rule);
+  }
+  .controls label {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 14px; color: var(--ink-muted); cursor: pointer; user-select: none;
+  }
+  .controls input[type=checkbox] { accent-color: var(--accent); width: 16px; height: 16px; }
+  .controls input[type=checkbox]:checked + span { color: var(--accent); font-weight: 500; }
+  .controls .speed { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ink-muted); }
+  .controls .speed input { width: 100px; accent-color: var(--accent); }
+  .controls .speed .val { min-width: 28px; font-weight: 500; color: var(--ink); }
+  .controls .speed .speed-hint { font-size: 11px; color: var(--ink-faint); font-style: italic; }
+  .controls .spacer { flex: 1; }
+  .controls button.play-all {
+    border: 1px solid var(--accent); background: var(--accent); color: #fff;
+    padding: 7px 14px; font-size: 13px; font-weight: 500; border-radius: 6px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s;
+  }
+  .controls button.play-all:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+  .controls button.play-all.playing { background: #b34545; border-color: #b34545; }
+  .controls button.play-all.playing:hover { background: #933838; border-color: #933838; }
+  .controls button.play-all svg { width: 11px; height: 11px; }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 1.5rem 2rem 5rem; }
+
+  /* Pinyin defaults */
+  ruby { ruby-position: over; }
+  ruby rt {
+    font-size: 11px; color: var(--accent);
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-weight: 400; letter-spacing: 0.02em;
+    padding-bottom: 6px;
+    transition: opacity 0.15s;
+  }
+  body.pinyin-off ruby rt { opacity: 0; }
+
+  .speaker-btn {
+    background: transparent; border: 1px solid var(--rule);
+    width: 28px; height: 28px; padding: 0; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--ink-muted); transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .speaker-btn:hover { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+  .speaker-btn.playing { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .speaker-btn svg { width: 12px; height: 12px; }
+
+  /* PROSE format — two-column */
+  .para {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2.5rem;
+    padding: 1.5rem 0; border-bottom: 1px solid var(--rule); align-items: start;
+  }
+  .para:last-child { border-bottom: none; }
+  .para .zh-col { display: grid; grid-template-columns: 28px 1fr; gap: 12px; align-items: start; }
+  .para .speaker-btn { margin-top: 8px; }
+  .para .zh-text { font-size: 22px; line-height: 2.6; }
+  .para .en-col {
+    font-size: 15px; line-height: 1.75; color: var(--ink-muted); padding-top: 6px;
+    transition: opacity 0.15s;
+  }
+  body.english-off .en-col { opacity: 0; pointer-events: none; }
+  .para-num {
+    color: var(--ink-faint); font-size: 13px; font-weight: 500;
+    margin-bottom: 4px; display: block;
+  }
+  .para.active-passage .zh-text {
+    background: var(--accent-soft); border-radius: 6px; padding: 4px 8px; margin-left: -8px;
+  }
+
+  /* Subheadings inside prose articles */
+  .subheading {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2.5rem;
+    padding: 1rem 0 0; align-items: baseline;
+    margin: 0;
+  }
+  .subheading-zh {
+    font-size: 18px; font-weight: 500; color: var(--accent-dark);
+    padding-left: 40px; line-height: 1.3;
+    margin: 0;
+  }
+  .subheading-en {
+    font-size: 14px; color: var(--ink-muted); font-weight: 500;
+    transition: opacity 0.15s;
+    letter-spacing: 0.02em;
+    line-height: 1.3;
+    margin: 0;
+  }
+  body.english-off .subheading-en { opacity: 0; }
+  /* Tight coupling — subheading sits directly on top of its paragraph */
+  .subheading + .para { border-top: none; padding-top: 0; }
+
+  /* TABLE format — stacked character cards */
+  .profile-card {
+    background: var(--surface); border: 1px solid var(--rule); border-radius: 12px;
+    padding: 1.5rem 1.75rem; margin-bottom: 1.25rem;
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start;
+  }
+  .profile-card:last-child { margin-bottom: 0; }
+  .profile-card .zh-side { display: grid; grid-template-columns: 28px 1fr; gap: 12px; }
+  .profile-card .name {
+    font-size: 24px; font-weight: 500; margin-bottom: 0.75rem;
+    line-height: 2;
+  }
+  .profile-card .traits { font-size: 18px; line-height: 2.4; }
+  .profile-card .trait { margin-bottom: 0.75rem; }
+  .profile-card .trait:last-child { margin-bottom: 0; }
+  .profile-card .trait-label {
+    display: inline-block; background: var(--accent-soft); color: var(--accent);
+    font-size: 14px; font-weight: 500; padding: 2px 12px; border-radius: 12px;
+    margin-right: 8px; vertical-align: baseline;
+    font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
+    position: relative; top: -2px;
+  }
+  .profile-card .trait-label ruby rt { color: var(--accent-dark); }
+  .profile-card .en-side {
+    font-size: 14px; line-height: 1.75; color: var(--ink-muted); padding-top: 8px;
+    transition: opacity 0.15s;
+  }
+  body.english-off .profile-card .en-side { opacity: 0; pointer-events: none; }
+  .profile-card .en-side .en-name { font-weight: 500; color: var(--ink); font-size: 16px; margin-bottom: 0.5rem; }
+  .profile-card .en-side .en-trait { margin-bottom: 0.5rem; }
+  .profile-card .en-side .en-trait-label { font-weight: 500; color: var(--ink); }
+
+  /* DIALOGUE format — chat bubbles */
+  .stage-direction {
+    text-align: center; color: var(--ink-muted);
+    font-size: 15px; padding: 1rem 2rem;
+    font-style: italic;
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start;
+  }
+  .stage-direction .zh-dir { font-style: normal; }
+  .stage-direction .zh-dir .zh-text { line-height: 2.4; }
+  .stage-direction .en-dir { font-size: 14px; }
+
+  .bubble-row {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;
+    margin-bottom: 1rem; align-items: start;
+  }
+  .bubble-zh { display: flex; gap: 10px; align-items: flex-start; }
+  .bubble-zh.align-right { justify-content: flex-end; }
+  .bubble-zh.align-right .bubble { background: var(--accent-soft); }
+  .bubble-zh .speaker-btn { margin-top: 6px; }
+  .bubble {
+    background: var(--bubble-a);
+    border-radius: 16px; padding: 10px 16px;
+    max-width: 85%;
+    line-height: 2.4; font-size: 18px;
+  }
+  .bubble-zh.align-right .bubble { border-bottom-right-radius: 4px; }
+  .bubble-zh.align-left .bubble { border-bottom-left-radius: 4px; }
+  .bubble-zh .speaker-name {
+    display: block; font-size: 12px; font-weight: 500; color: var(--accent-dark);
+    margin-bottom: 2px; letter-spacing: 0.02em;
+  }
+  .bubble-zh.align-right .speaker-name { text-align: right; }
+  .bubble-row.active-passage .bubble { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .bubble-en {
+    font-size: 14px; line-height: 1.6; color: var(--ink-muted); padding-top: 8px;
+    transition: opacity 0.15s;
+  }
+  .bubble-en .en-speaker { font-weight: 500; color: var(--ink); }
+  body.english-off .bubble-en, body.english-off .stage-direction .en-dir { opacity: 0; pointer-events: none; }
+
+  /* ===== Vocab inline highlighting + bottom sheet ===== */
+  .vocab {
+    cursor: pointer;
+    text-underline-offset: 6px;
+    text-decoration: underline dotted var(--accent);
+    text-decoration-thickness: 1.5px;
+    transition: background 0.15s;
+    border-radius: 3px;
+    padding: 0 1px;
+  }
+  .vocab:hover, .vocab:focus { background: var(--accent-soft); outline: none; }
+
+  /* Vocab list panel at top of passage (toggleable) */
+  .vocab-panel {
+    background: var(--surface); border: 1px solid var(--rule);
+    border-radius: 12px; padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .vocab-panel-title {
+    font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--ink-faint); font-weight: 500; margin: 0 0 1rem;
+  }
+  .vocab-list {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem 2rem;
+  }
+  .vocab-row {
+    display: grid; grid-template-columns: minmax(auto, 140px) 1fr; gap: 1rem;
+    padding: 0.5rem 0; border-top: 1px solid var(--rule-soft);
+    align-items: baseline;
+  }
+  .vocab-row:first-child, .vocab-row:nth-child(2) { border-top: none; }
+  .vocab-row-zh { font-size: 18px; font-family: "PingFang SC", "Hiragino Sans GB", sans-serif; line-height: 2; }
+  .vocab-row-en { font-size: 14px; color: var(--ink-muted); line-height: 1.5; }
+
+  /* Bottom sheet for single-word lookup */
+  .vocab-backdrop {
+    position: fixed; inset: 0; background: rgba(0, 0, 0, 0.25);
+    z-index: 100; opacity: 0; transition: opacity 0.2s;
+    pointer-events: none;
+  }
+  .vocab-backdrop.visible { opacity: 1; pointer-events: auto; }
+  .vocab-sheet {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--rule);
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.08);
+    padding: 1.5rem 2rem 2rem;
+    z-index: 101;
+    transform: translateY(100%); transition: transform 0.25s ease-out;
+    max-width: 600px; margin: 0 auto;
+    border-top-left-radius: 16px; border-top-right-radius: 16px;
+  }
+  .vocab-sheet.visible { transform: translateY(0); }
+  .vocab-sheet-close {
+    position: absolute; top: 10px; right: 14px;
+    background: transparent; border: none; font-size: 28px; line-height: 1;
+    color: var(--ink-faint); cursor: pointer; padding: 4px 10px;
+  }
+  .vocab-sheet-close:hover { color: var(--ink); }
+  .vocab-sheet-content .vs-zh {
+    font-size: 32px; font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
+    line-height: 2.2; margin: 0;
+  }
+  .vocab-sheet-content .vs-zh ruby rt { font-size: 14px; }
+  .vocab-sheet-content .vs-en {
+    font-size: 16px; color: var(--ink); line-height: 1.6;
+    margin: 0.5rem 0 0;
+  }
+
+  @media (max-width: 720px) {
+    .para { grid-template-columns: 1fr; gap: 0.75rem; }
+    .para .en-col { padding-top: 0; padding-left: 40px; font-style: italic; }
+    .para .zh-text { font-size: 20px; }
+    .profile-card { grid-template-columns: 1fr; gap: 1rem; padding: 1rem 1.25rem; }
+    .profile-card .en-side { padding-top: 0; padding-left: 40px; font-style: italic; border-top: 1px solid var(--rule); padding-top: 1rem; }
+    .profile-card .name { font-size: 22px; }
+    .profile-card .traits { font-size: 17px; line-height: 2.2; }
+    .bubble-row, .stage-direction { grid-template-columns: 1fr; gap: 0.5rem; }
+    .bubble-en { padding-left: 16px; padding-top: 0; font-style: italic; }
+    .bubble { font-size: 17px; }
+    header.top, .controls, main { padding-left: 1.25rem; padding-right: 1.25rem; }
+    .controls { gap: 0.75rem; }
+    .vocab-list { grid-template-columns: 1fr; gap: 0; }
+    .vocab-row { grid-template-columns: minmax(auto, 120px) 1fr; padding: 0.5rem 0; border-top: 1px solid var(--rule-soft); }
+    .vocab-row:nth-child(2) { border-top: 1px solid var(--rule-soft); }
+    .vocab-row:first-child { border-top: none; }
+    .vocab-sheet { padding: 1.25rem 1.5rem 1.75rem; }
+    .vocab-sheet-content .vs-zh { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+  <header class="top">
+    <a class="back-link" href="../index.html">← 返回 Back to all levels</a>
+    <div class="breadcrumb">Level 2 · Unit 4 · 做自己的主人 Being Your Own Master <span class="sep">·</span> 巩固 Consolidation</div>
+    <h1 class="title">
+      <span class="zh chinese">《最美的姿势》</span>
+      <span class="en">The Most Beautiful Pose</span>
+    </h1>
+  </header>
+  <div class="controls">
+    <label><input type="checkbox" id="toggle-pinyin" checked><span>显示汉语拼音 Show pinyin</span></label>
+    <label><input type="checkbox" id="toggle-english" checked><span>显示英文 Show English</span></label>
+    <label><input type="checkbox" id="toggle-vocab-panel"><span>显示生词 Show vocab list</span></label>
+    <div class="speed">
+      <span>语速 Speed</span>
+      <input type="range" min="0.5" max="1.2" step="0.05" value="0.9" id="speed" title="Adjust before playing">
+      <span class="val" id="speed-val">0.9×</span>
+      <span class="speed-hint">(set before play)</span>
+    </div>
+    <div class="spacer"></div>
+    <button class="play-all" id="play-all-btn" type="button">
+      <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>
+      <span>播放全文 Play all</span>
+    </button>
+  </div>
+  <main>
+  <section class="vocab-panel" id="vocab-panel" hidden>
+    <h2 class="vocab-panel-title">生词 Vocabulary · 9 words</h2>
+    <div class="vocab-list">
+      <div class="vocab-row" data-vocab-id="0">
+        <div class="vocab-row-zh chinese"><ruby>脖<rt>bó</rt></ruby><ruby>子<rt>zi</rt></ruby></div>
+        <div class="vocab-row-en">neck</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="1">
+        <div class="vocab-row-zh chinese"><ruby>社<rt>shè</rt></ruby><ruby>交<rt>jiāo</rt></ruby><ruby>媒<rt>méi</rt></ruby><ruby>体<rt>tǐ</rt></ruby></div>
+        <div class="vocab-row-en">social media</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="2">
+        <div class="vocab-row-zh chinese"><ruby>缺<rt>quē</rt></ruby><ruby>陷<rt>xiàn</rt></ruby></div>
+        <div class="vocab-row-en">flaw; defect</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="3">
+        <div class="vocab-row-zh chinese"><ruby>姿<rt>zī</rt></ruby><ruby>势<rt>shì</rt></ruby></div>
+        <div class="vocab-row-en">pose; posture</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="4">
+        <div class="vocab-row-zh chinese"><ruby>拘<rt>jū</rt></ruby><ruby>束<rt>shù</rt></ruby></div>
+        <div class="vocab-row-en">stiff; awkwardly self-conscious</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="5">
+        <div class="vocab-row-zh chinese"><ruby>嘈<rt>cáo</rt></ruby><ruby>杂<rt>zá</rt></ruby></div>
+        <div class="vocab-row-en">noisy; chattering</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="6">
+        <div class="vocab-row-zh chinese"><ruby>沮<rt>jǔ</rt></ruby><ruby>丧<rt>sàng</rt></ruby></div>
+        <div class="vocab-row-en">dejected; disheartened</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="7">
+        <div class="vocab-row-zh chinese"><ruby>若<rt>ruò</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>所<rt>suǒ</rt></ruby><ruby>思<rt>sī</rt></ruby></div>
+        <div class="vocab-row-en">lost in thought; as though deep in thought</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="8">
+        <div class="vocab-row-zh chinese"><ruby>模<rt>mó</rt></ruby><ruby>糊<rt>hú</rt></ruby></div>
+        <div class="vocab-row-en">blurred; hazy (of vision)</div>
+      </div></div>
+  </section>
+<article class="para" data-playable data-audio="小学时，一场车祸导致我的脖子歪向右边。从那以后，我变得特别敏感。有一次，当全班朗读“鹅，鹅，鹅，曲项向天歌”时，我觉得同学们的目光都落在我歪着的脖子上，让我非常难受。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="小学时，一场车祸导致我的脖子歪向右边。从那以后，我变得特别敏感。有一次，当全班朗读“鹅，鹅，鹅，曲项向天歌”时，我觉得同学们的目光都落在我歪着的脖子上，让我非常难受。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">1</span>
+      <ruby>小<rt>xiǎo</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>时<rt>shí</rt></ruby>，<ruby>一<rt>yī</rt></ruby><ruby>场<rt>cháng</rt></ruby><ruby>车<rt>chē</rt></ruby><ruby>祸<rt>huò</rt></ruby><ruby>导<rt>dǎo</rt></ruby><ruby>致<rt>zhì</rt></ruby><ruby>我<rt>wǒ</rt></ruby><ruby>的<rt>de</rt></ruby><span class="vocab" data-vocab-id="0"><ruby>脖<rt>bó</rt></ruby><ruby>子<rt>zi</rt></ruby></span><ruby>歪<rt>wāi</rt></ruby><ruby>向<rt>xiàng</rt></ruby><ruby>右<rt>yòu</rt></ruby><ruby>边<rt>biān</rt></ruby>。<ruby>从<rt>cóng</rt></ruby><ruby>那<rt>nà</rt></ruby><ruby>以<rt>yǐ</rt></ruby><ruby>后<rt>hòu</rt></ruby>，<ruby>我<rt>wǒ</rt></ruby><ruby>变<rt>biàn</rt></ruby><ruby>得<rt>dé</rt></ruby><ruby>特<rt>tè</rt></ruby><ruby>别<rt>bié</rt></ruby><ruby>敏<rt>mǐn</rt></ruby><ruby>感<rt>gǎn</rt></ruby>。<ruby>有<rt>yǒu</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>次<rt>cì</rt></ruby>，<ruby>当<rt>dāng</rt></ruby><ruby>全<rt>quán</rt></ruby><ruby>班<rt>bān</rt></ruby><ruby>朗<rt>lǎng</rt></ruby><ruby>读<rt>dú</rt></ruby>“<ruby>鹅<rt>é</rt></ruby>，<ruby>鹅<rt>é</rt></ruby>，<ruby>鹅<rt>é</rt></ruby>，<ruby>曲<rt>qū</rt></ruby><ruby>项<rt>xiàng</rt></ruby><ruby>向<rt>xiàng</rt></ruby><ruby>天<rt>tiān</rt></ruby><ruby>歌<rt>gē</rt></ruby>”<ruby>时<rt>shí</rt></ruby>，<ruby>我<rt>wǒ</rt></ruby><ruby>觉<rt>jué</rt></ruby><ruby>得<rt>de</rt></ruby><ruby>同<rt>tóng</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>们<rt>men</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>目<rt>mù</rt></ruby><ruby>光<rt>guāng</rt></ruby><ruby>都<rt>dōu</rt></ruby><ruby>落<rt>luò</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>我<rt>wǒ</rt></ruby><ruby>歪<rt>wāi</rt></ruby><ruby>着<rt>zhe</rt></ruby><ruby>的<rt>de</rt></ruby><span class="vocab" data-vocab-id="0"><ruby>脖<rt>bó</rt></ruby><ruby>子<rt>zi</rt></ruby></span><ruby>上<rt>shàng</rt></ruby>，<ruby>让<rt>ràng</rt></ruby><ruby>我<rt>wǒ</rt></ruby><ruby>非<rt>fēi</rt></ruby><ruby>常<rt>cháng</rt></ruby><ruby>难<rt>nán</rt></ruby><ruby>受<rt>shòu</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">1</span>In primary school, a car accident left my neck tilted permanently to the right. After that, I became very self-conscious. Once, as our class was reading aloud the line &quot;Goose, goose, goose — neck curving up, singing to the sky,&quot; I felt every classmate&#x27;s eyes fall on my crooked neck. It was unbearable.</div>
+</article>
+<article class="para" data-playable data-audio="升上中学后，身边的同学都在社交媒体上分享自己和朋友的照片。我只能用沉默和独来独往武装自己，摄像头成了我最大的假想敌。因为不管我怎么打扮，也掩饰不了自己的缺陷。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="升上中学后，身边的同学都在社交媒体上分享自己和朋友的照片。我只能用沉默和独来独往武装自己，摄像头成了我最大的假想敌。因为不管我怎么打扮，也掩饰不了自己的缺陷。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">2</span>
+      <ruby>升<rt>shēng</rt></ruby><ruby>上<rt>shàng</rt></ruby><ruby>中<rt>zhōng</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>后<rt>hòu</rt></ruby>，<ruby>身<rt>shēn</rt></ruby><ruby>边<rt>biān</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>同<rt>tóng</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>都<rt>dōu</rt></ruby><ruby>在<rt>zài</rt></ruby><span class="vocab" data-vocab-id="1"><ruby>社<rt>shè</rt></ruby><ruby>交<rt>jiāo</rt></ruby><ruby>媒<rt>méi</rt></ruby><ruby>体<rt>tǐ</rt></ruby></span><ruby>上<rt>shàng</rt></ruby><ruby>分<rt>fēn</rt></ruby><ruby>享<rt>xiǎng</rt></ruby><ruby>自<rt>zì</rt></ruby><ruby>己<rt>jǐ</rt></ruby><ruby>和<rt>hé</rt></ruby><ruby>朋<rt>péng</rt></ruby><ruby>友<rt>yǒu</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>照<rt>zhào</rt></ruby><ruby>片<rt>piān</rt></ruby>。<ruby>我<rt>wǒ</rt></ruby><ruby>只<rt>zhǐ</rt></ruby><ruby>能<rt>néng</rt></ruby><ruby>用<rt>yòng</rt></ruby><ruby>沉<rt>chén</rt></ruby><ruby>默<rt>mò</rt></ruby><ruby>和<rt>hé</rt></ruby><ruby>独<rt>dú</rt></ruby><ruby>来<rt>lái</rt></ruby><ruby>独<rt>dú</rt></ruby><ruby>往<rt>wǎng</rt></ruby><ruby>武<rt>wǔ</rt></ruby><ruby>装<rt>zhuāng</rt></ruby><ruby>自<rt>zì</rt></ruby><ruby>己<rt>jǐ</rt></ruby>，<ruby>摄<rt>shè</rt></ruby><ruby>像<rt>xiàng</rt></ruby><ruby>头<rt>tóu</rt></ruby><ruby>成<rt>chéng</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>我<rt>wǒ</rt></ruby><ruby>最<rt>zuì</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>假<rt>jiǎ</rt></ruby><ruby>想<rt>xiǎng</rt></ruby><ruby>敌<rt>dí</rt></ruby>。<ruby>因<rt>yīn</rt></ruby><ruby>为<rt>wèi</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>管<rt>guǎn</rt></ruby><ruby>我<rt>wǒ</rt></ruby><ruby>怎<rt>zěn</rt></ruby><ruby>么<rt>me</rt></ruby><ruby>打<rt>dǎ</rt></ruby><ruby>扮<rt>bàn</rt></ruby>，<ruby>也<rt>yě</rt></ruby><ruby>掩<rt>yǎn</rt></ruby><ruby>饰<rt>shì</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>了<rt>liǎo</rt></ruby><ruby>自<rt>zì</rt></ruby><ruby>己<rt>jǐ</rt></ruby><ruby>的<rt>de</rt></ruby><span class="vocab" data-vocab-id="2"><ruby>缺<rt>quē</rt></ruby><ruby>陷<rt>xiàn</rt></ruby></span>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">2</span>In secondary school, all my classmates were posting photos of themselves and their friends on social media. I armed myself with silence and kept to myself — the camera lens became the enemy I most feared. Because no matter how I dressed up, I couldn&#x27;t hide my flaw.</div>
+</article>
+<article class="para" data-playable data-audio="一天，喜爱摄影的级任老师——陈老师，提议办一个“展现最美的自己”照片展。她会为每个同学拍一张个人照，然后贴在布告栏上。大家都兴致勃勃，叽叽喳喳地讨论着摆什么姿势好。我的心却沉到了谷底。同学们一个个站到教室前，大方地摆出各种姿势让陈老师拍照。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="一天，喜爱摄影的级任老师——陈老师，提议办一个“展现最美的自己”照片展。她会为每个同学拍一张个人照，然后贴在布告栏上。大家都兴致勃勃，叽叽喳喳地讨论着摆什么姿势好。我的心却沉到了谷底。同学们一个个站到教室前，大方地摆出各种姿势让陈老师拍照。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">3</span>
+      <ruby>一<rt>yì</rt></ruby><ruby>天<rt>tiān</rt></ruby>，<ruby>喜<rt>xǐ</rt></ruby><ruby>爱<rt>ài</rt></ruby><ruby>摄<rt>shè</rt></ruby><ruby>影<rt>yǐng</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>级<rt>jí</rt></ruby><ruby>任<rt>rèn</rt></ruby><ruby>老<rt>lǎo</rt></ruby><ruby>师<rt>shī</rt></ruby>——<ruby>陈<rt>chén</rt></ruby><ruby>老<rt>lǎo</rt></ruby><ruby>师<rt>shī</rt></ruby>，<ruby>提<rt>tí</rt></ruby><ruby>议<rt>yì</rt></ruby><ruby>办<rt>bàn</rt></ruby><ruby>一<rt>yí</rt></ruby><ruby>个<rt>gè</rt></ruby>“<ruby>展<rt>zhǎn</rt></ruby><ruby>现<rt>xiàn</rt></ruby><ruby>最<rt>zuì</rt></ruby><ruby>美<rt>měi</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>自<rt>zì</rt></ruby><ruby>己<rt>jǐ</rt></ruby>”<ruby>照<rt>zhào</rt></ruby><ruby>片<rt>piān</rt></ruby><ruby>展<rt>zhǎn</rt></ruby>。<ruby>她<rt>tā</rt></ruby><ruby>会<rt>huì</rt></ruby><ruby>为<rt>wèi</rt></ruby><ruby>每<rt>měi</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>同<rt>tóng</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>拍<rt>pāi</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>张<rt>zhāng</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>照<rt>zhào</rt></ruby>，<ruby>然<rt>rán</rt></ruby><ruby>后<rt>hòu</rt></ruby><ruby>贴<rt>tiē</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>布<rt>bù</rt></ruby><ruby>告<rt>gào</rt></ruby><ruby>栏<rt>lán</rt></ruby><ruby>上<rt>shàng</rt></ruby>。<ruby>大<rt>dà</rt></ruby><ruby>家<rt>jiā</rt></ruby><ruby>都<rt>dōu</rt></ruby><ruby>兴<rt>xìng</rt></ruby><ruby>致<rt>zhì</rt></ruby><ruby>勃<rt>bó</rt></ruby><ruby>勃<rt>bó</rt></ruby>，<ruby>叽<rt>jī</rt></ruby><ruby>叽<rt>jī</rt></ruby><ruby>喳<rt>zhā</rt></ruby><ruby>喳<rt>zhā</rt></ruby><ruby>地<rt>dì</rt></ruby><ruby>讨<rt>tǎo</rt></ruby><ruby>论<rt>lùn</rt></ruby><ruby>着<rt>zhe</rt></ruby><ruby>摆<rt>bǎi</rt></ruby><ruby>什<rt>shén</rt></ruby><ruby>么<rt>me</rt></ruby><span class="vocab" data-vocab-id="3"><ruby>姿<rt>zī</rt></ruby><ruby>势<rt>shì</rt></ruby></span><ruby>好<rt>hǎo</rt></ruby>。<ruby>我<rt>wǒ</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>心<rt>xīn</rt></ruby><ruby>却<rt>què</rt></ruby><ruby>沉<rt>chén</rt></ruby><ruby>到<rt>dào</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>谷<rt>gǔ</rt></ruby><ruby>底<rt>dǐ</rt></ruby>。<ruby>同<rt>tóng</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>们<rt>men</rt></ruby><ruby>一<rt>yí</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>站<rt>zhàn</rt></ruby><ruby>到<rt>dào</rt></ruby><ruby>教<rt>jiào</rt></ruby><ruby>室<rt>shì</rt></ruby><ruby>前<rt>qián</rt></ruby>，<ruby>大<rt>dà</rt></ruby><ruby>方<rt>fāng</rt></ruby><ruby>地<rt>dì</rt></ruby><ruby>摆<rt>bǎi</rt></ruby><ruby>出<rt>chū</rt></ruby><ruby>各<rt>gè</rt></ruby><ruby>种<rt>zhǒng</rt></ruby><span class="vocab" data-vocab-id="3"><ruby>姿<rt>zī</rt></ruby><ruby>势<rt>shì</rt></ruby></span><ruby>让<rt>ràng</rt></ruby><ruby>陈<rt>chén</rt></ruby><ruby>老<rt>lǎo</rt></ruby><ruby>师<rt>shī</rt></ruby><ruby>拍<rt>pāi</rt></ruby><ruby>照<rt>zhào</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">3</span>One day, our form teacher Ms Chen — a photography enthusiast — proposed a &quot;Show Your Most Beautiful Self&quot; photo exhibition. She would take an individual portrait of every student and put them all up on the classroom noticeboard. Everyone was excited, chattering about what poses they&#x27;d strike. My own heart sank to the bottom. One by one my classmates went up to the front of the classroom and confidently struck poses for Ms Chen&#x27;s camera.</div>
+</article>
+<article class="para" data-playable data-audio="“宜欣，快来拍照！”我最不想听到的那句话还是响起了。我慢吞吞地走上前，拘束地站在讲台上，心里一片慌乱。原本嘈杂的教室突然变得无比安静。同学们都注视着我，这让我变得更加不安，脸红得发烫。这时，陈老师走过来问道：“宜欣，你觉得你最美的姿势是什么？”">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="“宜欣，快来拍照！”我最不想听到的那句话还是响起了。我慢吞吞地走上前，拘束地站在讲台上，心里一片慌乱。原本嘈杂的教室突然变得无比安静。同学们都注视着我，这让我变得更加不安，脸红得发烫。这时，陈老师走过来问道：“宜欣，你觉得你最美的姿势是什么？”"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">4</span>
+      “<ruby>宜<rt>yí</rt></ruby><ruby>欣<rt>xīn</rt></ruby>，<ruby>快<rt>kuài</rt></ruby><ruby>来<rt>lái</rt></ruby><ruby>拍<rt>pāi</rt></ruby><ruby>照<rt>zhào</rt></ruby>！”<ruby>我<rt>wǒ</rt></ruby><ruby>最<rt>zuì</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>想<rt>xiǎng</rt></ruby><ruby>听<rt>tīng</rt></ruby><ruby>到<rt>dào</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>那<rt>nà</rt></ruby><ruby>句<rt>jù</rt></ruby><ruby>话<rt>huà</rt></ruby><ruby>还<rt>hái</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>响<rt>xiǎng</rt></ruby><ruby>起<rt>qǐ</rt></ruby><ruby>了<rt>le</rt></ruby>。<ruby>我<rt>wǒ</rt></ruby><ruby>慢<rt>màn</rt></ruby><ruby>吞<rt>tūn</rt></ruby><ruby>吞<rt>tūn</rt></ruby><ruby>地<rt>dì</rt></ruby><ruby>走<rt>zǒu</rt></ruby><ruby>上<rt>shàng</rt></ruby><ruby>前<rt>qián</rt></ruby>，<span class="vocab" data-vocab-id="4"><ruby>拘<rt>jū</rt></ruby><ruby>束<rt>shù</rt></ruby></span><ruby>地<rt>dì</rt></ruby><ruby>站<rt>zhàn</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>讲<rt>jiǎng</rt></ruby><ruby>台<rt>tái</rt></ruby><ruby>上<rt>shàng</rt></ruby>，<ruby>心<rt>xīn</rt></ruby><ruby>里<rt>lǐ</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>片<rt>piàn</rt></ruby><ruby>慌<rt>huāng</rt></ruby><ruby>乱<rt>luàn</rt></ruby>。<ruby>原<rt>yuán</rt></ruby><ruby>本<rt>běn</rt></ruby><span class="vocab" data-vocab-id="5"><ruby>嘈<rt>cáo</rt></ruby><ruby>杂<rt>zá</rt></ruby></span><ruby>的<rt>de</rt></ruby><ruby>教<rt>jiào</rt></ruby><ruby>室<rt>shì</rt></ruby><ruby>突<rt>tū</rt></ruby><ruby>然<rt>rán</rt></ruby><ruby>变<rt>biàn</rt></ruby><ruby>得<rt>dé</rt></ruby><ruby>无<rt>wú</rt></ruby><ruby>比<rt>bǐ</rt></ruby><ruby>安<rt>ān</rt></ruby><ruby>静<rt>jìng</rt></ruby>。<ruby>同<rt>tóng</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>们<rt>men</rt></ruby><ruby>都<rt>dōu</rt></ruby><ruby>注<rt>zhù</rt></ruby><ruby>视<rt>shì</rt></ruby><ruby>着<rt>zhe</rt></ruby><ruby>我<rt>wǒ</rt></ruby>，<ruby>这<rt>zhè</rt></ruby><ruby>让<rt>ràng</rt></ruby><ruby>我<rt>wǒ</rt></ruby><ruby>变<rt>biàn</rt></ruby><ruby>得<rt>dé</rt></ruby><ruby>更<rt>gèng</rt></ruby><ruby>加<rt>jiā</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>安<rt>ān</rt></ruby>，<ruby>脸<rt>liǎn</rt></ruby><ruby>红<rt>hóng</rt></ruby><ruby>得<rt>dé</rt></ruby><ruby>发<rt>fā</rt></ruby><ruby>烫<rt>tàng</rt></ruby>。<ruby>这<rt>zhè</rt></ruby><ruby>时<rt>shí</rt></ruby>，<ruby>陈<rt>chén</rt></ruby><ruby>老<rt>lǎo</rt></ruby><ruby>师<rt>shī</rt></ruby><ruby>走<rt>zǒu</rt></ruby><ruby>过<rt>guò</rt></ruby><ruby>来<rt>lái</rt></ruby><ruby>问<rt>wèn</rt></ruby><ruby>道<rt>dào</rt></ruby>：“<ruby>宜<rt>yí</rt></ruby><ruby>欣<rt>xīn</rt></ruby>，<ruby>你<rt>nǐ</rt></ruby><ruby>觉<rt>jué</rt></ruby><ruby>得<rt>de</rt></ruby><ruby>你<rt>nǐ</rt></ruby><ruby>最<rt>zuì</rt></ruby><ruby>美<rt>měi</rt></ruby><ruby>的<rt>de</rt></ruby><span class="vocab" data-vocab-id="3"><ruby>姿<rt>zī</rt></ruby><ruby>势<rt>shì</rt></ruby></span><ruby>是<rt>shì</rt></ruby><ruby>什<rt>shén</rt></ruby><ruby>么<rt>me</rt></ruby>？”
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">4</span>&quot;Yixin, come on, your turn!&quot; The words I&#x27;d been dreading most rang out anyway. Slowly I walked forward and stood stiffly at the front, my heart in a mess. The classroom, a moment earlier full of noise, was suddenly completely silent. Everyone was watching me. It only made me more anxious — my face burned red hot. Then Ms Chen came over and asked, &quot;Yixin, what do you think is your most beautiful pose?&quot;</div>
+</article>
+<article class="para" data-playable data-audio="“我……我没有什么美的姿势。”我沮丧极了。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="“我……我没有什么美的姿势。”我沮丧极了。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">5</span>
+      “<ruby>我<rt>wǒ</rt></ruby>……<ruby>我<rt>wǒ</rt></ruby><ruby>没<rt>méi</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>什<rt>shén</rt></ruby><ruby>么<rt>me</rt></ruby><ruby>美<rt>měi</rt></ruby><ruby>的<rt>de</rt></ruby><span class="vocab" data-vocab-id="3"><ruby>姿<rt>zī</rt></ruby><ruby>势<rt>shì</rt></ruby></span>。”<ruby>我<rt>wǒ</rt></ruby><span class="vocab" data-vocab-id="6"><ruby>沮<rt>jǔ</rt></ruby><ruby>丧<rt>sàng</rt></ruby></span><ruby>极<rt>jí</rt></ruby><ruby>了<rt>le</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">5</span>&quot;I… I don&#x27;t have one,&quot; I said, utterly dejected.</div>
+</article>
+<article class="para" data-playable data-audio="陈老师笑着大声说：“你错了，这个世界上每个人都有自己最美丽的姿势，都可以为这个世界留下最美的镜头！”她接着对大家说：“我们一起帮宜欣设计一个最美的姿势。”">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="陈老师笑着大声说：“你错了，这个世界上每个人都有自己最美丽的姿势，都可以为这个世界留下最美的镜头！”她接着对大家说：“我们一起帮宜欣设计一个最美的姿势。”"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">6</span>
+      <ruby>陈<rt>chén</rt></ruby><ruby>老<rt>lǎo</rt></ruby><ruby>师<rt>shī</rt></ruby><ruby>笑<rt>xiào</rt></ruby><ruby>着<rt>zhe</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>声<rt>shēng</rt></ruby><ruby>说<rt>shuō</rt></ruby>：“<ruby>你<rt>nǐ</rt></ruby><ruby>错<rt>cuò</rt></ruby><ruby>了<rt>le</rt></ruby>，<ruby>这<rt>zhè</rt></ruby><ruby>个<rt>ge</rt></ruby><ruby>世<rt>shì</rt></ruby><ruby>界<rt>jiè</rt></ruby><ruby>上<rt>shàng</rt></ruby><ruby>每<rt>měi</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>都<rt>dōu</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>自<rt>zì</rt></ruby><ruby>己<rt>jǐ</rt></ruby><ruby>最<rt>zuì</rt></ruby><ruby>美<rt>měi</rt></ruby><ruby>丽<rt>lì</rt></ruby><ruby>的<rt>de</rt></ruby><span class="vocab" data-vocab-id="3"><ruby>姿<rt>zī</rt></ruby><ruby>势<rt>shì</rt></ruby></span>，<ruby>都<rt>dōu</rt></ruby><ruby>可<rt>kě</rt></ruby><ruby>以<rt>yǐ</rt></ruby><ruby>为<rt>wèi</rt></ruby><ruby>这<rt>zhè</rt></ruby><ruby>个<rt>ge</rt></ruby><ruby>世<rt>shì</rt></ruby><ruby>界<rt>jiè</rt></ruby><ruby>留<rt>liú</rt></ruby><ruby>下<rt>xià</rt></ruby><ruby>最<rt>zuì</rt></ruby><ruby>美<rt>měi</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>镜<rt>jìng</rt></ruby><ruby>头<rt>tóu</rt></ruby>！”<ruby>她<rt>tā</rt></ruby><ruby>接<rt>jiē</rt></ruby><ruby>着<rt>zhe</rt></ruby><ruby>对<rt>duì</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>家<rt>jiā</rt></ruby><ruby>说<rt>shuō</rt></ruby>：“<ruby>我<rt>wǒ</rt></ruby><ruby>们<rt>men</rt></ruby><ruby>一<rt>yì</rt></ruby><ruby>起<rt>qǐ</rt></ruby><ruby>帮<rt>bāng</rt></ruby><ruby>宜<rt>yí</rt></ruby><ruby>欣<rt>xīn</rt></ruby><ruby>设<rt>shè</rt></ruby><ruby>计<rt>jì</rt></ruby><ruby>一<rt>yí</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>最<rt>zuì</rt></ruby><ruby>美<rt>měi</rt></ruby><ruby>的<rt>de</rt></ruby><span class="vocab" data-vocab-id="3"><ruby>姿<rt>zī</rt></ruby><ruby>势<rt>shì</rt></ruby></span>。”
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">6</span>Ms Chen smiled and said loudly, &quot;You&#x27;re wrong! Everyone in this world has their own most beautiful pose — everyone can leave behind the loveliest of moments for this world.&quot; Then she turned to the class: &quot;Let&#x27;s all help Yixin design her most beautiful pose together.&quot;</div>
+</article>
+<article class="para" data-playable data-audio="陈老师一说完，同学们便七嘴八舌地提建议。“宜欣的脸型美，可以侧拍！”“可以摆出遥望远方的姿势！”热心的甜甜直接跑过来，让我用右手托住右腮，再用左手托着右臂，做出若有所思的样子。我一抬头，“咔嚓”一声，这个姿势定格在陈老师的相机里。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="陈老师一说完，同学们便七嘴八舌地提建议。“宜欣的脸型美，可以侧拍！”“可以摆出遥望远方的姿势！”热心的甜甜直接跑过来，让我用右手托住右腮，再用左手托着右臂，做出若有所思的样子。我一抬头，“咔嚓”一声，这个姿势定格在陈老师的相机里。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">7</span>
+      <ruby>陈<rt>chén</rt></ruby><ruby>老<rt>lǎo</rt></ruby><ruby>师<rt>shī</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>说<rt>shuō</rt></ruby><ruby>完<rt>wán</rt></ruby>，<ruby>同<rt>tóng</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>们<rt>men</rt></ruby><ruby>便<rt>biàn</rt></ruby><ruby>七<rt>qī</rt></ruby><ruby>嘴<rt>zuǐ</rt></ruby><ruby>八<rt>bā</rt></ruby><ruby>舌<rt>shé</rt></ruby><ruby>地<rt>dì</rt></ruby><ruby>提<rt>tí</rt></ruby><ruby>建<rt>jiàn</rt></ruby><ruby>议<rt>yì</rt></ruby>。“<ruby>宜<rt>yí</rt></ruby><ruby>欣<rt>xīn</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>脸<rt>liǎn</rt></ruby><ruby>型<rt>xíng</rt></ruby><ruby>美<rt>měi</rt></ruby>，<ruby>可<rt>kě</rt></ruby><ruby>以<rt>yǐ</rt></ruby><ruby>侧<rt>cè</rt></ruby><ruby>拍<rt>pāi</rt></ruby>！”“<ruby>可<rt>kě</rt></ruby><ruby>以<rt>yǐ</rt></ruby><ruby>摆<rt>bǎi</rt></ruby><ruby>出<rt>chū</rt></ruby><ruby>遥<rt>yáo</rt></ruby><ruby>望<rt>wàng</rt></ruby><ruby>远<rt>yuǎn</rt></ruby><ruby>方<rt>fāng</rt></ruby><ruby>的<rt>de</rt></ruby><span class="vocab" data-vocab-id="3"><ruby>姿<rt>zī</rt></ruby><ruby>势<rt>shì</rt></ruby></span>！”<ruby>热<rt>rè</rt></ruby><ruby>心<rt>xīn</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>甜<rt>tián</rt></ruby><ruby>甜<rt>tián</rt></ruby><ruby>直<rt>zhí</rt></ruby><ruby>接<rt>jiē</rt></ruby><ruby>跑<rt>pǎo</rt></ruby><ruby>过<rt>guò</rt></ruby><ruby>来<rt>lái</rt></ruby>，<ruby>让<rt>ràng</rt></ruby><ruby>我<rt>wǒ</rt></ruby><ruby>用<rt>yòng</rt></ruby><ruby>右<rt>yòu</rt></ruby><ruby>手<rt>shǒu</rt></ruby><ruby>托<rt>tuō</rt></ruby><ruby>住<rt>zhù</rt></ruby><ruby>右<rt>yòu</rt></ruby><ruby>腮<rt>sāi</rt></ruby>，<ruby>再<rt>zài</rt></ruby><ruby>用<rt>yòng</rt></ruby><ruby>左<rt>zuǒ</rt></ruby><ruby>手<rt>shǒu</rt></ruby><ruby>托<rt>tuō</rt></ruby><ruby>着<rt>zhe</rt></ruby><ruby>右<rt>yòu</rt></ruby><ruby>臂<rt>bì</rt></ruby>，<ruby>做<rt>zuò</rt></ruby><ruby>出<rt>chū</rt></ruby><span class="vocab" data-vocab-id="7"><ruby>若<rt>ruò</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>所<rt>suǒ</rt></ruby><ruby>思<rt>sī</rt></ruby></span><ruby>的<rt>de</rt></ruby><ruby>样<rt>yàng</rt></ruby><ruby>子<rt>zi</rt></ruby>。<ruby>我<rt>wǒ</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>抬<rt>tái</rt></ruby><ruby>头<rt>tóu</rt></ruby>，“<ruby>咔<rt>kā</rt></ruby><ruby>嚓<rt>chā</rt></ruby>”<ruby>一<rt>yī</rt></ruby><ruby>声<rt>shēng</rt></ruby>，<ruby>这<rt>zhè</rt></ruby><ruby>个<rt>ge</rt></ruby><span class="vocab" data-vocab-id="3"><ruby>姿<rt>zī</rt></ruby><ruby>势<rt>shì</rt></ruby></span><ruby>定<rt>dìng</rt></ruby><ruby>格<rt>gé</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>陈<rt>chén</rt></ruby><ruby>老<rt>lǎo</rt></ruby><ruby>师<rt>shī</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>相<rt>xiàng</rt></ruby><ruby>机<rt>jī</rt></ruby><ruby>里<rt>lǐ</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">7</span>The moment Ms Chen finished, suggestions came flying from every direction. &quot;Yixin has a lovely face shape — shoot her in profile!&quot; &quot;Do a pose gazing off into the distance!&quot; Warm-hearted Tiantian rushed up, showed me how to rest my right cheek in my right hand and prop my right arm with my left, giving me a pensive, thoughtful look. As I lifted my head — &quot;click&quot; — the pose was captured in Ms Chen&#x27;s camera.</div>
+</article>
+<article class="para" data-playable data-audio="隔天早上，我一进教室就看到同学们围在布告栏前。甜甜一看到我便把我拉过去，说道：“宜欣，快看，你的照片多好看！”其他同学也纷纷点头附和：“是啊，宜欣真美，而且看起来好聪慧啊！”这时，不知是谁开始鼓起掌来，渐渐地，掌声连成一片。同学们的话语和掌声令我感动不已，不知不觉间，泪水模糊了我的视线。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="隔天早上，我一进教室就看到同学们围在布告栏前。甜甜一看到我便把我拉过去，说道：“宜欣，快看，你的照片多好看！”其他同学也纷纷点头附和：“是啊，宜欣真美，而且看起来好聪慧啊！”这时，不知是谁开始鼓起掌来，渐渐地，掌声连成一片。同学们的话语和掌声令我感动不已，不知不觉间，泪水模糊了我的视线。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">8</span>
+      <ruby>隔<rt>gé</rt></ruby><ruby>天<rt>tiān</rt></ruby><ruby>早<rt>zǎo</rt></ruby><ruby>上<rt>shàng</rt></ruby>，<ruby>我<rt>wǒ</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>进<rt>jìn</rt></ruby><ruby>教<rt>jiào</rt></ruby><ruby>室<rt>shì</rt></ruby><ruby>就<rt>jiù</rt></ruby><ruby>看<rt>kàn</rt></ruby><ruby>到<rt>dào</rt></ruby><ruby>同<rt>tóng</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>们<rt>men</rt></ruby><ruby>围<rt>wéi</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>布<rt>bù</rt></ruby><ruby>告<rt>gào</rt></ruby><ruby>栏<rt>lán</rt></ruby><ruby>前<rt>qián</rt></ruby>。<ruby>甜<rt>tián</rt></ruby><ruby>甜<rt>tián</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>看<rt>kàn</rt></ruby><ruby>到<rt>dào</rt></ruby><ruby>我<rt>wǒ</rt></ruby><ruby>便<rt>biàn</rt></ruby><ruby>把<rt>bǎ</rt></ruby><ruby>我<rt>wǒ</rt></ruby><ruby>拉<rt>lā</rt></ruby><ruby>过<rt>guò</rt></ruby><ruby>去<rt>qù</rt></ruby>，<ruby>说<rt>shuō</rt></ruby><ruby>道<rt>dào</rt></ruby>：“<ruby>宜<rt>yí</rt></ruby><ruby>欣<rt>xīn</rt></ruby>，<ruby>快<rt>kuài</rt></ruby><ruby>看<rt>kàn</rt></ruby>，<ruby>你<rt>nǐ</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>照<rt>zhào</rt></ruby><ruby>片<rt>piān</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>好<rt>hǎo</rt></ruby><ruby>看<rt>kàn</rt></ruby>！”<ruby>其<rt>qí</rt></ruby><ruby>他<rt>tā</rt></ruby><ruby>同<rt>tóng</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>也<rt>yě</rt></ruby><ruby>纷<rt>fēn</rt></ruby><ruby>纷<rt>fēn</rt></ruby><ruby>点<rt>diǎn</rt></ruby><ruby>头<rt>tóu</rt></ruby><ruby>附<rt>fù</rt></ruby><ruby>和<rt>hè</rt></ruby>：“<ruby>是<rt>shì</rt></ruby><ruby>啊<rt>a</rt></ruby>，<ruby>宜<rt>yí</rt></ruby><ruby>欣<rt>xīn</rt></ruby><ruby>真<rt>zhēn</rt></ruby><ruby>美<rt>měi</rt></ruby>，<ruby>而<rt>ér</rt></ruby><ruby>且<rt>qiě</rt></ruby><ruby>看<rt>kàn</rt></ruby><ruby>起<rt>qǐ</rt></ruby><ruby>来<rt>lái</rt></ruby><ruby>好<rt>hǎo</rt></ruby><ruby>聪<rt>cōng</rt></ruby><ruby>慧<rt>huì</rt></ruby><ruby>啊<rt>a</rt></ruby>！”<ruby>这<rt>zhè</rt></ruby><ruby>时<rt>shí</rt></ruby>，<ruby>不<rt>bù</rt></ruby><ruby>知<rt>zhī</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>谁<rt>shuí</rt></ruby><ruby>开<rt>kāi</rt></ruby><ruby>始<rt>shǐ</rt></ruby><ruby>鼓<rt>gǔ</rt></ruby><ruby>起<rt>qǐ</rt></ruby><ruby>掌<rt>zhǎng</rt></ruby><ruby>来<rt>lái</rt></ruby>，<ruby>渐<rt>jiàn</rt></ruby><ruby>渐<rt>jiàn</rt></ruby><ruby>地<rt>dì</rt></ruby>，<ruby>掌<rt>zhǎng</rt></ruby><ruby>声<rt>shēng</rt></ruby><ruby>连<rt>lián</rt></ruby><ruby>成<rt>chéng</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>片<rt>piàn</rt></ruby>。<ruby>同<rt>tóng</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>们<rt>men</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>话<rt>huà</rt></ruby><ruby>语<rt>yǔ</rt></ruby><ruby>和<rt>hé</rt></ruby><ruby>掌<rt>zhǎng</rt></ruby><ruby>声<rt>shēng</rt></ruby><ruby>令<rt>lìng</rt></ruby><ruby>我<rt>wǒ</rt></ruby><ruby>感<rt>gǎn</rt></ruby><ruby>动<rt>dòng</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>已<rt>yǐ</rt></ruby>，<ruby>不<rt>bù</rt></ruby><ruby>知<rt>zhī</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>觉<rt>jué</rt></ruby><ruby>间<rt>jiān</rt></ruby>，<ruby>泪<rt>lèi</rt></ruby><ruby>水<rt>shuǐ</rt></ruby><span class="vocab" data-vocab-id="8"><ruby>模<rt>mó</rt></ruby><ruby>糊<rt>hú</rt></ruby></span><ruby>了<rt>le</rt></ruby><ruby>我<rt>wǒ</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>视<rt>shì</rt></ruby><ruby>线<rt>xiàn</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">8</span>The next morning, the moment I walked into the classroom, I saw my classmates gathered around the noticeboard. Tiantian spotted me and pulled me over: &quot;Yixin, come see — your photo looks so lovely!&quot; The others nodded along: &quot;Yes — Yixin, you&#x27;re genuinely beautiful. And you look so thoughtful too!&quot; At that moment, someone started to clap. Bit by bit, the applause grew until it filled the room. Their words and clapping moved me deeply. Before I knew it, my vision had blurred with tears.</div>
+</article>
+<article class="para" data-playable data-audio="那张照片和同学们的肯定不但帮我找到最美的姿势，也帮我找回了最宝贵的信心和勇气。原来，我也可以很美！我开始突破自己的心防，主动与同学交流，还结交了许多好朋友。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="那张照片和同学们的肯定不但帮我找到最美的姿势，也帮我找回了最宝贵的信心和勇气。原来，我也可以很美！我开始突破自己的心防，主动与同学交流，还结交了许多好朋友。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">9</span>
+      <ruby>那<rt>nà</rt></ruby><ruby>张<rt>zhāng</rt></ruby><ruby>照<rt>zhào</rt></ruby><ruby>片<rt>piān</rt></ruby><ruby>和<rt>hé</rt></ruby><ruby>同<rt>tóng</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>们<rt>men</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>肯<rt>kěn</rt></ruby><ruby>定<rt>dìng</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>但<rt>dàn</rt></ruby><ruby>帮<rt>bāng</rt></ruby><ruby>我<rt>wǒ</rt></ruby><ruby>找<rt>zhǎo</rt></ruby><ruby>到<rt>dào</rt></ruby><ruby>最<rt>zuì</rt></ruby><ruby>美<rt>měi</rt></ruby><ruby>的<rt>de</rt></ruby><span class="vocab" data-vocab-id="3"><ruby>姿<rt>zī</rt></ruby><ruby>势<rt>shì</rt></ruby></span>，<ruby>也<rt>yě</rt></ruby><ruby>帮<rt>bāng</rt></ruby><ruby>我<rt>wǒ</rt></ruby><ruby>找<rt>zhǎo</rt></ruby><ruby>回<rt>huí</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>最<rt>zuì</rt></ruby><ruby>宝<rt>bǎo</rt></ruby><ruby>贵<rt>guì</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>信<rt>xìn</rt></ruby><ruby>心<rt>xīn</rt></ruby><ruby>和<rt>hé</rt></ruby><ruby>勇<rt>yǒng</rt></ruby><ruby>气<rt>qì</rt></ruby>。<ruby>原<rt>yuán</rt></ruby><ruby>来<rt>lái</rt></ruby>，<ruby>我<rt>wǒ</rt></ruby><ruby>也<rt>yě</rt></ruby><ruby>可<rt>kě</rt></ruby><ruby>以<rt>yǐ</rt></ruby><ruby>很<rt>hěn</rt></ruby><ruby>美<rt>měi</rt></ruby>！<ruby>我<rt>wǒ</rt></ruby><ruby>开<rt>kāi</rt></ruby><ruby>始<rt>shǐ</rt></ruby><ruby>突<rt>tū</rt></ruby><ruby>破<rt>pò</rt></ruby><ruby>自<rt>zì</rt></ruby><ruby>己<rt>jǐ</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>心<rt>xīn</rt></ruby><ruby>防<rt>fáng</rt></ruby>，<ruby>主<rt>zhǔ</rt></ruby><ruby>动<rt>dòng</rt></ruby><ruby>与<rt>yǔ</rt></ruby><ruby>同<rt>tóng</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>交<rt>jiāo</rt></ruby><ruby>流<rt>liú</rt></ruby>，<ruby>还<rt>hái</rt></ruby><ruby>结<rt>jié</rt></ruby><ruby>交<rt>jiāo</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>许<rt>xǔ</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>好<rt>hǎo</rt></ruby><ruby>朋<rt>péng</rt></ruby><ruby>友<rt>yǒu</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">9</span>That photo — and the affirmation from my classmates — didn&#x27;t just help me find my most beautiful pose. It helped me reclaim my most precious confidence and courage. It turned out: I too could be beautiful. I began to let down the walls I&#x27;d put up, started reaching out to my classmates, and made many good friends.</div>
+</article>
+<article class="para" data-playable data-audio="其实，每个人或多或少都有不完美的地方。但是，我们都可以找到自己最美的姿势，都可以活得自信，活出精彩。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="其实，每个人或多或少都有不完美的地方。但是，我们都可以找到自己最美的姿势，都可以活得自信，活出精彩。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">10</span>
+      <ruby>其<rt>qí</rt></ruby><ruby>实<rt>shí</rt></ruby>，<ruby>每<rt>měi</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>或<rt>huò</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>或<rt>huò</rt></ruby><ruby>少<rt>shǎo</rt></ruby><ruby>都<rt>dōu</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>完<rt>wán</rt></ruby><ruby>美<rt>měi</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>地<rt>dì</rt></ruby><ruby>方<rt>fāng</rt></ruby>。<ruby>但<rt>dàn</rt></ruby><ruby>是<rt>shì</rt></ruby>，<ruby>我<rt>wǒ</rt></ruby><ruby>们<rt>men</rt></ruby><ruby>都<rt>dōu</rt></ruby><ruby>可<rt>kě</rt></ruby><ruby>以<rt>yǐ</rt></ruby><ruby>找<rt>zhǎo</rt></ruby><ruby>到<rt>dào</rt></ruby><ruby>自<rt>zì</rt></ruby><ruby>己<rt>jǐ</rt></ruby><ruby>最<rt>zuì</rt></ruby><ruby>美<rt>měi</rt></ruby><ruby>的<rt>de</rt></ruby><span class="vocab" data-vocab-id="3"><ruby>姿<rt>zī</rt></ruby><ruby>势<rt>shì</rt></ruby></span>，<ruby>都<rt>dōu</rt></ruby><ruby>可<rt>kě</rt></ruby><ruby>以<rt>yǐ</rt></ruby><ruby>活<rt>huó</rt></ruby><ruby>得<rt>dé</rt></ruby><ruby>自<rt>zì</rt></ruby><ruby>信<rt>xìn</rt></ruby>，<ruby>活<rt>huó</rt></ruby><ruby>出<rt>chū</rt></ruby><ruby>精<rt>jīng</rt></ruby><ruby>彩<rt>cǎi</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">10</span>The truth is, everyone has their imperfections, to one degree or another. But every one of us can find our own most beautiful pose — every one of us can live with confidence, and live a life that shines.</div>
+</article></main>
+  <div id="vocab-sheet" class="vocab-sheet" hidden>
+    <button class="vocab-sheet-close" id="vocab-sheet-close" aria-label="Close">×</button>
+    <div class="vocab-sheet-content"></div>
+  </div>
+  <div id="vocab-backdrop" class="vocab-backdrop" hidden></div>
+<script>window.__VOCAB__ = [{"zh": "脖子", "pinyin": "bó zi", "en": "neck"}, {"zh": "社交媒体", "pinyin": "shè jiāo méi tǐ", "en": "social media"}, {"zh": "缺陷", "pinyin": "quē xiàn", "en": "flaw; defect"}, {"zh": "姿势", "pinyin": "zī shì", "en": "pose; posture"}, {"zh": "拘束", "pinyin": "jū shù", "en": "stiff; awkwardly self-conscious"}, {"zh": "嘈杂", "pinyin": "cáo zá", "en": "noisy; chattering"}, {"zh": "沮丧", "pinyin": "jǔ sàng", "en": "dejected; disheartened"}, {"zh": "若有所思", "pinyin": "ruò yǒu suǒ sī", "en": "lost in thought; as though deep in thought"}, {"zh": "模糊", "pinyin": "mó hu", "en": "blurred; hazy (of vision)"}];</script>
+<script>
+(function () {
+  const SPEAKER_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>';
+  const STOP_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="5" y="5" width="14" height="14" rx="1"></rect></svg>';
+  const PLAY_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>';
+
+  // Inject speaker icons into all .speaker-btn elements
+  document.querySelectorAll('.speaker-btn').forEach(function(b){ b.innerHTML = SPEAKER_SVG; });
+
+  const togglePy = document.getElementById('toggle-pinyin');
+  const toggleEn = document.getElementById('toggle-english');
+  togglePy && togglePy.addEventListener('change', function(){ document.body.classList.toggle('pinyin-off', !togglePy.checked); });
+  toggleEn && toggleEn.addEventListener('change', function(){ document.body.classList.toggle('english-off', !toggleEn.checked); });
+
+  // ===== Vocab panel toggle =====
+  const vocabPanelToggle = document.getElementById('toggle-vocab-panel');
+  const vocabPanel = document.getElementById('vocab-panel');
+  if (vocabPanelToggle && vocabPanel) {
+    vocabPanelToggle.addEventListener('change', function(){
+      vocabPanel.hidden = !vocabPanelToggle.checked;
+    });
+  }
+
+  // ===== Vocab bottom sheet =====
+  const vocabSheet = document.getElementById('vocab-sheet');
+  const vocabBackdrop = document.getElementById('vocab-backdrop');
+  const vocabSheetClose = document.getElementById('vocab-sheet-close');
+  const vocabData = window.__VOCAB__ || [];
+
+  function buildRuby(zh, pinyinStr) {
+    // Split pinyin by space, line up with chars of zh
+    const chars = Array.from(zh);
+    const syllables = (pinyinStr || '').split(/\s+/).filter(Boolean);
+    let out = '';
+    let si = 0;
+    for (const ch of chars) {
+      // Only attach pinyin to CJK characters
+      if (/[\u4e00-\u9fff]/.test(ch)) {
+        const p = syllables[si++] || '';
+        out += '<ruby>' + ch + '<rt>' + p + '</rt></ruby>';
+      } else {
+        out += ch;
+      }
+    }
+    return out;
+  }
+
+  function openVocabSheet(vocabId) {
+    const v = vocabData[vocabId];
+    if (!v || !vocabSheet || !vocabBackdrop) return;
+    const content = vocabSheet.querySelector('.vocab-sheet-content');
+    content.innerHTML = '<p class="vs-zh chinese">' + buildRuby(v.zh, v.pinyin || '') + '</p>' +
+                        '<p class="vs-en">' + v.en + '</p>';
+    vocabSheet.hidden = false;
+    vocabBackdrop.hidden = false;
+    // allow transition
+    requestAnimationFrame(function(){
+      vocabSheet.classList.add('visible');
+      vocabBackdrop.classList.add('visible');
+    });
+  }
+
+  function closeVocabSheet() {
+    if (!vocabSheet || !vocabBackdrop) return;
+    vocabSheet.classList.remove('visible');
+    vocabBackdrop.classList.remove('visible');
+    setTimeout(function(){
+      vocabSheet.hidden = true;
+      vocabBackdrop.hidden = true;
+    }, 250);
+  }
+
+  // Click handler on any .vocab span
+  document.addEventListener('click', function(e){
+    const vocab = e.target.closest && e.target.closest('.vocab');
+    if (vocab) {
+      e.stopPropagation();
+      const id = parseInt(vocab.getAttribute('data-vocab-id'), 10);
+      openVocabSheet(id);
+      return;
+    }
+    // Click on vocab list row opens the sheet too
+    const vRow = e.target.closest && e.target.closest('.vocab-row');
+    if (vRow) {
+      const id = parseInt(vRow.getAttribute('data-vocab-id'), 10);
+      openVocabSheet(id);
+      return;
+    }
+  });
+
+  vocabSheetClose && vocabSheetClose.addEventListener('click', closeVocabSheet);
+  vocabBackdrop && vocabBackdrop.addEventListener('click', closeVocabSheet);
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeVocabSheet(); });
+
+  const speed = document.getElementById('speed');
+  const speedVal = document.getElementById('speed-val');
+  let rate = speed ? parseFloat(speed.value) : 0.9;
+  if (speed) speed.addEventListener('input', function(){
+    rate = parseFloat(speed.value);
+    speedVal.textContent = rate.toFixed(2).replace(/0$/, '') + '\u00d7';
+  });
+
+  const synth = window.speechSynthesis;
+  let chosenVoice = null;
+  function pickVoice(){
+    if (!synth) return;
+    const voices = synth.getVoices();
+    chosenVoice = voices.find(function(v){ return v.lang && v.lang.toLowerCase().indexOf('zh') === 0; }) || null;
+  }
+  if (synth) { pickVoice(); synth.addEventListener && synth.addEventListener('voiceschanged', pickVoice); }
+
+  function clearActive(){
+    document.querySelectorAll('.speaker-btn.playing').forEach(function(b){ b.classList.remove('playing'); });
+    document.querySelectorAll('.active-passage').forEach(function(p){ p.classList.remove('active-passage'); });
+  }
+
+  const playAllBtn = document.getElementById('play-all-btn');
+  let isPlayingAll = false;
+  let queue = [];
+
+  function setPlayAllState(playing){
+    isPlayingAll = playing;
+    if (!playAllBtn) return;
+    if (playing){
+      playAllBtn.classList.add('playing');
+      playAllBtn.innerHTML = STOP_SVG + '<span>\u505c\u6b62 Stop</span>';
+    } else {
+      playAllBtn.classList.remove('playing');
+      playAllBtn.innerHTML = PLAY_SVG + '<span>\u64ad\u653e\u5168\u6587 Play all</span>';
+      queue = [];
+    }
+  }
+
+  function speakOne(text, onDone){
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'zh-CN'; u.rate = rate;
+    if (chosenVoice) u.voice = chosenVoice;
+    u.onend = onDone; u.onerror = onDone;
+    synth.speak(u);
+  }
+
+  // Individual speaker buttons — each has data-audio attr containing the Chinese to speak,
+  // and data-active-selector saying which parent element to highlight
+  document.querySelectorAll('.speaker-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      if (!synth){ alert('Your browser does not support speech synthesis.'); return; }
+      synth.cancel(); clearActive(); setPlayAllState(false);
+      const text = btn.dataset.audio || '';
+      const activeEl = btn.closest('[data-playable]');
+      btn.classList.add('playing');
+      if (activeEl) activeEl.classList.add('active-passage');
+      speakOne(text, function(){
+        btn.classList.remove('playing');
+        if (activeEl) activeEl.classList.remove('active-passage');
+      });
+    });
+  });
+
+  if (playAllBtn){
+    playAllBtn.addEventListener('click', function(){
+      if (!synth){ alert('Your browser does not support speech synthesis.'); return; }
+      if (isPlayingAll){ synth.cancel(); clearActive(); setPlayAllState(false); return; }
+      synth.cancel(); clearActive();
+      queue = Array.from(document.querySelectorAll('[data-playable]'));
+      setPlayAllState(true);
+      function next(){
+        if (!isPlayingAll || queue.length === 0){ clearActive(); setPlayAllState(false); return; }
+        const el = queue.shift();
+        clearActive(); el.classList.add('active-passage');
+        el.scrollIntoView({behavior:'smooth', block:'center'});
+        const text = el.dataset.audio || el.querySelector('.speaker-btn').dataset.audio;
+        speakOne(text, next);
+      }
+      next();
+    });
+  }
+})();
+</script>
+</body>
+</html>

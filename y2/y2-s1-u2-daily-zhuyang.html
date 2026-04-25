@@ -1,0 +1,662 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>助养野生动物 — 快捷华文</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --ink-muted: #6b7280;
+    --ink-faint: #9ca3af;
+    --accent: #2f7d4f;
+    --accent-soft: #e6f1ea;
+    --accent-dark: #26663f;
+    --rule: #e5e7eb;
+    --bg: #fafaf8;
+    --surface: #ffffff;
+    --bubble-a: #f0f4f2;
+    --bubble-b: #eef3f7;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+  }
+  .chinese { font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Source Han Sans SC", "Noto Sans CJK SC", sans-serif; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  header.top { max-width: 1100px; margin: 0 auto; padding: 2rem 2rem 1rem; }
+  .back-link { font-size: 13px; color: var(--ink-muted); display: inline-block; margin-bottom: 0.75rem; }
+  .back-link:hover { color: var(--accent); }
+  .breadcrumb {
+    font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--ink-muted); margin-bottom: 0.5rem;
+  }
+  .breadcrumb .sep { opacity: 0.5; margin: 0 0.5em; }
+  h1.title {
+    margin: 0; font-weight: 500; font-size: 28px;
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.75rem;
+  }
+  h1.title .zh { color: var(--ink); }
+  h1.title .en { color: var(--ink-muted); font-weight: 400; font-size: 16px; }
+
+  .controls {
+    max-width: 1100px; margin: 0 auto; padding: 1rem 2rem;
+    display: flex; gap: 1.25rem; flex-wrap: wrap; align-items: center;
+    border-bottom: 1px solid var(--rule);
+  }
+  .controls label {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 14px; color: var(--ink-muted); cursor: pointer; user-select: none;
+  }
+  .controls input[type=checkbox] { accent-color: var(--accent); width: 16px; height: 16px; }
+  .controls input[type=checkbox]:checked + span { color: var(--accent); font-weight: 500; }
+  .controls .speed { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ink-muted); }
+  .controls .speed input { width: 100px; accent-color: var(--accent); }
+  .controls .speed .val { min-width: 28px; font-weight: 500; color: var(--ink); }
+  .controls .speed .speed-hint { font-size: 11px; color: var(--ink-faint); font-style: italic; }
+  .controls .spacer { flex: 1; }
+  .controls button.play-all {
+    border: 1px solid var(--accent); background: var(--accent); color: #fff;
+    padding: 7px 14px; font-size: 13px; font-weight: 500; border-radius: 6px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s;
+  }
+  .controls button.play-all:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+  .controls button.play-all.playing { background: #b34545; border-color: #b34545; }
+  .controls button.play-all.playing:hover { background: #933838; border-color: #933838; }
+  .controls button.play-all svg { width: 11px; height: 11px; }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 1.5rem 2rem 5rem; }
+
+  /* Pinyin defaults */
+  ruby { ruby-position: over; }
+  ruby rt {
+    font-size: 11px; color: var(--accent);
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-weight: 400; letter-spacing: 0.02em;
+    padding-bottom: 6px;
+    transition: opacity 0.15s;
+  }
+  body.pinyin-off ruby rt { opacity: 0; }
+
+  .speaker-btn {
+    background: transparent; border: 1px solid var(--rule);
+    width: 28px; height: 28px; padding: 0; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--ink-muted); transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .speaker-btn:hover { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+  .speaker-btn.playing { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .speaker-btn svg { width: 12px; height: 12px; }
+
+  /* PROSE format — two-column */
+  .para {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2.5rem;
+    padding: 1.5rem 0; border-bottom: 1px solid var(--rule); align-items: start;
+  }
+  .para:last-child { border-bottom: none; }
+  .para .zh-col { display: grid; grid-template-columns: 28px 1fr; gap: 12px; align-items: start; }
+  .para .speaker-btn { margin-top: 8px; }
+  .para .zh-text { font-size: 22px; line-height: 2.6; }
+  .para .en-col {
+    font-size: 15px; line-height: 1.75; color: var(--ink-muted); padding-top: 6px;
+    transition: opacity 0.15s;
+  }
+  body.english-off .en-col { opacity: 0; pointer-events: none; }
+  .para-num {
+    color: var(--ink-faint); font-size: 13px; font-weight: 500;
+    margin-bottom: 4px; display: block;
+  }
+  .para.active-passage .zh-text {
+    background: var(--accent-soft); border-radius: 6px; padding: 4px 8px; margin-left: -8px;
+  }
+
+  /* Subheadings inside prose articles */
+  .subheading {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2.5rem;
+    padding: 1rem 0 0; align-items: baseline;
+    margin: 0;
+  }
+  .subheading-zh {
+    font-size: 18px; font-weight: 500; color: var(--accent-dark);
+    padding-left: 40px; line-height: 1.3;
+    margin: 0;
+  }
+  .subheading-en {
+    font-size: 14px; color: var(--ink-muted); font-weight: 500;
+    transition: opacity 0.15s;
+    letter-spacing: 0.02em;
+    line-height: 1.3;
+    margin: 0;
+  }
+  body.english-off .subheading-en { opacity: 0; }
+  /* Tight coupling — subheading sits directly on top of its paragraph */
+  .subheading + .para { border-top: none; padding-top: 0; }
+
+  /* TABLE format — stacked character cards */
+  .profile-card {
+    background: var(--surface); border: 1px solid var(--rule); border-radius: 12px;
+    padding: 1.5rem 1.75rem; margin-bottom: 1.25rem;
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start;
+  }
+  .profile-card:last-child { margin-bottom: 0; }
+  .profile-card .zh-side { display: grid; grid-template-columns: 28px 1fr; gap: 12px; }
+  .profile-card .name {
+    font-size: 24px; font-weight: 500; margin-bottom: 0.75rem;
+    line-height: 2;
+  }
+  .profile-card .traits { font-size: 18px; line-height: 2.4; }
+  .profile-card .trait { margin-bottom: 0.75rem; }
+  .profile-card .trait:last-child { margin-bottom: 0; }
+  .profile-card .trait-label {
+    display: inline-block; background: var(--accent-soft); color: var(--accent);
+    font-size: 14px; font-weight: 500; padding: 2px 12px; border-radius: 12px;
+    margin-right: 8px; vertical-align: baseline;
+    font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
+    position: relative; top: -2px;
+  }
+  .profile-card .trait-label ruby rt { color: var(--accent-dark); }
+  .profile-card .en-side {
+    font-size: 14px; line-height: 1.75; color: var(--ink-muted); padding-top: 8px;
+    transition: opacity 0.15s;
+  }
+  body.english-off .profile-card .en-side { opacity: 0; pointer-events: none; }
+  .profile-card .en-side .en-name { font-weight: 500; color: var(--ink); font-size: 16px; margin-bottom: 0.5rem; }
+  .profile-card .en-side .en-trait { margin-bottom: 0.5rem; }
+  .profile-card .en-side .en-trait-label { font-weight: 500; color: var(--ink); }
+
+  /* DIALOGUE format — chat bubbles */
+  .stage-direction {
+    text-align: center; color: var(--ink-muted);
+    font-size: 15px; padding: 1rem 2rem;
+    font-style: italic;
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start;
+  }
+  .stage-direction .zh-dir { font-style: normal; }
+  .stage-direction .zh-dir .zh-text { line-height: 2.4; }
+  .stage-direction .en-dir { font-size: 14px; }
+
+  .bubble-row {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;
+    margin-bottom: 1rem; align-items: start;
+  }
+  .bubble-zh { display: flex; gap: 10px; align-items: flex-start; }
+  .bubble-zh.align-right { justify-content: flex-end; }
+  .bubble-zh.align-right .bubble { background: var(--accent-soft); }
+  .bubble-zh .speaker-btn { margin-top: 6px; }
+  .bubble {
+    background: var(--bubble-a);
+    border-radius: 16px; padding: 10px 16px;
+    max-width: 85%;
+    line-height: 2.4; font-size: 18px;
+  }
+  .bubble-zh.align-right .bubble { border-bottom-right-radius: 4px; }
+  .bubble-zh.align-left .bubble { border-bottom-left-radius: 4px; }
+  .bubble-zh .speaker-name {
+    display: block; font-size: 12px; font-weight: 500; color: var(--accent-dark);
+    margin-bottom: 2px; letter-spacing: 0.02em;
+  }
+  .bubble-zh.align-right .speaker-name { text-align: right; }
+  .bubble-row.active-passage .bubble { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .bubble-en {
+    font-size: 14px; line-height: 1.6; color: var(--ink-muted); padding-top: 8px;
+    transition: opacity 0.15s;
+  }
+  .bubble-en .en-speaker { font-weight: 500; color: var(--ink); }
+  body.english-off .bubble-en, body.english-off .stage-direction .en-dir { opacity: 0; pointer-events: none; }
+
+  /* ===== Vocab inline highlighting + bottom sheet ===== */
+  .vocab {
+    cursor: pointer;
+    text-underline-offset: 6px;
+    text-decoration: underline dotted var(--accent);
+    text-decoration-thickness: 1.5px;
+    transition: background 0.15s;
+    border-radius: 3px;
+    padding: 0 1px;
+  }
+  .vocab:hover, .vocab:focus { background: var(--accent-soft); outline: none; }
+
+  /* Vocab list panel at top of passage (toggleable) */
+  .vocab-panel {
+    background: var(--surface); border: 1px solid var(--rule);
+    border-radius: 12px; padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .vocab-panel-title {
+    font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--ink-faint); font-weight: 500; margin: 0 0 1rem;
+  }
+  .vocab-list {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem 2rem;
+  }
+  .vocab-row {
+    display: grid; grid-template-columns: minmax(auto, 140px) 1fr; gap: 1rem;
+    padding: 0.5rem 0; border-top: 1px solid var(--rule-soft);
+    align-items: baseline;
+  }
+  .vocab-row:first-child, .vocab-row:nth-child(2) { border-top: none; }
+  .vocab-row-zh { font-size: 18px; font-family: "PingFang SC", "Hiragino Sans GB", sans-serif; line-height: 2; }
+  .vocab-row-en { font-size: 14px; color: var(--ink-muted); line-height: 1.5; }
+
+  /* Bottom sheet for single-word lookup */
+  .vocab-backdrop {
+    position: fixed; inset: 0; background: rgba(0, 0, 0, 0.25);
+    z-index: 100; opacity: 0; transition: opacity 0.2s;
+    pointer-events: none;
+  }
+  .vocab-backdrop.visible { opacity: 1; pointer-events: auto; }
+  .vocab-sheet {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--rule);
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.08);
+    padding: 1.5rem 2rem 2rem;
+    z-index: 101;
+    transform: translateY(100%); transition: transform 0.25s ease-out;
+    max-width: 600px; margin: 0 auto;
+    border-top-left-radius: 16px; border-top-right-radius: 16px;
+  }
+  .vocab-sheet.visible { transform: translateY(0); }
+  .vocab-sheet-close {
+    position: absolute; top: 10px; right: 14px;
+    background: transparent; border: none; font-size: 28px; line-height: 1;
+    color: var(--ink-faint); cursor: pointer; padding: 4px 10px;
+  }
+  .vocab-sheet-close:hover { color: var(--ink); }
+  .vocab-sheet-content .vs-zh {
+    font-size: 32px; font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
+    line-height: 2.2; margin: 0;
+  }
+  .vocab-sheet-content .vs-zh ruby rt { font-size: 14px; }
+  .vocab-sheet-content .vs-en {
+    font-size: 16px; color: var(--ink); line-height: 1.6;
+    margin: 0.5rem 0 0;
+  }
+
+  @media (max-width: 720px) {
+    .para { grid-template-columns: 1fr; gap: 0.75rem; }
+    .para .en-col { padding-top: 0; padding-left: 40px; font-style: italic; }
+    .para .zh-text { font-size: 20px; }
+    .profile-card { grid-template-columns: 1fr; gap: 1rem; padding: 1rem 1.25rem; }
+    .profile-card .en-side { padding-top: 0; padding-left: 40px; font-style: italic; border-top: 1px solid var(--rule); padding-top: 1rem; }
+    .profile-card .name { font-size: 22px; }
+    .profile-card .traits { font-size: 17px; line-height: 2.2; }
+    .bubble-row, .stage-direction { grid-template-columns: 1fr; gap: 0.5rem; }
+    .bubble-en { padding-left: 16px; padding-top: 0; font-style: italic; }
+    .bubble { font-size: 17px; }
+    header.top, .controls, main { padding-left: 1.25rem; padding-right: 1.25rem; }
+    .controls { gap: 0.75rem; }
+    .vocab-list { grid-template-columns: 1fr; gap: 0; }
+    .vocab-row { grid-template-columns: minmax(auto, 120px) 1fr; padding: 0.5rem 0; border-top: 1px solid var(--rule-soft); }
+    .vocab-row:nth-child(2) { border-top: 1px solid var(--rule-soft); }
+    .vocab-row:first-child { border-top: none; }
+    .vocab-sheet { padding: 1.25rem 1.5rem 1.75rem; }
+    .vocab-sheet-content .vs-zh { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+  <header class="top">
+    <a class="back-link" href="../index.html">← 返回 Back to all levels</a>
+    <div class="breadcrumb">Level 2 · Unit 2 · 动物与我 Animals and Us <span class="sep">·</span> 生活空间 Daily Life</div>
+    <h1 class="title">
+      <span class="zh chinese">《助养野生动物》</span>
+      <span class="en">Adopt a Wild Animal</span>
+    </h1>
+  </header>
+  <div class="controls">
+    <label><input type="checkbox" id="toggle-pinyin" checked><span>显示汉语拼音 Show pinyin</span></label>
+    <label><input type="checkbox" id="toggle-english" checked><span>显示英文 Show English</span></label>
+    <label><input type="checkbox" id="toggle-vocab-panel"><span>显示生词 Show vocab list</span></label>
+    <div class="speed">
+      <span>语速 Speed</span>
+      <input type="range" min="0.5" max="1.2" step="0.05" value="0.9" id="speed" title="Adjust before playing">
+      <span class="val" id="speed-val">0.9×</span>
+      <span class="speed-hint">(set before play)</span>
+    </div>
+    <div class="spacer"></div>
+    <button class="play-all" id="play-all-btn" type="button">
+      <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>
+      <span>播放全文 Play all</span>
+    </button>
+  </div>
+  <main>
+  <section class="vocab-panel" id="vocab-panel" hidden>
+    <h2 class="vocab-panel-title">生词 Vocabulary · 15 words</h2>
+    <div class="vocab-list">
+      <div class="vocab-row" data-vocab-id="0">
+        <div class="vocab-row-zh chinese"><ruby>捐<rt>juān</rt></ruby><ruby>款<rt>kuǎn</rt></ruby></div>
+        <div class="vocab-row-en">to donate money; donation</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="1">
+        <div class="vocab-row-zh chinese"><ruby>拯<rt>zhěng</rt></ruby><ruby>救<rt>jiù</rt></ruby></div>
+        <div class="vocab-row-en">to rescue; to save (from harm)</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="2">
+        <div class="vocab-row-zh chinese"><ruby>医<rt>yī</rt></ruby><ruby>疗<rt>liáo</rt></ruby></div>
+        <div class="vocab-row-en">medical; medical care</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="3">
+        <div class="vocab-row-zh chinese"><ruby>研<rt>yán</rt></ruby><ruby>究<rt>jiū</rt></ruby></div>
+        <div class="vocab-row-en">to research; research study</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="4">
+        <div class="vocab-row-zh chinese"><ruby>优<rt>yōu</rt></ruby><ruby>惠<rt>huì</rt></ruby></div>
+        <div class="vocab-row-en">discount; favourable (offer)</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="5">
+        <div class="vocab-row-zh chinese"><ruby>券<rt>quàn</rt></ruby></div>
+        <div class="vocab-row-en">voucher; coupon</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="6">
+        <div class="vocab-row-zh chinese"><ruby>四<rt>sì</rt></ruby><ruby>肢<rt>zhī</rt></ruby></div>
+        <div class="vocab-row-en">the four limbs (arms and legs)</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="7">
+        <div class="vocab-row-zh chinese"><ruby>敏<rt>mǐn</rt></ruby><ruby>捷<rt>jié</rt></ruby></div>
+        <div class="vocab-row-en">nimble; agile</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="8">
+        <div class="vocab-row-zh chinese"><ruby>穿<rt>chuān</rt></ruby><ruby>梭<rt>suō</rt></ruby></div>
+        <div class="vocab-row-en">to dart through; to shuttle back and forth</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="9">
+        <div class="vocab-row-zh chinese"><ruby>友<rt>yǒu</rt></ruby><ruby>善<rt>shàn</rt></ruby></div>
+        <div class="vocab-row-en">friendly; amicable</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="10">
+        <div class="vocab-row-zh chinese"><ruby>辨<rt>biàn</rt></ruby><ruby>识<rt>shí</rt></ruby></div>
+        <div class="vocab-row-en">to identify; to tell apart</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="11">
+        <div class="vocab-row-zh chinese"><ruby>害<rt>hài</rt></ruby><ruby>羞<rt>xiū</rt></ruby></div>
+        <div class="vocab-row-en">shy; bashful</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="12">
+        <div class="vocab-row-zh chinese"><ruby>馋<rt>chán</rt></ruby></div>
+        <div class="vocab-row-en">greedy for food; always hungry for treats</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="13">
+        <div class="vocab-row-zh chinese"><ruby>调<rt>tiáo</rt></ruby><ruby>皮<rt>pí</rt></ruby></div>
+        <div class="vocab-row-en">naughty; mischievous (of a child or animal)</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="14">
+        <div class="vocab-row-zh chinese"><ruby>摔<rt>shuāi</rt></ruby><ruby>跤<rt>jiāo</rt></ruby></div>
+        <div class="vocab-row-en">to wrestle; to tussle</div>
+      </div></div>
+  </section>
+<article class="profile-card" data-playable data-audio="助养计划。活动简介：你想为保护野生动物尽一份力吗？你可以参加新加坡动物园推出的野生动物助养计划，通过捐款，献出你的爱心。。捐款用途：拯救野生动物。
+购买医疗设备，为动物提供更好的护理。
+购买食物，为动物提供高品质的饮食。
+作为活动经费，为动物设计活动，丰富它们的生活。
+支持实地调查研究，开展野生动物保育计划。。助养期限及优惠：为期一年。助养者可获得证书、动物园门票、购物折扣券等。。主题：关爱动物，从你我做起。请选择你想助养的动物。">
+  <div class="zh-side">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="助养计划。活动简介：你想为保护野生动物尽一份力吗？你可以参加新加坡动物园推出的野生动物助养计划，通过捐款，献出你的爱心。。捐款用途：拯救野生动物。
+购买医疗设备，为动物提供更好的护理。
+购买食物，为动物提供高品质的饮食。
+作为活动经费，为动物设计活动，丰富它们的生活。
+支持实地调查研究，开展野生动物保育计划。。助养期限及优惠：为期一年。助养者可获得证书、动物园门票、购物折扣券等。。主题：关爱动物，从你我做起。请选择你想助养的动物。"></button>
+    <div>
+      <div class="name chinese"><ruby>助<rt>zhù</rt></ruby><ruby>养<rt>yǎng</rt></ruby><ruby>计<rt>jì</rt></ruby><ruby>划<rt>huà</rt></ruby></div>
+      <div class="traits chinese"><div class="trait"><span class="trait-label"><ruby>活<rt>huó</rt></ruby><ruby>动<rt>dòng</rt></ruby><ruby>简<rt>jiǎn</rt></ruby><ruby>介<rt>jiè</rt></ruby></span><ruby>你<rt>nǐ</rt></ruby><ruby>想<rt>xiǎng</rt></ruby><ruby>为<rt>wèi</rt></ruby><ruby>保<rt>bǎo</rt></ruby><ruby>护<rt>hù</rt></ruby><ruby>野<rt>yě</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>动<rt>dòng</rt></ruby><ruby>物<rt>wù</rt></ruby><ruby>尽<rt>jǐn</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>份<rt>fèn</rt></ruby><ruby>力<rt>lì</rt></ruby><ruby>吗<rt>ma</rt></ruby>？<ruby>你<rt>nǐ</rt></ruby><ruby>可<rt>kě</rt></ruby><ruby>以<rt>yǐ</rt></ruby><ruby>参<rt>cān</rt></ruby><ruby>加<rt>jiā</rt></ruby><ruby>新<rt>xīn</rt></ruby><ruby>加<rt>jiā</rt></ruby><ruby>坡<rt>pō</rt></ruby><ruby>动<rt>dòng</rt></ruby><ruby>物<rt>wù</rt></ruby><ruby>园<rt>yuán</rt></ruby><ruby>推<rt>tuī</rt></ruby><ruby>出<rt>chū</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>野<rt>yě</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>动<rt>dòng</rt></ruby><ruby>物<rt>wù</rt></ruby><ruby>助<rt>zhù</rt></ruby><ruby>养<rt>yǎng</rt></ruby><ruby>计<rt>jì</rt></ruby><ruby>划<rt>huà</rt></ruby>，<ruby>通<rt>tōng</rt></ruby><ruby>过<rt>guò</rt></ruby><span class="vocab" data-vocab-id="0"><ruby>捐<rt>juān</rt></ruby><ruby>款<rt>kuǎn</rt></ruby></span>，<ruby>献<rt>xiàn</rt></ruby><ruby>出<rt>chū</rt></ruby><ruby>你<rt>nǐ</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>爱<rt>ài</rt></ruby><ruby>心<rt>xīn</rt></ruby>。</div><div class="trait"><span class="trait-label"><span class="vocab" data-vocab-id="0"><ruby>捐<rt>juān</rt></ruby><ruby>款<rt>kuǎn</rt></ruby></span><ruby>用<rt>yòng</rt></ruby><ruby>途<rt>tú</rt></ruby></span><span class="vocab" data-vocab-id="1"><ruby>拯<rt>zhěng</rt></ruby><ruby>救<rt>jiù</rt></ruby></span><ruby>野<rt>yě</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>动<rt>dòng</rt></ruby><ruby>物<rt>wù</rt></ruby>。
+<ruby>购<rt>gòu</rt></ruby><ruby>买<rt>mǎi</rt></ruby><span class="vocab" data-vocab-id="2"><ruby>医<rt>yī</rt></ruby><ruby>疗<rt>liáo</rt></ruby></span><ruby>设<rt>shè</rt></ruby><ruby>备<rt>bèi</rt></ruby>，<ruby>为<rt>wèi</rt></ruby><ruby>动<rt>dòng</rt></ruby><ruby>物<rt>wù</rt></ruby><ruby>提<rt>tí</rt></ruby><ruby>供<rt>gōng</rt></ruby><ruby>更<rt>gèng</rt></ruby><ruby>好<rt>hǎo</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>护<rt>hù</rt></ruby><ruby>理<rt>lǐ</rt></ruby>。
+<ruby>购<rt>gòu</rt></ruby><ruby>买<rt>mǎi</rt></ruby><ruby>食<rt>shí</rt></ruby><ruby>物<rt>wù</rt></ruby>，<ruby>为<rt>wèi</rt></ruby><ruby>动<rt>dòng</rt></ruby><ruby>物<rt>wù</rt></ruby><ruby>提<rt>tí</rt></ruby><ruby>供<rt>gōng</rt></ruby><ruby>高<rt>gāo</rt></ruby><ruby>品<rt>pǐn</rt></ruby><ruby>质<rt>zhì</rt></ruby><ruby>的<rt>dì</rt></ruby><ruby>饮<rt>yǐn</rt></ruby><ruby>食<rt>shí</rt></ruby>。
+<ruby>作<rt>zuò</rt></ruby><ruby>为<rt>wéi</rt></ruby><ruby>活<rt>huó</rt></ruby><ruby>动<rt>dòng</rt></ruby><ruby>经<rt>jīng</rt></ruby><ruby>费<rt>fèi</rt></ruby>，<ruby>为<rt>wèi</rt></ruby><ruby>动<rt>dòng</rt></ruby><ruby>物<rt>wù</rt></ruby><ruby>设<rt>shè</rt></ruby><ruby>计<rt>jì</rt></ruby><ruby>活<rt>huó</rt></ruby><ruby>动<rt>dòng</rt></ruby>，<ruby>丰<rt>fēng</rt></ruby><ruby>富<rt>fù</rt></ruby><ruby>它<rt>tā</rt></ruby><ruby>们<rt>men</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>活<rt>huó</rt></ruby>。
+<ruby>支<rt>zhī</rt></ruby><ruby>持<rt>chí</rt></ruby><ruby>实<rt>shí</rt></ruby><ruby>地<rt>dì</rt></ruby><ruby>调<rt>diào</rt></ruby><ruby>查<rt>chá</rt></ruby><span class="vocab" data-vocab-id="3"><ruby>研<rt>yán</rt></ruby><ruby>究<rt>jiū</rt></ruby></span>，<ruby>开<rt>kāi</rt></ruby><ruby>展<rt>zhǎn</rt></ruby><ruby>野<rt>yě</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>动<rt>dòng</rt></ruby><ruby>物<rt>wù</rt></ruby><ruby>保<rt>bǎo</rt></ruby><ruby>育<rt>yù</rt></ruby><ruby>计<rt>jì</rt></ruby><ruby>划<rt>huà</rt></ruby>。</div><div class="trait"><span class="trait-label"><ruby>助<rt>zhù</rt></ruby><ruby>养<rt>yǎng</rt></ruby><ruby>期<rt>qī</rt></ruby><ruby>限<rt>xiàn</rt></ruby><ruby>及<rt>jí</rt></ruby><span class="vocab" data-vocab-id="4"><ruby>优<rt>yōu</rt></ruby><ruby>惠<rt>huì</rt></ruby></span></span><ruby>为<rt>wéi</rt></ruby><ruby>期<rt>qī</rt></ruby><ruby>一<rt>yì</rt></ruby><ruby>年<rt>nián</rt></ruby>。<ruby>助<rt>zhù</rt></ruby><ruby>养<rt>yǎng</rt></ruby><ruby>者<rt>zhě</rt></ruby><ruby>可<rt>kě</rt></ruby><ruby>获<rt>huò</rt></ruby><ruby>得<rt>dé</rt></ruby><ruby>证<rt>zhèng</rt></ruby><ruby>书<rt>shū</rt></ruby>、<ruby>动<rt>dòng</rt></ruby><ruby>物<rt>wù</rt></ruby><ruby>园<rt>yuán</rt></ruby><ruby>门<rt>mén</rt></ruby><ruby>票<rt>piào</rt></ruby>、<ruby>购<rt>gòu</rt></ruby><ruby>物<rt>wù</rt></ruby><ruby>折<rt>zhé</rt></ruby><ruby>扣<rt>kòu</rt></ruby><span class="vocab" data-vocab-id="5"><ruby>券<rt>quàn</rt></ruby></span><ruby>等<rt>děng</rt></ruby>。</div><div class="trait"><span class="trait-label"><ruby>主<rt>zhǔ</rt></ruby><ruby>题<rt>tí</rt></ruby></span><ruby>关<rt>guān</rt></ruby><ruby>爱<rt>ài</rt></ruby><ruby>动<rt>dòng</rt></ruby><ruby>物<rt>wù</rt></ruby>，<ruby>从<rt>cóng</rt></ruby><ruby>你<rt>nǐ</rt></ruby><ruby>我<rt>wǒ</rt></ruby><ruby>做<rt>zuò</rt></ruby><ruby>起<rt>qǐ</rt></ruby>。<ruby>请<rt>qǐng</rt></ruby><ruby>选<rt>xuǎn</rt></ruby><ruby>择<rt>zé</rt></ruby><ruby>你<rt>nǐ</rt></ruby><ruby>想<rt>xiǎng</rt></ruby><ruby>助<rt>zhù</rt></ruby><ruby>养<rt>yǎng</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>动<rt>dòng</rt></ruby><ruby>物<rt>wù</rt></ruby>。</div></div>
+    </div>
+  </div>
+  <div class="en-side">
+    <div class="en-name">The Adoption Programme</div>
+    <div class="en-trait"><span class="en-trait-label">About the Programme.</span> Would you like to do your part to protect wild animals? Join the Wildlife Adoption Programme run by the Singapore Zoo and show your care by donating.</div><div class="en-trait"><span class="en-trait-label">How Your Donation Is Used.</span> To rescue wildlife.
+To purchase medical equipment so animals get better care.
+To buy food that gives animals high-quality nutrition.
+As activity funding, to design enrichment that makes their lives more stimulating.
+To support field research and run wildlife conservation programmes.</div><div class="en-trait"><span class="en-trait-label">Duration &amp; Perks.</span> One-year adoption. Adopters receive a certificate, zoo admission tickets, shopping discount vouchers, and more.</div><div class="en-trait"><span class="en-trait-label">Theme.</span> Caring for animals starts with you and me. Pick the animal you&#x27;d like to adopt.</div>
+  </div>
+</article>
+<article class="profile-card" data-playable data-audio="红毛猩猩 阿明。简介：阿明有着长而有力的四肢，它动作敏捷，在树林中穿梭自如。阿明亲切友善，还担任了新加坡动物园的亲善大使。">
+  <div class="zh-side">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="红毛猩猩 阿明。简介：阿明有着长而有力的四肢，它动作敏捷，在树林中穿梭自如。阿明亲切友善，还担任了新加坡动物园的亲善大使。"></button>
+    <div>
+      <div class="name chinese"><ruby>红<rt>hóng</rt></ruby><ruby>毛<rt>máo</rt></ruby><ruby>猩<rt>xīng</rt></ruby><ruby>猩<rt>xīng</rt></ruby> <ruby>阿<rt>ā</rt></ruby><ruby>明<rt>míng</rt></ruby></div>
+      <div class="traits chinese"><div class="trait"><span class="trait-label"><ruby>简<rt>jiǎn</rt></ruby><ruby>介<rt>jiè</rt></ruby></span><ruby>阿<rt>ā</rt></ruby><ruby>明<rt>míng</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>着<rt>zhe</rt></ruby><ruby>长<rt>zhǎng</rt></ruby><ruby>而<rt>ér</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>力<rt>lì</rt></ruby><ruby>的<rt>de</rt></ruby><span class="vocab" data-vocab-id="6"><ruby>四<rt>sì</rt></ruby><ruby>肢<rt>zhī</rt></ruby></span>，<ruby>它<rt>tā</rt></ruby><ruby>动<rt>dòng</rt></ruby><ruby>作<rt>zuò</rt></ruby><span class="vocab" data-vocab-id="7"><ruby>敏<rt>mǐn</rt></ruby><ruby>捷<rt>jié</rt></ruby></span>，<ruby>在<rt>zài</rt></ruby><ruby>树<rt>shù</rt></ruby><ruby>林<rt>lín</rt></ruby><ruby>中<rt>zhōng</rt></ruby><span class="vocab" data-vocab-id="8"><ruby>穿<rt>chuān</rt></ruby><ruby>梭<rt>suō</rt></ruby></span><ruby>自<rt>zì</rt></ruby><ruby>如<rt>rú</rt></ruby>。<ruby>阿<rt>ā</rt></ruby><ruby>明<rt>míng</rt></ruby><ruby>亲<rt>qīn</rt></ruby><ruby>切<rt>qiè</rt></ruby><span class="vocab" data-vocab-id="9"><ruby>友<rt>yǒu</rt></ruby><ruby>善<rt>shàn</rt></ruby></span>，<ruby>还<rt>hái</rt></ruby><ruby>担<rt>dān</rt></ruby><ruby>任<rt>rèn</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>新<rt>xīn</rt></ruby><ruby>加<rt>jiā</rt></ruby><ruby>坡<rt>pō</rt></ruby><ruby>动<rt>dòng</rt></ruby><ruby>物<rt>wù</rt></ruby><ruby>园<rt>yuán</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>亲<rt>qīn</rt></ruby><ruby>善<rt>shàn</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>使<rt>shǐ</rt></ruby>。</div></div>
+    </div>
+  </div>
+  <div class="en-side">
+    <div class="en-name">Orangutan — Ah Ming</div>
+    <div class="en-trait"><span class="en-trait-label">Profile.</span> Ah Ming has long, powerful limbs. He&#x27;s quick and nimble, darting through the trees with ease. Friendly and warm-natured, Ah Ming even serves as a Goodwill Ambassador for the Singapore Zoo.</div>
+  </div>
+</article>
+<article class="profile-card" data-playable data-audio="非洲企鹅 班杰 &amp; 贝拉。简介：班杰和贝拉喜欢大摇大摆地四处探索新事物。非洲企鹅身上的羽毛斑纹都是独一无二的。我们可以通过它们胸前的斑纹来辨识班杰和贝拉。">
+  <div class="zh-side">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="非洲企鹅 班杰 &amp; 贝拉。简介：班杰和贝拉喜欢大摇大摆地四处探索新事物。非洲企鹅身上的羽毛斑纹都是独一无二的。我们可以通过它们胸前的斑纹来辨识班杰和贝拉。"></button>
+    <div>
+      <div class="name chinese"><ruby>非<rt>fēi</rt></ruby><ruby>洲<rt>zhōu</rt></ruby><ruby>企<rt>qǐ</rt></ruby><ruby>鹅<rt>é</rt></ruby> <ruby>班<rt>bān</rt></ruby><ruby>杰<rt>jié</rt></ruby> &amp; <ruby>贝<rt>bèi</rt></ruby><ruby>拉<rt>lā</rt></ruby></div>
+      <div class="traits chinese"><div class="trait"><span class="trait-label"><ruby>简<rt>jiǎn</rt></ruby><ruby>介<rt>jiè</rt></ruby></span><ruby>班<rt>bān</rt></ruby><ruby>杰<rt>jié</rt></ruby><ruby>和<rt>hé</rt></ruby><ruby>贝<rt>bèi</rt></ruby><ruby>拉<rt>lā</rt></ruby><ruby>喜<rt>xǐ</rt></ruby><ruby>欢<rt>huān</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>摇<rt>yáo</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>摆<rt>bǎi</rt></ruby><ruby>地<rt>dì</rt></ruby><ruby>四<rt>sì</rt></ruby><ruby>处<rt>chù</rt></ruby><ruby>探<rt>tàn</rt></ruby><ruby>索<rt>suǒ</rt></ruby><ruby>新<rt>xīn</rt></ruby><ruby>事<rt>shì</rt></ruby><ruby>物<rt>wù</rt></ruby>。<ruby>非<rt>fēi</rt></ruby><ruby>洲<rt>zhōu</rt></ruby><ruby>企<rt>qǐ</rt></ruby><ruby>鹅<rt>é</rt></ruby><ruby>身<rt>shēn</rt></ruby><ruby>上<rt>shàng</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>羽<rt>yǔ</rt></ruby><ruby>毛<rt>máo</rt></ruby><ruby>斑<rt>bān</rt></ruby><ruby>纹<rt>wén</rt></ruby><ruby>都<rt>dōu</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>独<rt>dú</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>无<rt>wú</rt></ruby><ruby>二<rt>èr</rt></ruby><ruby>的<rt>de</rt></ruby>。<ruby>我<rt>wǒ</rt></ruby><ruby>们<rt>men</rt></ruby><ruby>可<rt>kě</rt></ruby><ruby>以<rt>yǐ</rt></ruby><ruby>通<rt>tōng</rt></ruby><ruby>过<rt>guò</rt></ruby><ruby>它<rt>tā</rt></ruby><ruby>们<rt>men</rt></ruby><ruby>胸<rt>xiōng</rt></ruby><ruby>前<rt>qián</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>斑<rt>bān</rt></ruby><ruby>纹<rt>wén</rt></ruby><ruby>来<rt>lái</rt></ruby><span class="vocab" data-vocab-id="10"><ruby>辨<rt>biàn</rt></ruby><ruby>识<rt>shí</rt></ruby></span><ruby>班<rt>bān</rt></ruby><ruby>杰<rt>jié</rt></ruby><ruby>和<rt>hé</rt></ruby><ruby>贝<rt>bèi</rt></ruby><ruby>拉<rt>lā</rt></ruby>。</div></div>
+    </div>
+  </div>
+  <div class="en-side">
+    <div class="en-name">African Penguins — Banjie &amp; Beila</div>
+    <div class="en-trait"><span class="en-trait-label">Profile.</span> Banjie and Beila love to waddle around exploring new things. Every African penguin&#x27;s plumage markings are one-of-a-kind — we can tell Banjie and Beila apart by the patterns on their chests.</div>
+  </div>
+</article>
+<article class="profile-card" data-playable data-audio="亚达伯拉象龟 可可。简介：可可有点儿害羞，喜欢躲在阴凉处休息。它嘴很馋，虽然重120公斤，但一见到食物，动作还是挺快的。">
+  <div class="zh-side">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="亚达伯拉象龟 可可。简介：可可有点儿害羞，喜欢躲在阴凉处休息。它嘴很馋，虽然重120公斤，但一见到食物，动作还是挺快的。"></button>
+    <div>
+      <div class="name chinese"><ruby>亚<rt>yà</rt></ruby><ruby>达<rt>dá</rt></ruby><ruby>伯<rt>bó</rt></ruby><ruby>拉<rt>lā</rt></ruby><ruby>象<rt>xiàng</rt></ruby><ruby>龟<rt>guī</rt></ruby> <ruby>可<rt>kě</rt></ruby><ruby>可<rt>kě</rt></ruby></div>
+      <div class="traits chinese"><div class="trait"><span class="trait-label"><ruby>简<rt>jiǎn</rt></ruby><ruby>介<rt>jiè</rt></ruby></span><ruby>可<rt>kě</rt></ruby><ruby>可<rt>kě</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>点<rt>diǎn</rt></ruby><ruby>儿<rt>ér</rt></ruby><span class="vocab" data-vocab-id="11"><ruby>害<rt>hài</rt></ruby><ruby>羞<rt>xiū</rt></ruby></span>，<ruby>喜<rt>xǐ</rt></ruby><ruby>欢<rt>huān</rt></ruby><ruby>躲<rt>duǒ</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>阴<rt>yīn</rt></ruby><ruby>凉<rt>liáng</rt></ruby><ruby>处<rt>chù</rt></ruby><ruby>休<rt>xiū</rt></ruby><ruby>息<rt>xī</rt></ruby>。<ruby>它<rt>tā</rt></ruby><ruby>嘴<rt>zuǐ</rt></ruby><ruby>很<rt>hěn</rt></ruby><span class="vocab" data-vocab-id="12"><ruby>馋<rt>chán</rt></ruby></span>，<ruby>虽<rt>suī</rt></ruby><ruby>然<rt>rán</rt></ruby><ruby>重<rt>zhòng</rt></ruby>120<ruby>公<rt>gōng</rt></ruby><ruby>斤<rt>jīn</rt></ruby>，<ruby>但<rt>dàn</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>见<rt>jiàn</rt></ruby><ruby>到<rt>dào</rt></ruby><ruby>食<rt>shí</rt></ruby><ruby>物<rt>wù</rt></ruby>，<ruby>动<rt>dòng</rt></ruby><ruby>作<rt>zuò</rt></ruby><ruby>还<rt>hái</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>挺<rt>tǐng</rt></ruby><ruby>快<rt>kuài</rt></ruby><ruby>的<rt>de</rt></ruby>。</div></div>
+    </div>
+  </div>
+  <div class="en-side">
+    <div class="en-name">Aldabra Giant Tortoise — Keke</div>
+    <div class="en-trait"><span class="en-trait-label">Profile.</span> Keke is a little shy, preferring to rest in the shade. She&#x27;s a big eater — though she weighs 120 kg, the moment food appears, she moves surprisingly fast.</div>
+  </div>
+</article>
+<article class="profile-card" data-playable data-audio="马来熊 小哈。简介：小哈非常调皮，经常和同伴玩摔跤。它最爱吃甜的东西，只要给它一串葡萄，它就会乐意和工作人员配合。它个头不大，却非常凶猛，千万别小看它。">
+  <div class="zh-side">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="马来熊 小哈。简介：小哈非常调皮，经常和同伴玩摔跤。它最爱吃甜的东西，只要给它一串葡萄，它就会乐意和工作人员配合。它个头不大，却非常凶猛，千万别小看它。"></button>
+    <div>
+      <div class="name chinese"><ruby>马<rt>mǎ</rt></ruby><ruby>来<rt>lái</rt></ruby><ruby>熊<rt>xióng</rt></ruby> <ruby>小<rt>xiǎo</rt></ruby><ruby>哈<rt>hā</rt></ruby></div>
+      <div class="traits chinese"><div class="trait"><span class="trait-label"><ruby>简<rt>jiǎn</rt></ruby><ruby>介<rt>jiè</rt></ruby></span><ruby>小<rt>xiǎo</rt></ruby><ruby>哈<rt>hā</rt></ruby><ruby>非<rt>fēi</rt></ruby><ruby>常<rt>cháng</rt></ruby><span class="vocab" data-vocab-id="13"><ruby>调<rt>tiáo</rt></ruby><ruby>皮<rt>pí</rt></ruby></span>，<ruby>经<rt>jīng</rt></ruby><ruby>常<rt>cháng</rt></ruby><ruby>和<rt>hé</rt></ruby><ruby>同<rt>tóng</rt></ruby><ruby>伴<rt>bàn</rt></ruby><ruby>玩<rt>wán</rt></ruby><span class="vocab" data-vocab-id="14"><ruby>摔<rt>shuāi</rt></ruby><ruby>跤<rt>jiāo</rt></ruby></span>。<ruby>它<rt>tā</rt></ruby><ruby>最<rt>zuì</rt></ruby><ruby>爱<rt>ài</rt></ruby><ruby>吃<rt>chī</rt></ruby><ruby>甜<rt>tián</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>东<rt>dōng</rt></ruby><ruby>西<rt>xī</rt></ruby>，<ruby>只<rt>zhǐ</rt></ruby><ruby>要<rt>yào</rt></ruby><ruby>给<rt>gěi</rt></ruby><ruby>它<rt>tā</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>串<rt>chuàn</rt></ruby><ruby>葡<rt>pú</rt></ruby><ruby>萄<rt>táo</rt></ruby>，<ruby>它<rt>tā</rt></ruby><ruby>就<rt>jiù</rt></ruby><ruby>会<rt>huì</rt></ruby><ruby>乐<rt>lè</rt></ruby><ruby>意<rt>yì</rt></ruby><ruby>和<rt>hé</rt></ruby><ruby>工<rt>gōng</rt></ruby><ruby>作<rt>zuò</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>员<rt>yuán</rt></ruby><ruby>配<rt>pèi</rt></ruby><ruby>合<rt>hé</rt></ruby>。<ruby>它<rt>tā</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>头<rt>tóu</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>大<rt>dà</rt></ruby>，<ruby>却<rt>què</rt></ruby><ruby>非<rt>fēi</rt></ruby><ruby>常<rt>cháng</rt></ruby><ruby>凶<rt>xiōng</rt></ruby><ruby>猛<rt>měng</rt></ruby>，<ruby>千<rt>qiān</rt></ruby><ruby>万<rt>wàn</rt></ruby><ruby>别<rt>bié</rt></ruby><ruby>小<rt>xiǎo</rt></ruby><ruby>看<rt>kàn</rt></ruby><ruby>它<rt>tā</rt></ruby>。</div></div>
+    </div>
+  </div>
+  <div class="en-side">
+    <div class="en-name">Sun Bear — Xiao Ha</div>
+    <div class="en-trait"><span class="en-trait-label">Profile.</span> Xiao Ha is very mischievous — he&#x27;s forever play-wrestling with his mates. His favourite thing is sweet food: offer him a bunch of grapes and he&#x27;ll happily cooperate with the keepers. He may be small, but he&#x27;s fierce — don&#x27;t underestimate him.</div>
+  </div>
+</article></main>
+  <div id="vocab-sheet" class="vocab-sheet" hidden>
+    <button class="vocab-sheet-close" id="vocab-sheet-close" aria-label="Close">×</button>
+    <div class="vocab-sheet-content"></div>
+  </div>
+  <div id="vocab-backdrop" class="vocab-backdrop" hidden></div>
+<script>window.__VOCAB__ = [{"zh": "捐款", "pinyin": "juān kuǎn", "en": "to donate money; donation"}, {"zh": "拯救", "pinyin": "zhěng jiù", "en": "to rescue; to save (from harm)"}, {"zh": "医疗", "pinyin": "yī liáo", "en": "medical; medical care"}, {"zh": "研究", "pinyin": "yán jiū", "en": "to research; research study"}, {"zh": "优惠", "pinyin": "yōu huì", "en": "discount; favourable (offer)"}, {"zh": "券", "pinyin": "quàn", "en": "voucher; coupon"}, {"zh": "四肢", "pinyin": "sì zhī", "en": "the four limbs (arms and legs)"}, {"zh": "敏捷", "pinyin": "mǐn jié", "en": "nimble; agile"}, {"zh": "穿梭", "pinyin": "chuān suō", "en": "to dart through; to shuttle back and forth"}, {"zh": "友善", "pinyin": "yǒu shàn", "en": "friendly; amicable"}, {"zh": "辨识", "pinyin": "biàn shí", "en": "to identify; to tell apart"}, {"zh": "害羞", "pinyin": "hài xiū", "en": "shy; bashful"}, {"zh": "馋", "pinyin": "chán", "en": "greedy for food; always hungry for treats"}, {"zh": "调皮", "pinyin": "tiáo pí", "en": "naughty; mischievous (of a child or animal)"}, {"zh": "摔跤", "pinyin": "shuāi jiāo", "en": "to wrestle; to tussle"}];</script>
+<script>
+(function () {
+  const SPEAKER_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>';
+  const STOP_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="5" y="5" width="14" height="14" rx="1"></rect></svg>';
+  const PLAY_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>';
+
+  // Inject speaker icons into all .speaker-btn elements
+  document.querySelectorAll('.speaker-btn').forEach(function(b){ b.innerHTML = SPEAKER_SVG; });
+
+  const togglePy = document.getElementById('toggle-pinyin');
+  const toggleEn = document.getElementById('toggle-english');
+  togglePy && togglePy.addEventListener('change', function(){ document.body.classList.toggle('pinyin-off', !togglePy.checked); });
+  toggleEn && toggleEn.addEventListener('change', function(){ document.body.classList.toggle('english-off', !toggleEn.checked); });
+
+  // ===== Vocab panel toggle =====
+  const vocabPanelToggle = document.getElementById('toggle-vocab-panel');
+  const vocabPanel = document.getElementById('vocab-panel');
+  if (vocabPanelToggle && vocabPanel) {
+    vocabPanelToggle.addEventListener('change', function(){
+      vocabPanel.hidden = !vocabPanelToggle.checked;
+    });
+  }
+
+  // ===== Vocab bottom sheet =====
+  const vocabSheet = document.getElementById('vocab-sheet');
+  const vocabBackdrop = document.getElementById('vocab-backdrop');
+  const vocabSheetClose = document.getElementById('vocab-sheet-close');
+  const vocabData = window.__VOCAB__ || [];
+
+  function buildRuby(zh, pinyinStr) {
+    // Split pinyin by space, line up with chars of zh
+    const chars = Array.from(zh);
+    const syllables = (pinyinStr || '').split(/\s+/).filter(Boolean);
+    let out = '';
+    let si = 0;
+    for (const ch of chars) {
+      // Only attach pinyin to CJK characters
+      if (/[\u4e00-\u9fff]/.test(ch)) {
+        const p = syllables[si++] || '';
+        out += '<ruby>' + ch + '<rt>' + p + '</rt></ruby>';
+      } else {
+        out += ch;
+      }
+    }
+    return out;
+  }
+
+  function openVocabSheet(vocabId) {
+    const v = vocabData[vocabId];
+    if (!v || !vocabSheet || !vocabBackdrop) return;
+    const content = vocabSheet.querySelector('.vocab-sheet-content');
+    content.innerHTML = '<p class="vs-zh chinese">' + buildRuby(v.zh, v.pinyin || '') + '</p>' +
+                        '<p class="vs-en">' + v.en + '</p>';
+    vocabSheet.hidden = false;
+    vocabBackdrop.hidden = false;
+    // allow transition
+    requestAnimationFrame(function(){
+      vocabSheet.classList.add('visible');
+      vocabBackdrop.classList.add('visible');
+    });
+  }
+
+  function closeVocabSheet() {
+    if (!vocabSheet || !vocabBackdrop) return;
+    vocabSheet.classList.remove('visible');
+    vocabBackdrop.classList.remove('visible');
+    setTimeout(function(){
+      vocabSheet.hidden = true;
+      vocabBackdrop.hidden = true;
+    }, 250);
+  }
+
+  // Click handler on any .vocab span
+  document.addEventListener('click', function(e){
+    const vocab = e.target.closest && e.target.closest('.vocab');
+    if (vocab) {
+      e.stopPropagation();
+      const id = parseInt(vocab.getAttribute('data-vocab-id'), 10);
+      openVocabSheet(id);
+      return;
+    }
+    // Click on vocab list row opens the sheet too
+    const vRow = e.target.closest && e.target.closest('.vocab-row');
+    if (vRow) {
+      const id = parseInt(vRow.getAttribute('data-vocab-id'), 10);
+      openVocabSheet(id);
+      return;
+    }
+  });
+
+  vocabSheetClose && vocabSheetClose.addEventListener('click', closeVocabSheet);
+  vocabBackdrop && vocabBackdrop.addEventListener('click', closeVocabSheet);
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeVocabSheet(); });
+
+  const speed = document.getElementById('speed');
+  const speedVal = document.getElementById('speed-val');
+  let rate = speed ? parseFloat(speed.value) : 0.9;
+  if (speed) speed.addEventListener('input', function(){
+    rate = parseFloat(speed.value);
+    speedVal.textContent = rate.toFixed(2).replace(/0$/, '') + '\u00d7';
+  });
+
+  const synth = window.speechSynthesis;
+  let chosenVoice = null;
+  function pickVoice(){
+    if (!synth) return;
+    const voices = synth.getVoices();
+    chosenVoice = voices.find(function(v){ return v.lang && v.lang.toLowerCase().indexOf('zh') === 0; }) || null;
+  }
+  if (synth) { pickVoice(); synth.addEventListener && synth.addEventListener('voiceschanged', pickVoice); }
+
+  function clearActive(){
+    document.querySelectorAll('.speaker-btn.playing').forEach(function(b){ b.classList.remove('playing'); });
+    document.querySelectorAll('.active-passage').forEach(function(p){ p.classList.remove('active-passage'); });
+  }
+
+  const playAllBtn = document.getElementById('play-all-btn');
+  let isPlayingAll = false;
+  let queue = [];
+
+  function setPlayAllState(playing){
+    isPlayingAll = playing;
+    if (!playAllBtn) return;
+    if (playing){
+      playAllBtn.classList.add('playing');
+      playAllBtn.innerHTML = STOP_SVG + '<span>\u505c\u6b62 Stop</span>';
+    } else {
+      playAllBtn.classList.remove('playing');
+      playAllBtn.innerHTML = PLAY_SVG + '<span>\u64ad\u653e\u5168\u6587 Play all</span>';
+      queue = [];
+    }
+  }
+
+  function speakOne(text, onDone){
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'zh-CN'; u.rate = rate;
+    if (chosenVoice) u.voice = chosenVoice;
+    u.onend = onDone; u.onerror = onDone;
+    synth.speak(u);
+  }
+
+  // Individual speaker buttons — each has data-audio attr containing the Chinese to speak,
+  // and data-active-selector saying which parent element to highlight
+  document.querySelectorAll('.speaker-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      if (!synth){ alert('Your browser does not support speech synthesis.'); return; }
+      synth.cancel(); clearActive(); setPlayAllState(false);
+      const text = btn.dataset.audio || '';
+      const activeEl = btn.closest('[data-playable]');
+      btn.classList.add('playing');
+      if (activeEl) activeEl.classList.add('active-passage');
+      speakOne(text, function(){
+        btn.classList.remove('playing');
+        if (activeEl) activeEl.classList.remove('active-passage');
+      });
+    });
+  });
+
+  if (playAllBtn){
+    playAllBtn.addEventListener('click', function(){
+      if (!synth){ alert('Your browser does not support speech synthesis.'); return; }
+      if (isPlayingAll){ synth.cancel(); clearActive(); setPlayAllState(false); return; }
+      synth.cancel(); clearActive();
+      queue = Array.from(document.querySelectorAll('[data-playable]'));
+      setPlayAllState(true);
+      function next(){
+        if (!isPlayingAll || queue.length === 0){ clearActive(); setPlayAllState(false); return; }
+        const el = queue.shift();
+        clearActive(); el.classList.add('active-passage');
+        el.scrollIntoView({behavior:'smooth', block:'center'});
+        const text = el.dataset.audio || el.querySelector('.speaker-btn').dataset.audio;
+        speakOne(text, next);
+      }
+      next();
+    });
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>猫 — 快捷华文</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --ink-muted: #6b7280;
+    --ink-faint: #9ca3af;
+    --accent: #2f7d4f;
+    --accent-soft: #e6f1ea;
+    --accent-dark: #26663f;
+    --rule: #e5e7eb;
+    --bg: #fafaf8;
+    --surface: #ffffff;
+    --bubble-a: #f0f4f2;
+    --bubble-b: #eef3f7;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+  }
+  .chinese { font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Source Han Sans SC", "Noto Sans CJK SC", sans-serif; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  header.top { max-width: 1100px; margin: 0 auto; padding: 2rem 2rem 1rem; }
+  .back-link { font-size: 13px; color: var(--ink-muted); display: inline-block; margin-bottom: 0.75rem; }
+  .back-link:hover { color: var(--accent); }
+  .breadcrumb {
+    font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--ink-muted); margin-bottom: 0.5rem;
+  }
+  .breadcrumb .sep { opacity: 0.5; margin: 0 0.5em; }
+  h1.title {
+    margin: 0; font-weight: 500; font-size: 28px;
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.75rem;
+  }
+  h1.title .zh { color: var(--ink); }
+  h1.title .en { color: var(--ink-muted); font-weight: 400; font-size: 16px; }
+
+  .controls {
+    max-width: 1100px; margin: 0 auto; padding: 1rem 2rem;
+    display: flex; gap: 1.25rem; flex-wrap: wrap; align-items: center;
+    border-bottom: 1px solid var(--rule);
+  }
+  .controls label {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 14px; color: var(--ink-muted); cursor: pointer; user-select: none;
+  }
+  .controls input[type=checkbox] { accent-color: var(--accent); width: 16px; height: 16px; }
+  .controls input[type=checkbox]:checked + span { color: var(--accent); font-weight: 500; }
+  .controls .speed { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ink-muted); }
+  .controls .speed input { width: 100px; accent-color: var(--accent); }
+  .controls .speed .val { min-width: 28px; font-weight: 500; color: var(--ink); }
+  .controls .speed .speed-hint { font-size: 11px; color: var(--ink-faint); font-style: italic; }
+  .controls .spacer { flex: 1; }
+  .controls button.play-all {
+    border: 1px solid var(--accent); background: var(--accent); color: #fff;
+    padding: 7px 14px; font-size: 13px; font-weight: 500; border-radius: 6px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s;
+  }
+  .controls button.play-all:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+  .controls button.play-all.playing { background: #b34545; border-color: #b34545; }
+  .controls button.play-all.playing:hover { background: #933838; border-color: #933838; }
+  .controls button.play-all svg { width: 11px; height: 11px; }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 1.5rem 2rem 5rem; }
+
+  /* Pinyin defaults */
+  ruby { ruby-position: over; }
+  ruby rt {
+    font-size: 11px; color: var(--accent);
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-weight: 400; letter-spacing: 0.02em;
+    padding-bottom: 6px;
+    transition: opacity 0.15s;
+  }
+  body.pinyin-off ruby rt { opacity: 0; }
+
+  .speaker-btn {
+    background: transparent; border: 1px solid var(--rule);
+    width: 28px; height: 28px; padding: 0; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--ink-muted); transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .speaker-btn:hover { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+  .speaker-btn.playing { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .speaker-btn svg { width: 12px; height: 12px; }
+
+  /* PROSE format — two-column */
+  .para {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2.5rem;
+    padding: 1.5rem 0; border-bottom: 1px solid var(--rule); align-items: start;
+  }
+  .para:last-child { border-bottom: none; }
+  .para .zh-col { display: grid; grid-template-columns: 28px 1fr; gap: 12px; align-items: start; }
+  .para .speaker-btn { margin-top: 8px; }
+  .para .zh-text { font-size: 22px; line-height: 2.6; }
+  .para .en-col {
+    font-size: 15px; line-height: 1.75; color: var(--ink-muted); padding-top: 6px;
+    transition: opacity 0.15s;
+  }
+  body.english-off .en-col { opacity: 0; pointer-events: none; }
+  .para-num {
+    color: var(--ink-faint); font-size: 13px; font-weight: 500;
+    margin-bottom: 4px; display: block;
+  }
+  .para.active-passage .zh-text {
+    background: var(--accent-soft); border-radius: 6px; padding: 4px 8px; margin-left: -8px;
+  }
+
+  /* Subheadings inside prose articles */
+  .subheading {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2.5rem;
+    padding: 1rem 0 0; align-items: baseline;
+    margin: 0;
+  }
+  .subheading-zh {
+    font-size: 18px; font-weight: 500; color: var(--accent-dark);
+    padding-left: 40px; line-height: 1.3;
+    margin: 0;
+  }
+  .subheading-en {
+    font-size: 14px; color: var(--ink-muted); font-weight: 500;
+    transition: opacity 0.15s;
+    letter-spacing: 0.02em;
+    line-height: 1.3;
+    margin: 0;
+  }
+  body.english-off .subheading-en { opacity: 0; }
+  /* Tight coupling — subheading sits directly on top of its paragraph */
+  .subheading + .para { border-top: none; padding-top: 0; }
+
+  /* TABLE format — stacked character cards */
+  .profile-card {
+    background: var(--surface); border: 1px solid var(--rule); border-radius: 12px;
+    padding: 1.5rem 1.75rem; margin-bottom: 1.25rem;
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start;
+  }
+  .profile-card:last-child { margin-bottom: 0; }
+  .profile-card .zh-side { display: grid; grid-template-columns: 28px 1fr; gap: 12px; }
+  .profile-card .name {
+    font-size: 24px; font-weight: 500; margin-bottom: 0.75rem;
+    line-height: 2;
+  }
+  .profile-card .traits { font-size: 18px; line-height: 2.4; }
+  .profile-card .trait { margin-bottom: 0.75rem; }
+  .profile-card .trait:last-child { margin-bottom: 0; }
+  .profile-card .trait-label {
+    display: inline-block; background: var(--accent-soft); color: var(--accent);
+    font-size: 14px; font-weight: 500; padding: 2px 12px; border-radius: 12px;
+    margin-right: 8px; vertical-align: baseline;
+    font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
+    position: relative; top: -2px;
+  }
+  .profile-card .trait-label ruby rt { color: var(--accent-dark); }
+  .profile-card .en-side {
+    font-size: 14px; line-height: 1.75; color: var(--ink-muted); padding-top: 8px;
+    transition: opacity 0.15s;
+  }
+  body.english-off .profile-card .en-side { opacity: 0; pointer-events: none; }
+  .profile-card .en-side .en-name { font-weight: 500; color: var(--ink); font-size: 16px; margin-bottom: 0.5rem; }
+  .profile-card .en-side .en-trait { margin-bottom: 0.5rem; }
+  .profile-card .en-side .en-trait-label { font-weight: 500; color: var(--ink); }
+
+  /* DIALOGUE format — chat bubbles */
+  .stage-direction {
+    text-align: center; color: var(--ink-muted);
+    font-size: 15px; padding: 1rem 2rem;
+    font-style: italic;
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start;
+  }
+  .stage-direction .zh-dir { font-style: normal; }
+  .stage-direction .zh-dir .zh-text { line-height: 2.4; }
+  .stage-direction .en-dir { font-size: 14px; }
+
+  .bubble-row {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;
+    margin-bottom: 1rem; align-items: start;
+  }
+  .bubble-zh { display: flex; gap: 10px; align-items: flex-start; }
+  .bubble-zh.align-right { justify-content: flex-end; }
+  .bubble-zh.align-right .bubble { background: var(--accent-soft); }
+  .bubble-zh .speaker-btn { margin-top: 6px; }
+  .bubble {
+    background: var(--bubble-a);
+    border-radius: 16px; padding: 10px 16px;
+    max-width: 85%;
+    line-height: 2.4; font-size: 18px;
+  }
+  .bubble-zh.align-right .bubble { border-bottom-right-radius: 4px; }
+  .bubble-zh.align-left .bubble { border-bottom-left-radius: 4px; }
+  .bubble-zh .speaker-name {
+    display: block; font-size: 12px; font-weight: 500; color: var(--accent-dark);
+    margin-bottom: 2px; letter-spacing: 0.02em;
+  }
+  .bubble-zh.align-right .speaker-name { text-align: right; }
+  .bubble-row.active-passage .bubble { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .bubble-en {
+    font-size: 14px; line-height: 1.6; color: var(--ink-muted); padding-top: 8px;
+    transition: opacity 0.15s;
+  }
+  .bubble-en .en-speaker { font-weight: 500; color: var(--ink); }
+  body.english-off .bubble-en, body.english-off .stage-direction .en-dir { opacity: 0; pointer-events: none; }
+
+  /* ===== Vocab inline highlighting + bottom sheet ===== */
+  .vocab {
+    cursor: pointer;
+    text-underline-offset: 6px;
+    text-decoration: underline dotted var(--accent);
+    text-decoration-thickness: 1.5px;
+    transition: background 0.15s;
+    border-radius: 3px;
+    padding: 0 1px;
+  }
+  .vocab:hover, .vocab:focus { background: var(--accent-soft); outline: none; }
+
+  /* Vocab list panel at top of passage (toggleable) */
+  .vocab-panel {
+    background: var(--surface); border: 1px solid var(--rule);
+    border-radius: 12px; padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .vocab-panel-title {
+    font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--ink-faint); font-weight: 500; margin: 0 0 1rem;
+  }
+  .vocab-list {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem 2rem;
+  }
+  .vocab-row {
+    display: grid; grid-template-columns: minmax(auto, 140px) 1fr; gap: 1rem;
+    padding: 0.5rem 0; border-top: 1px solid var(--rule-soft);
+    align-items: baseline;
+  }
+  .vocab-row:first-child, .vocab-row:nth-child(2) { border-top: none; }
+  .vocab-row-zh { font-size: 18px; font-family: "PingFang SC", "Hiragino Sans GB", sans-serif; line-height: 2; }
+  .vocab-row-en { font-size: 14px; color: var(--ink-muted); line-height: 1.5; }
+
+  /* Bottom sheet for single-word lookup */
+  .vocab-backdrop {
+    position: fixed; inset: 0; background: rgba(0, 0, 0, 0.25);
+    z-index: 100; opacity: 0; transition: opacity 0.2s;
+    pointer-events: none;
+  }
+  .vocab-backdrop.visible { opacity: 1; pointer-events: auto; }
+  .vocab-sheet {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--rule);
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.08);
+    padding: 1.5rem 2rem 2rem;
+    z-index: 101;
+    transform: translateY(100%); transition: transform 0.25s ease-out;
+    max-width: 600px; margin: 0 auto;
+    border-top-left-radius: 16px; border-top-right-radius: 16px;
+  }
+  .vocab-sheet.visible { transform: translateY(0); }
+  .vocab-sheet-close {
+    position: absolute; top: 10px; right: 14px;
+    background: transparent; border: none; font-size: 28px; line-height: 1;
+    color: var(--ink-faint); cursor: pointer; padding: 4px 10px;
+  }
+  .vocab-sheet-close:hover { color: var(--ink); }
+  .vocab-sheet-content .vs-zh {
+    font-size: 32px; font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
+    line-height: 2.2; margin: 0;
+  }
+  .vocab-sheet-content .vs-zh ruby rt { font-size: 14px; }
+  .vocab-sheet-content .vs-en {
+    font-size: 16px; color: var(--ink); line-height: 1.6;
+    margin: 0.5rem 0 0;
+  }
+
+  @media (max-width: 720px) {
+    .para { grid-template-columns: 1fr; gap: 0.75rem; }
+    .para .en-col { padding-top: 0; padding-left: 40px; font-style: italic; }
+    .para .zh-text { font-size: 20px; }
+    .profile-card { grid-template-columns: 1fr; gap: 1rem; padding: 1rem 1.25rem; }
+    .profile-card .en-side { padding-top: 0; padding-left: 40px; font-style: italic; border-top: 1px solid var(--rule); padding-top: 1rem; }
+    .profile-card .name { font-size: 22px; }
+    .profile-card .traits { font-size: 17px; line-height: 2.2; }
+    .bubble-row, .stage-direction { grid-template-columns: 1fr; gap: 0.5rem; }
+    .bubble-en { padding-left: 16px; padding-top: 0; font-style: italic; }
+    .bubble { font-size: 17px; }
+    header.top, .controls, main { padding-left: 1.25rem; padding-right: 1.25rem; }
+    .controls { gap: 0.75rem; }
+    .vocab-list { grid-template-columns: 1fr; gap: 0; }
+    .vocab-row { grid-template-columns: minmax(auto, 120px) 1fr; padding: 0.5rem 0; border-top: 1px solid var(--rule-soft); }
+    .vocab-row:nth-child(2) { border-top: 1px solid var(--rule-soft); }
+    .vocab-row:first-child { border-top: none; }
+    .vocab-sheet { padding: 1.25rem 1.5rem 1.75rem; }
+    .vocab-sheet-content .vs-zh { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+  <header class="top">
+    <a class="back-link" href="../index.html">← 返回 Back to all levels</a>
+    <div class="breadcrumb">Level 2 · Unit 2 · 动物与我 Animals and Us <span class="sep">·</span> 核心 Core</div>
+    <h1 class="title">
+      <span class="zh chinese">《猫》</span>
+      <span class="en">The Cat</span>
+    </h1>
+  </header>
+  <div class="controls">
+    <label><input type="checkbox" id="toggle-pinyin" checked><span>显示汉语拼音 Show pinyin</span></label>
+    <label><input type="checkbox" id="toggle-english" checked><span>显示英文 Show English</span></label>
+    <label><input type="checkbox" id="toggle-vocab-panel"><span>显示生词 Show vocab list</span></label>
+    <div class="speed">
+      <span>语速 Speed</span>
+      <input type="range" min="0.5" max="1.2" step="0.05" value="0.9" id="speed" title="Adjust before playing">
+      <span class="val" id="speed-val">0.9×</span>
+      <span class="speed-hint">(set before play)</span>
+    </div>
+    <div class="spacer"></div>
+    <button class="play-all" id="play-all-btn" type="button">
+      <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>
+      <span>播放全文 Play all</span>
+    </button>
+  </div>
+  <main>
+  <section class="vocab-panel" id="vocab-panel" hidden>
+    <h2 class="vocab-panel-title">生词 Vocabulary · 17 words</h2>
+    <div class="vocab-list">
+      <div class="vocab-row" data-vocab-id="0">
+        <div class="vocab-row-zh chinese"><ruby>尤<rt>yóu</rt></ruby><ruby>其<rt>qí</rt></ruby></div>
+        <div class="vocab-row-en">especially; particularly</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="1">
+        <div class="vocab-row-zh chinese"><ruby>愧<rt>kuì</rt></ruby><ruby>疚<rt>jiù</rt></ruby></div>
+        <div class="vocab-row-en">guilt; remorse</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="2">
+        <div class="vocab-row-zh chinese"><ruby>光<rt>guāng</rt></ruby><ruby>泽<rt>zé</rt></ruby></div>
+        <div class="vocab-row-en">lustre; sheen</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="3">
+        <div class="vocab-row-zh chinese"><ruby>懒<rt>lǎn</rt></ruby><ruby>懒<rt>lǎn</rt></ruby><ruby>地<rt>dì</rt></ruby></div>
+        <div class="vocab-row-en">lazily; idly</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="4">
+        <div class="vocab-row-zh chinese"><ruby>妻<rt>qī</rt></ruby><ruby>子<rt>zǐ</rt></ruby></div>
+        <div class="vocab-row-en">wife</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="5">
+        <div class="vocab-row-zh chinese"><ruby>啾<rt>jiū</rt></ruby><ruby>啾<rt>jiū</rt></ruby></div>
+        <div class="vocab-row-en">chirping (of birds); tweet-tweet</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="6">
+        <div class="vocab-row-zh chinese"><ruby>仰<rt>yǎng</rt></ruby></div>
+        <div class="vocab-row-en">to look up; to tilt one&#x27;s head back</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="7">
+        <div class="vocab-row-zh chinese"><ruby>凝<rt>níng</rt></ruby><ruby>望<rt>wàng</rt></ruby></div>
+        <div class="vocab-row-en">to gaze intently at; to stare fixedly</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="8">
+        <div class="vocab-row-zh chinese"><ruby>鸟<rt>niǎo</rt></ruby><ruby>笼<rt>lóng</rt></ruby></div>
+        <div class="vocab-row-en">bird cage</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="9">
+        <div class="vocab-row-zh chinese"><ruby>隔<rt>gé</rt></ruby></div>
+        <div class="vocab-row-en">after (a period); to be separated by</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="10">
+        <div class="vocab-row-zh chinese"><ruby>愤<rt>fèn</rt></ruby><ruby>怒<rt>nù</rt></ruby></div>
+        <div class="vocab-row-en">furious; indignant</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="11">
+        <div class="vocab-row-zh chinese"><ruby>畏<rt>wèi</rt></ruby><ruby>罪<rt>zuì</rt></ruby><ruby>潜<rt>qián</rt></ruby><ruby>逃<rt>táo</rt></ruby></div>
+        <div class="vocab-row-en">to flee out of guilt; to run from a crime</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="12">
+        <div class="vocab-row-zh chinese"><ruby>喵<rt>miāo</rt></ruby></div>
+        <div class="vocab-row-en">meow (cat sound)</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="13">
+        <div class="vocab-row-zh chinese"><ruby>衔<rt>xián</rt></ruby></div>
+        <div class="vocab-row-en">to hold in the beak/mouth</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="14">
+        <div class="vocab-row-zh chinese"><ruby>搞<rt>gǎo</rt></ruby></div>
+        <div class="vocab-row-en">to get something wrong; to do (informal)</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="15">
+        <div class="vocab-row-zh chinese"><ruby>失<rt>shī</rt></ruby><ruby>踪<rt>zōng</rt></ruby></div>
+        <div class="vocab-row-en">to go missing; to vanish</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="16">
+        <div class="vocab-row-zh chinese"><ruby>估<rt>gū</rt></ruby><ruby>计<rt>jì</rt></ruby></div>
+        <div class="vocab-row-en">to estimate; to reckon; to suppose</div>
+      </div></div>
+  </section>
+<article class="para" data-playable data-audio="我养过几次猫，结局都不好，尤其是最后一次，让我至今想起仍愧疚不已。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="我养过几次猫，结局都不好，尤其是最后一次，让我至今想起仍愧疚不已。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">1</span>
+      <ruby>我<rt>wǒ</rt></ruby><ruby>养<rt>yǎng</rt></ruby><ruby>过<rt>guò</rt></ruby><ruby>几<rt>jǐ</rt></ruby><ruby>次<rt>cì</rt></ruby><ruby>猫<rt>māo</rt></ruby>，<ruby>结<rt>jié</rt></ruby><ruby>局<rt>jú</rt></ruby><ruby>都<rt>dōu</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>好<rt>hǎo</rt></ruby>，<span class="vocab" data-vocab-id="0"><ruby>尤<rt>yóu</rt></ruby><ruby>其<rt>qí</rt></ruby></span><ruby>是<rt>shì</rt></ruby><ruby>最<rt>zuì</rt></ruby><ruby>后<rt>hòu</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>次<rt>cì</rt></ruby>，<ruby>让<rt>ràng</rt></ruby><ruby>我<rt>wǒ</rt></ruby><ruby>至<rt>zhì</rt></ruby><ruby>今<rt>jīn</rt></ruby><ruby>想<rt>xiǎng</rt></ruby><ruby>起<rt>qǐ</rt></ruby><ruby>仍<rt>réng</rt></ruby><span class="vocab" data-vocab-id="1"><ruby>愧<rt>kuì</rt></ruby><ruby>疚<rt>jiù</rt></ruby></span><ruby>不<rt>bù</rt></ruby><ruby>已<rt>yǐ</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">1</span>I&#x27;ve kept cats a few times. Each time ended badly — especially the last, which still fills me with remorse whenever I think of it.</div>
+</article>
+<article class="para" data-playable data-audio="那年冬天的一个早晨，家人发现门口趴着一只小猫。它毛色花白，没有光泽，瘦瘦小小的，一点儿都不好看。正是寒冬天气，我们如不收养，它多半会冻死。家里的帮佣张妈把它抱了进来，每天给它饭吃，不过大家都不太喜欢它。它不活泼，一副忧郁的样子。连女儿那样爱猫的人，对它也不愿多加理睬。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="那年冬天的一个早晨，家人发现门口趴着一只小猫。它毛色花白，没有光泽，瘦瘦小小的，一点儿都不好看。正是寒冬天气，我们如不收养，它多半会冻死。家里的帮佣张妈把它抱了进来，每天给它饭吃，不过大家都不太喜欢它。它不活泼，一副忧郁的样子。连女儿那样爱猫的人，对它也不愿多加理睬。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">2</span>
+      <ruby>那<rt>nà</rt></ruby><ruby>年<rt>nián</rt></ruby><ruby>冬<rt>dōng</rt></ruby><ruby>天<rt>tiān</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>一<rt>yí</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>早<rt>zǎo</rt></ruby><ruby>晨<rt>chén</rt></ruby>，<ruby>家<rt>jiā</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>发<rt>fā</rt></ruby><ruby>现<rt>xiàn</rt></ruby><ruby>门<rt>mén</rt></ruby><ruby>口<rt>kǒu</rt></ruby><ruby>趴<rt>pā</rt></ruby><ruby>着<rt>zhe</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>只<rt>zhī</rt></ruby><ruby>小<rt>xiǎo</rt></ruby><ruby>猫<rt>māo</rt></ruby>。<ruby>它<rt>tā</rt></ruby><ruby>毛<rt>máo</rt></ruby><ruby>色<rt>sè</rt></ruby><ruby>花<rt>huā</rt></ruby><ruby>白<rt>bái</rt></ruby>，<ruby>没<rt>méi</rt></ruby><ruby>有<rt>yǒu</rt></ruby><span class="vocab" data-vocab-id="2"><ruby>光<rt>guāng</rt></ruby><ruby>泽<rt>zé</rt></ruby></span>，<ruby>瘦<rt>shòu</rt></ruby><ruby>瘦<rt>shòu</rt></ruby><ruby>小<rt>xiǎo</rt></ruby><ruby>小<rt>xiǎo</rt></ruby><ruby>的<rt>de</rt></ruby>，<ruby>一<rt>yì</rt></ruby><ruby>点<rt>diǎn</rt></ruby><ruby>儿<rt>ér</rt></ruby><ruby>都<rt>dōu</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>好<rt>hǎo</rt></ruby><ruby>看<rt>kàn</rt></ruby>。<ruby>正<rt>zhèng</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>寒<rt>hán</rt></ruby><ruby>冬<rt>dōng</rt></ruby><ruby>天<rt>tiān</rt></ruby><ruby>气<rt>qì</rt></ruby>，<ruby>我<rt>wǒ</rt></ruby><ruby>们<rt>men</rt></ruby><ruby>如<rt>rú</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>收<rt>shōu</rt></ruby><ruby>养<rt>yǎng</rt></ruby>，<ruby>它<rt>tā</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>半<rt>bàn</rt></ruby><ruby>会<rt>huì</rt></ruby><ruby>冻<rt>dòng</rt></ruby><ruby>死<rt>sǐ</rt></ruby>。<ruby>家<rt>jiā</rt></ruby><ruby>里<rt>lǐ</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>帮<rt>bāng</rt></ruby><ruby>佣<rt>yōng</rt></ruby><ruby>张<rt>zhāng</rt></ruby><ruby>妈<rt>mā</rt></ruby><ruby>把<rt>bǎ</rt></ruby><ruby>它<rt>tā</rt></ruby><ruby>抱<rt>bào</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>进<rt>jìn</rt></ruby><ruby>来<rt>lái</rt></ruby>，<ruby>每<rt>měi</rt></ruby><ruby>天<rt>tiān</rt></ruby><ruby>给<rt>gěi</rt></ruby><ruby>它<rt>tā</rt></ruby><ruby>饭<rt>fàn</rt></ruby><ruby>吃<rt>chī</rt></ruby>，<ruby>不<rt>bù</rt></ruby><ruby>过<rt>guò</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>家<rt>jiā</rt></ruby><ruby>都<rt>dōu</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>太<rt>tài</rt></ruby><ruby>喜<rt>xǐ</rt></ruby><ruby>欢<rt>huān</rt></ruby><ruby>它<rt>tā</rt></ruby>。<ruby>它<rt>tā</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>活<rt>huó</rt></ruby><ruby>泼<rt>pō</rt></ruby>，<ruby>一<rt>yī</rt></ruby><ruby>副<rt>fù</rt></ruby><ruby>忧<rt>yōu</rt></ruby><ruby>郁<rt>yù</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>样<rt>yàng</rt></ruby><ruby>子<rt>zi</rt></ruby>。<ruby>连<rt>lián</rt></ruby><ruby>女<rt>nǚ</rt></ruby><ruby>儿<rt>ér</rt></ruby><ruby>那<rt>nà</rt></ruby><ruby>样<rt>yàng</rt></ruby><ruby>爱<rt>ài</rt></ruby><ruby>猫<rt>māo</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>人<rt>rén</rt></ruby>，<ruby>对<rt>duì</rt></ruby><ruby>它<rt>tā</rt></ruby><ruby>也<rt>yě</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>愿<rt>yuàn</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>加<rt>jiā</rt></ruby><ruby>理<rt>lǐ</rt></ruby><ruby>睬<rt>cǎi</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">2</span>One winter morning that year, someone at home noticed a little cat lying at our doorstep. Its fur was patchy white and without any sheen, and it was thin and small — not at all pretty. It was the dead of winter; if we didn&#x27;t take it in, it would most likely freeze to death. Our housekeeper, Auntie Zhang, carried it inside and fed it every day, but none of us was especially fond of it. It wasn&#x27;t lively — it always looked somehow melancholy. Even my daughter, who so loved cats, couldn&#x27;t be bothered to pay it much attention.</div>
+</article>
+<article class="para" data-playable data-audio="过了一段时间，它变胖了，但仍然不活泼。大家在院子里聊天时，它常趴在椅子旁，时而懒懒地打个哈欠。有一晚，天气很冷，它竟钻到火炉底下取暖，结果毛被烧掉好几块，显得更难看了。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="过了一段时间，它变胖了，但仍然不活泼。大家在院子里聊天时，它常趴在椅子旁，时而懒懒地打个哈欠。有一晚，天气很冷，它竟钻到火炉底下取暖，结果毛被烧掉好几块，显得更难看了。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">3</span>
+      <ruby>过<rt>guò</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>段<rt>duàn</rt></ruby><ruby>时<rt>shí</rt></ruby><ruby>间<rt>jiān</rt></ruby>，<ruby>它<rt>tā</rt></ruby><ruby>变<rt>biàn</rt></ruby><ruby>胖<rt>pàng</rt></ruby><ruby>了<rt>le</rt></ruby>，<ruby>但<rt>dàn</rt></ruby><ruby>仍<rt>réng</rt></ruby><ruby>然<rt>rán</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>活<rt>huó</rt></ruby><ruby>泼<rt>pō</rt></ruby>。<ruby>大<rt>dà</rt></ruby><ruby>家<rt>jiā</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>院<rt>yuàn</rt></ruby><ruby>子<rt>zi</rt></ruby><ruby>里<rt>lǐ</rt></ruby><ruby>聊<rt>liáo</rt></ruby><ruby>天<rt>tiān</rt></ruby><ruby>时<rt>shí</rt></ruby>，<ruby>它<rt>tā</rt></ruby><ruby>常<rt>cháng</rt></ruby><ruby>趴<rt>pā</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>椅<rt>yǐ</rt></ruby><ruby>子<rt>zi</rt></ruby><ruby>旁<rt>páng</rt></ruby>，<ruby>时<rt>shí</rt></ruby><ruby>而<rt>ér</rt></ruby><span class="vocab" data-vocab-id="3"><ruby>懒<rt>lǎn</rt></ruby><ruby>懒<rt>lǎn</rt></ruby><ruby>地<rt>dì</rt></ruby></span><ruby>打<rt>dǎ</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>哈<rt>hā</rt></ruby><ruby>欠<rt>qiàn</rt></ruby>。<ruby>有<rt>yǒu</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>晚<rt>wǎn</rt></ruby>，<ruby>天<rt>tiān</rt></ruby><ruby>气<rt>qì</rt></ruby><ruby>很<rt>hěn</rt></ruby><ruby>冷<rt>lěng</rt></ruby>，<ruby>它<rt>tā</rt></ruby><ruby>竟<rt>jìng</rt></ruby><ruby>钻<rt>zuān</rt></ruby><ruby>到<rt>dào</rt></ruby><ruby>火<rt>huǒ</rt></ruby><ruby>炉<rt>lú</rt></ruby><ruby>底<rt>dǐ</rt></ruby><ruby>下<rt>xià</rt></ruby><ruby>取<rt>qǔ</rt></ruby><ruby>暖<rt>nuǎn</rt></ruby>，<ruby>结<rt>jié</rt></ruby><ruby>果<rt>guǒ</rt></ruby><ruby>毛<rt>máo</rt></ruby><ruby>被<rt>bèi</rt></ruby><ruby>烧<rt>shāo</rt></ruby><ruby>掉<rt>diào</rt></ruby><ruby>好<rt>hǎo</rt></ruby><ruby>几<rt>jǐ</rt></ruby><ruby>块<rt>kuài</rt></ruby>，<ruby>显<rt>xiǎn</rt></ruby><ruby>得<rt>de</rt></ruby><ruby>更<rt>gèng</rt></ruby><ruby>难<rt>nán</rt></ruby><ruby>看<rt>kàn</rt></ruby><ruby>了<rt>le</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">3</span>After a while, it grew plumper, but still wasn&#x27;t lively. When we all sat chatting in the courtyard, it would often lie beside a chair and, now and then, give a lazy yawn. One very cold night, it crawled right under the stove to warm itself — and ended up with several patches of fur burnt off, leaving it uglier than before.</div>
+</article>
+<article class="para" data-playable data-audio="春天来了，它变得更胖了，却从来没见过它去捉老鼠。它就那样终日懒洋洋地趴着，显得无精打采。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="春天来了，它变得更胖了，却从来没见过它去捉老鼠。它就那样终日懒洋洋地趴着，显得无精打采。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">4</span>
+      <ruby>春<rt>chūn</rt></ruby><ruby>天<rt>tiān</rt></ruby><ruby>来<rt>lái</rt></ruby><ruby>了<rt>le</rt></ruby>，<ruby>它<rt>tā</rt></ruby><ruby>变<rt>biàn</rt></ruby><ruby>得<rt>dé</rt></ruby><ruby>更<rt>gèng</rt></ruby><ruby>胖<rt>pàng</rt></ruby><ruby>了<rt>le</rt></ruby>，<ruby>却<rt>què</rt></ruby><ruby>从<rt>cóng</rt></ruby><ruby>来<rt>lái</rt></ruby><ruby>没<rt>méi</rt></ruby><ruby>见<rt>jiàn</rt></ruby><ruby>过<rt>guò</rt></ruby><ruby>它<rt>tā</rt></ruby><ruby>去<rt>qù</rt></ruby><ruby>捉<rt>zhuō</rt></ruby><ruby>老<rt>lǎo</rt></ruby><ruby>鼠<rt>shǔ</rt></ruby>。<ruby>它<rt>tā</rt></ruby><ruby>就<rt>jiù</rt></ruby><ruby>那<rt>nà</rt></ruby><ruby>样<rt>yàng</rt></ruby><ruby>终<rt>zhōng</rt></ruby><ruby>日<rt>rì</rt></ruby><ruby>懒<rt>lǎn</rt></ruby><ruby>洋<rt>yáng</rt></ruby><ruby>洋<rt>yáng</rt></ruby><ruby>地<rt>dì</rt></ruby><ruby>趴<rt>pā</rt></ruby><ruby>着<rt>zhe</rt></ruby>，<ruby>显<rt>xiǎn</rt></ruby><ruby>得<rt>de</rt></ruby><ruby>无<rt>wú</rt></ruby><ruby>精<rt>jīng</rt></ruby><ruby>打<rt>dǎ</rt></ruby><ruby>采<rt>cǎi</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">4</span>Spring came, and it grew still plumper — yet we never once saw it catch a mouse. Day after day, it just lay around listlessly, looking utterly apathetic.</div>
+</article>
+<article class="para" data-playable data-audio="一天，妻子买了一对黄鸟，挂在院子里，鸟儿叽叽啾啾叫得很好听。那只猫对这两只鸟似乎也特别注意，常常跳到桌上，仰着头，凝望着鸟笼，仿佛在想着什么。妻子看见，赶紧提醒：“张妈，留心猫，它会吃鸟呢。”张妈便跑来把猫赶走。但隔了一会儿，它又跳上桌子凝望着鸟笼。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="一天，妻子买了一对黄鸟，挂在院子里，鸟儿叽叽啾啾叫得很好听。那只猫对这两只鸟似乎也特别注意，常常跳到桌上，仰着头，凝望着鸟笼，仿佛在想着什么。妻子看见，赶紧提醒：“张妈，留心猫，它会吃鸟呢。”张妈便跑来把猫赶走。但隔了一会儿，它又跳上桌子凝望着鸟笼。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">5</span>
+      <ruby>一<rt>yì</rt></ruby><ruby>天<rt>tiān</rt></ruby>，<span class="vocab" data-vocab-id="4"><ruby>妻<rt>qī</rt></ruby><ruby>子<rt>zǐ</rt></ruby></span><ruby>买<rt>mǎi</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>对<rt>duì</rt></ruby><ruby>黄<rt>huáng</rt></ruby><ruby>鸟<rt>niǎo</rt></ruby>，<ruby>挂<rt>guà</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>院<rt>yuàn</rt></ruby><ruby>子<rt>zi</rt></ruby><ruby>里<rt>lǐ</rt></ruby>，<ruby>鸟<rt>niǎo</rt></ruby><ruby>儿<rt>ér</rt></ruby><ruby>叽<rt>jī</rt></ruby><ruby>叽<rt>jī</rt></ruby><span class="vocab" data-vocab-id="5"><ruby>啾<rt>jiū</rt></ruby><ruby>啾<rt>jiū</rt></ruby></span><ruby>叫<rt>jiào</rt></ruby><ruby>得<rt>dé</rt></ruby><ruby>很<rt>hěn</rt></ruby><ruby>好<rt>hǎo</rt></ruby><ruby>听<rt>tīng</rt></ruby>。<ruby>那<rt>nà</rt></ruby><ruby>只<rt>zhǐ</rt></ruby><ruby>猫<rt>māo</rt></ruby><ruby>对<rt>duì</rt></ruby><ruby>这<rt>zhè</rt></ruby><ruby>两<rt>liǎng</rt></ruby><ruby>只<rt>zhǐ</rt></ruby><ruby>鸟<rt>niǎo</rt></ruby><ruby>似<rt>sì</rt></ruby><ruby>乎<rt>hū</rt></ruby><ruby>也<rt>yě</rt></ruby><ruby>特<rt>tè</rt></ruby><ruby>别<rt>bié</rt></ruby><ruby>注<rt>zhù</rt></ruby><ruby>意<rt>yì</rt></ruby>，<ruby>常<rt>cháng</rt></ruby><ruby>常<rt>cháng</rt></ruby><ruby>跳<rt>tiào</rt></ruby><ruby>到<rt>dào</rt></ruby><ruby>桌<rt>zhuō</rt></ruby><ruby>上<rt>shàng</rt></ruby>，<span class="vocab" data-vocab-id="6"><ruby>仰<rt>yǎng</rt></ruby></span><ruby>着<rt>zhe</rt></ruby><ruby>头<rt>tóu</rt></ruby>，<span class="vocab" data-vocab-id="7"><ruby>凝<rt>níng</rt></ruby><ruby>望<rt>wàng</rt></ruby></span><ruby>着<rt>zhe</rt></ruby><span class="vocab" data-vocab-id="8"><ruby>鸟<rt>niǎo</rt></ruby><ruby>笼<rt>lóng</rt></ruby></span>，<ruby>仿<rt>fǎng</rt></ruby><ruby>佛<rt>fú</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>想<rt>xiǎng</rt></ruby><ruby>着<rt>zhe</rt></ruby><ruby>什<rt>shén</rt></ruby><ruby>么<rt>me</rt></ruby>。<span class="vocab" data-vocab-id="4"><ruby>妻<rt>qī</rt></ruby><ruby>子<rt>zǐ</rt></ruby></span><ruby>看<rt>kàn</rt></ruby><ruby>见<rt>jiàn</rt></ruby>，<ruby>赶<rt>gǎn</rt></ruby><ruby>紧<rt>jǐn</rt></ruby><ruby>提<rt>tí</rt></ruby><ruby>醒<rt>xǐng</rt></ruby>：“<ruby>张<rt>zhāng</rt></ruby><ruby>妈<rt>mā</rt></ruby>，<ruby>留<rt>liú</rt></ruby><ruby>心<rt>xīn</rt></ruby><ruby>猫<rt>māo</rt></ruby>，<ruby>它<rt>tā</rt></ruby><ruby>会<rt>huì</rt></ruby><ruby>吃<rt>chī</rt></ruby><ruby>鸟<rt>niǎo</rt></ruby><ruby>呢<rt>ne</rt></ruby>。”<ruby>张<rt>zhāng</rt></ruby><ruby>妈<rt>mā</rt></ruby><ruby>便<rt>biàn</rt></ruby><ruby>跑<rt>pǎo</rt></ruby><ruby>来<rt>lái</rt></ruby><ruby>把<rt>bǎ</rt></ruby><ruby>猫<rt>māo</rt></ruby><ruby>赶<rt>gǎn</rt></ruby><ruby>走<rt>zǒu</rt></ruby>。<ruby>但<rt>dàn</rt></ruby><span class="vocab" data-vocab-id="9"><ruby>隔<rt>gé</rt></ruby></span><ruby>了<rt>le</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>会<rt>huì</rt></ruby><ruby>儿<rt>er</rt></ruby>，<ruby>它<rt>tā</rt></ruby><ruby>又<rt>yòu</rt></ruby><ruby>跳<rt>tiào</rt></ruby><ruby>上<rt>shàng</rt></ruby><ruby>桌<rt>zhuō</rt></ruby><ruby>子<rt>zi</rt></ruby><span class="vocab" data-vocab-id="7"><ruby>凝<rt>níng</rt></ruby><ruby>望<rt>wàng</rt></ruby></span><ruby>着<rt>zhe</rt></ruby><span class="vocab" data-vocab-id="8"><ruby>鸟<rt>niǎo</rt></ruby><ruby>笼<rt>lóng</rt></ruby></span>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">5</span>One day, my wife bought a pair of yellow finches and hung them in the courtyard. Their chirping and tweeting was lovely to hear. The cat seemed to take particular interest in the two birds — it would often jump onto the table, lift its head, and stare up at the cage, as if lost in some thought. When my wife saw this, she quickly warned, &quot;Auntie Zhang, watch that cat — it&#x27;ll eat the birds.&quot; Auntie Zhang would come running to shoo it away. But after a while, the cat would be back on the table, staring up at the cage again.</div>
+</article>
+<article class="para" data-playable data-audio="有一天下楼时，我突然听见张妈喊道：“鸟死了一只，一条腿没了，笼板上都是血。”我跑去一看，果然，一只鸟死了，羽毛松散着。我很愤怒，直接做出了判断：“一定是猫，一定是猫！”于是便立刻去找它。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="有一天下楼时，我突然听见张妈喊道：“鸟死了一只，一条腿没了，笼板上都是血。”我跑去一看，果然，一只鸟死了，羽毛松散着。我很愤怒，直接做出了判断：“一定是猫，一定是猫！”于是便立刻去找它。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">6</span>
+      <ruby>有<rt>yǒu</rt></ruby><ruby>一<rt>yì</rt></ruby><ruby>天<rt>tiān</rt></ruby><ruby>下<rt>xià</rt></ruby><ruby>楼<rt>lóu</rt></ruby><ruby>时<rt>shí</rt></ruby>，<ruby>我<rt>wǒ</rt></ruby><ruby>突<rt>tū</rt></ruby><ruby>然<rt>rán</rt></ruby><ruby>听<rt>tīng</rt></ruby><ruby>见<rt>jiàn</rt></ruby><ruby>张<rt>zhāng</rt></ruby><ruby>妈<rt>mā</rt></ruby><ruby>喊<rt>hǎn</rt></ruby><ruby>道<rt>dào</rt></ruby>：“<ruby>鸟<rt>niǎo</rt></ruby><ruby>死<rt>sǐ</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>只<rt>zhī</rt></ruby>，<ruby>一<rt>yī</rt></ruby><ruby>条<rt>tiáo</rt></ruby><ruby>腿<rt>tuǐ</rt></ruby><ruby>没<rt>méi</rt></ruby><ruby>了<rt>le</rt></ruby>，<ruby>笼<rt>lóng</rt></ruby><ruby>板<rt>bǎn</rt></ruby><ruby>上<rt>shàng</rt></ruby><ruby>都<rt>dōu</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>血<rt>xuè</rt></ruby>。”<ruby>我<rt>wǒ</rt></ruby><ruby>跑<rt>pǎo</rt></ruby><ruby>去<rt>qù</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>看<rt>kàn</rt></ruby>，<ruby>果<rt>guǒ</rt></ruby><ruby>然<rt>rán</rt></ruby>，<ruby>一<rt>yī</rt></ruby><ruby>只<rt>zhī</rt></ruby><ruby>鸟<rt>niǎo</rt></ruby><ruby>死<rt>sǐ</rt></ruby><ruby>了<rt>le</rt></ruby>，<ruby>羽<rt>yǔ</rt></ruby><ruby>毛<rt>máo</rt></ruby><ruby>松<rt>sōng</rt></ruby><ruby>散<rt>sǎn</rt></ruby><ruby>着<rt>zhe</rt></ruby>。<ruby>我<rt>wǒ</rt></ruby><ruby>很<rt>hěn</rt></ruby><span class="vocab" data-vocab-id="10"><ruby>愤<rt>fèn</rt></ruby><ruby>怒<rt>nù</rt></ruby></span>，<ruby>直<rt>zhí</rt></ruby><ruby>接<rt>jiē</rt></ruby><ruby>做<rt>zuò</rt></ruby><ruby>出<rt>chū</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>判<rt>pàn</rt></ruby><ruby>断<rt>duàn</rt></ruby>：“<ruby>一<rt>yí</rt></ruby><ruby>定<rt>dìng</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>猫<rt>māo</rt></ruby>，<ruby>一<rt>yí</rt></ruby><ruby>定<rt>dìng</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>猫<rt>māo</rt></ruby>！”<ruby>于<rt>yú</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>便<rt>biàn</rt></ruby><ruby>立<rt>lì</rt></ruby><ruby>刻<rt>kè</rt></ruby><ruby>去<rt>qù</rt></ruby><ruby>找<rt>zhǎo</rt></ruby><ruby>它<rt>tā</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">6</span>One day, as I was coming downstairs, I suddenly heard Auntie Zhang cry out: &quot;One of the birds is dead — a leg is missing, and there&#x27;s blood all over the bottom of the cage!&quot; I rushed over. Sure enough, one bird was dead, its feathers in disarray. Furious, I jumped straight to the conclusion: &quot;It must have been the cat! It has to be the cat!&quot; And I went to find it at once.</div>
+</article>
+<article class="para" data-playable data-audio="大家都去找这只可恶的猫，找了半天，却没找到。正当我们以为猫“畏罪潜逃”的时候，女儿在楼上找到了它。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="大家都去找这只可恶的猫，找了半天，却没找到。正当我们以为猫“畏罪潜逃”的时候，女儿在楼上找到了它。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">7</span>
+      <ruby>大<rt>dà</rt></ruby><ruby>家<rt>jiā</rt></ruby><ruby>都<rt>dōu</rt></ruby><ruby>去<rt>qù</rt></ruby><ruby>找<rt>zhǎo</rt></ruby><ruby>这<rt>zhè</rt></ruby><ruby>只<rt>zhǐ</rt></ruby><ruby>可<rt>kě</rt></ruby><ruby>恶<rt>wù</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>猫<rt>māo</rt></ruby>，<ruby>找<rt>zhǎo</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>半<rt>bàn</rt></ruby><ruby>天<rt>tiān</rt></ruby>，<ruby>却<rt>què</rt></ruby><ruby>没<rt>méi</rt></ruby><ruby>找<rt>zhǎo</rt></ruby><ruby>到<rt>dào</rt></ruby>。<ruby>正<rt>zhèng</rt></ruby><ruby>当<rt>dāng</rt></ruby><ruby>我<rt>wǒ</rt></ruby><ruby>们<rt>men</rt></ruby><ruby>以<rt>yǐ</rt></ruby><ruby>为<rt>wéi</rt></ruby><ruby>猫<rt>māo</rt></ruby>“<span class="vocab" data-vocab-id="11"><ruby>畏<rt>wèi</rt></ruby><ruby>罪<rt>zuì</rt></ruby><ruby>潜<rt>qián</rt></ruby><ruby>逃<rt>táo</rt></ruby></span>”<ruby>的<rt>de</rt></ruby><ruby>时<rt>shí</rt></ruby><ruby>候<rt>hòu</rt></ruby>，<ruby>女<rt>nǚ</rt></ruby><ruby>儿<rt>ér</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>楼<rt>lóu</rt></ruby><ruby>上<rt>shàng</rt></ruby><ruby>找<rt>zhǎo</rt></ruby><ruby>到<rt>dào</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>它<rt>tā</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">7</span>Everyone searched for that loathsome cat. We searched and searched, but it was nowhere to be found. Just as we were all concluding that the cat had &quot;fled from its crime,&quot; my daughter found it upstairs.</div>
+</article>
+<article class="para" data-playable data-audio="它趴在露台上晒太阳，嘴里好像在吃着什么。它一定是在吃那只黄鸟的腿！我一时怒气冲天，拿起门旁的一根木棒，追过去狠狠地打了它一下。它“喵”地惨叫了一声，便狼狈地逃走了。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="它趴在露台上晒太阳，嘴里好像在吃着什么。它一定是在吃那只黄鸟的腿！我一时怒气冲天，拿起门旁的一根木棒，追过去狠狠地打了它一下。它“喵”地惨叫了一声，便狼狈地逃走了。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">8</span>
+      <ruby>它<rt>tā</rt></ruby><ruby>趴<rt>pā</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>露<rt>lù</rt></ruby><ruby>台<rt>tái</rt></ruby><ruby>上<rt>shàng</rt></ruby><ruby>晒<rt>shài</rt></ruby><ruby>太<rt>tài</rt></ruby><ruby>阳<rt>yáng</rt></ruby>，<ruby>嘴<rt>zuǐ</rt></ruby><ruby>里<rt>lǐ</rt></ruby><ruby>好<rt>hǎo</rt></ruby><ruby>像<rt>xiàng</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>吃<rt>chī</rt></ruby><ruby>着<rt>zhe</rt></ruby><ruby>什<rt>shén</rt></ruby><ruby>么<rt>me</rt></ruby>。<ruby>它<rt>tā</rt></ruby><ruby>一<rt>yí</rt></ruby><ruby>定<rt>dìng</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>吃<rt>chī</rt></ruby><ruby>那<rt>nà</rt></ruby><ruby>只<rt>zhǐ</rt></ruby><ruby>黄<rt>huáng</rt></ruby><ruby>鸟<rt>niǎo</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>腿<rt>tuǐ</rt></ruby>！<ruby>我<rt>wǒ</rt></ruby><ruby>一<rt>yì</rt></ruby><ruby>时<rt>shí</rt></ruby><ruby>怒<rt>nù</rt></ruby><ruby>气<rt>qì</rt></ruby><ruby>冲<rt>chōng</rt></ruby><ruby>天<rt>tiān</rt></ruby>，<ruby>拿<rt>ná</rt></ruby><ruby>起<rt>qǐ</rt></ruby><ruby>门<rt>mén</rt></ruby><ruby>旁<rt>páng</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>根<rt>gēn</rt></ruby><ruby>木<rt>mù</rt></ruby><ruby>棒<rt>bàng</rt></ruby>，<ruby>追<rt>zhuī</rt></ruby><ruby>过<rt>guò</rt></ruby><ruby>去<rt>qù</rt></ruby><ruby>狠<rt>hěn</rt></ruby><ruby>狠<rt>hěn</rt></ruby><ruby>地<rt>dì</rt></ruby><ruby>打<rt>dǎ</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>它<rt>tā</rt></ruby><ruby>一<rt>yí</rt></ruby><ruby>下<rt>xià</rt></ruby>。<ruby>它<rt>tā</rt></ruby>“<span class="vocab" data-vocab-id="12"><ruby>喵<rt>miāo</rt></ruby></span>”<ruby>地<rt>dì</rt></ruby><ruby>惨<rt>cǎn</rt></ruby><ruby>叫<rt>jiào</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>声<rt>shēng</rt></ruby>，<ruby>便<rt>biàn</rt></ruby><ruby>狼<rt>láng</rt></ruby><ruby>狈<rt>bèi</rt></ruby><ruby>地<rt>dì</rt></ruby><ruby>逃<rt>táo</rt></ruby><ruby>走<rt>zǒu</rt></ruby><ruby>了<rt>le</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">8</span>It was lying on the balcony, sunning itself, seemingly chewing something. It must be eating that yellow finch&#x27;s leg! My fury rose like smoke to the heavens. I snatched up a wooden stick from beside the door, chased after it, and struck it hard. With a piteous &quot;meow!&quot; it fled, a miserable sight.</div>
+</article>
+<article class="para" data-playable data-audio="过了几天，张妈在楼下又喊道：“猫，猫！又来吃鸟了。”就在那一刻，我看见一只黑猫飞快地跳过露台，嘴里衔着一只黄鸟。我一下明白了：是我搞错了。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="过了几天，张妈在楼下又喊道：“猫，猫！又来吃鸟了。”就在那一刻，我看见一只黑猫飞快地跳过露台，嘴里衔着一只黄鸟。我一下明白了：是我搞错了。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">9</span>
+      <ruby>过<rt>guò</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>几<rt>jǐ</rt></ruby><ruby>天<rt>tiān</rt></ruby>，<ruby>张<rt>zhāng</rt></ruby><ruby>妈<rt>mā</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>楼<rt>lóu</rt></ruby><ruby>下<rt>xià</rt></ruby><ruby>又<rt>yòu</rt></ruby><ruby>喊<rt>hǎn</rt></ruby><ruby>道<rt>dào</rt></ruby>：“<ruby>猫<rt>māo</rt></ruby>，<ruby>猫<rt>māo</rt></ruby>！<ruby>又<rt>yòu</rt></ruby><ruby>来<rt>lái</rt></ruby><ruby>吃<rt>chī</rt></ruby><ruby>鸟<rt>niǎo</rt></ruby><ruby>了<rt>le</rt></ruby>。”<ruby>就<rt>jiù</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>那<rt>nà</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>刻<rt>kè</rt></ruby>，<ruby>我<rt>wǒ</rt></ruby><ruby>看<rt>kàn</rt></ruby><ruby>见<rt>jiàn</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>只<rt>zhī</rt></ruby><ruby>黑<rt>hēi</rt></ruby><ruby>猫<rt>māo</rt></ruby><ruby>飞<rt>fēi</rt></ruby><ruby>快<rt>kuài</rt></ruby><ruby>地<rt>dì</rt></ruby><ruby>跳<rt>tiào</rt></ruby><ruby>过<rt>guò</rt></ruby><ruby>露<rt>lù</rt></ruby><ruby>台<rt>tái</rt></ruby>，<ruby>嘴<rt>zuǐ</rt></ruby><ruby>里<rt>lǐ</rt></ruby><span class="vocab" data-vocab-id="13"><ruby>衔<rt>xián</rt></ruby></span><ruby>着<rt>zhe</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>只<rt>zhī</rt></ruby><ruby>黄<rt>huáng</rt></ruby><ruby>鸟<rt>niǎo</rt></ruby>。<ruby>我<rt>wǒ</rt></ruby><ruby>一<rt>yí</rt></ruby><ruby>下<rt>xià</rt></ruby><ruby>明<rt>míng</rt></ruby><ruby>白<rt>bái</rt></ruby><ruby>了<rt>le</rt></ruby>：<ruby>是<rt>shì</rt></ruby><ruby>我<rt>wǒ</rt></ruby><span class="vocab" data-vocab-id="14"><ruby>搞<rt>gǎo</rt></ruby></span><ruby>错<rt>cuò</rt></ruby><ruby>了<rt>le</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">9</span>A few days later, Auntie Zhang called out from downstairs: &quot;Cat! Cat! It&#x27;s come to eat the bird again!&quot; At that very moment, I saw a black cat leap across the balcony, a yellow finch held in its beak. All at once I understood — I had got it wrong.</div>
+</article>
+<article class="para" data-playable data-audio="我心里十分难过。自己没弄清楚，冤枉了一只无法为自己辩解的猫。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="我心里十分难过。自己没弄清楚，冤枉了一只无法为自己辩解的猫。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">10</span>
+      <ruby>我<rt>wǒ</rt></ruby><ruby>心<rt>xīn</rt></ruby><ruby>里<rt>lǐ</rt></ruby><ruby>十<rt>shí</rt></ruby><ruby>分<rt>fēn</rt></ruby><ruby>难<rt>nán</rt></ruby><ruby>过<rt>guò</rt></ruby>。<ruby>自<rt>zì</rt></ruby><ruby>己<rt>jǐ</rt></ruby><ruby>没<rt>méi</rt></ruby><ruby>弄<rt>nòng</rt></ruby><ruby>清<rt>qīng</rt></ruby><ruby>楚<rt>chǔ</rt></ruby>，<ruby>冤<rt>yuān</rt></ruby><ruby>枉<rt>wǎng</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>只<rt>zhī</rt></ruby><ruby>无<rt>wú</rt></ruby><ruby>法<rt>fǎ</rt></ruby><ruby>为<rt>wèi</rt></ruby><ruby>自<rt>zì</rt></ruby><ruby>己<rt>jǐ</rt></ruby><ruby>辩<rt>biàn</rt></ruby><ruby>解<rt>jiě</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>猫<rt>māo</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">10</span>My heart ached. I hadn&#x27;t understood what had really happened, and had wronged a cat who could not speak up for itself.</div>
+</article>
+<article class="para" data-playable data-audio="一年过去了，我家的猫始终没有回来。我猜想它已经失踪，或是死掉了。对于这只猫，我心中的愧疚一点儿都没有消减，估计这辈子都无法消除了。偶尔午夜梦回，我隐约还能听到那声悲楚的“喵”。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="一年过去了，我家的猫始终没有回来。我猜想它已经失踪，或是死掉了。对于这只猫，我心中的愧疚一点儿都没有消减，估计这辈子都无法消除了。偶尔午夜梦回，我隐约还能听到那声悲楚的“喵”。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">11</span>
+      <ruby>一<rt>yì</rt></ruby><ruby>年<rt>nián</rt></ruby><ruby>过<rt>guò</rt></ruby><ruby>去<rt>qù</rt></ruby><ruby>了<rt>le</rt></ruby>，<ruby>我<rt>wǒ</rt></ruby><ruby>家<rt>jiā</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>猫<rt>māo</rt></ruby><ruby>始<rt>shǐ</rt></ruby><ruby>终<rt>zhōng</rt></ruby><ruby>没<rt>méi</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>回<rt>huí</rt></ruby><ruby>来<rt>lái</rt></ruby>。<ruby>我<rt>wǒ</rt></ruby><ruby>猜<rt>cāi</rt></ruby><ruby>想<rt>xiǎng</rt></ruby><ruby>它<rt>tā</rt></ruby><ruby>已<rt>yǐ</rt></ruby><ruby>经<rt>jīng</rt></ruby><span class="vocab" data-vocab-id="15"><ruby>失<rt>shī</rt></ruby><ruby>踪<rt>zōng</rt></ruby></span>，<ruby>或<rt>huò</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>死<rt>sǐ</rt></ruby><ruby>掉<rt>diào</rt></ruby><ruby>了<rt>le</rt></ruby>。<ruby>对<rt>duì</rt></ruby><ruby>于<rt>yú</rt></ruby><ruby>这<rt>zhè</rt></ruby><ruby>只<rt>zhǐ</rt></ruby><ruby>猫<rt>māo</rt></ruby>，<ruby>我<rt>wǒ</rt></ruby><ruby>心<rt>xīn</rt></ruby><ruby>中<rt>zhōng</rt></ruby><ruby>的<rt>de</rt></ruby><span class="vocab" data-vocab-id="1"><ruby>愧<rt>kuì</rt></ruby><ruby>疚<rt>jiù</rt></ruby></span><ruby>一<rt>yì</rt></ruby><ruby>点<rt>diǎn</rt></ruby><ruby>儿<rt>ér</rt></ruby><ruby>都<rt>dōu</rt></ruby><ruby>没<rt>méi</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>消<rt>xiāo</rt></ruby><ruby>减<rt>jiǎn</rt></ruby>，<span class="vocab" data-vocab-id="16"><ruby>估<rt>gū</rt></ruby><ruby>计<rt>jì</rt></ruby></span><ruby>这<rt>zhè</rt></ruby><ruby>辈<rt>bèi</rt></ruby><ruby>子<rt>zi</rt></ruby><ruby>都<rt>dōu</rt></ruby><ruby>无<rt>wú</rt></ruby><ruby>法<rt>fǎ</rt></ruby><ruby>消<rt>xiāo</rt></ruby><ruby>除<rt>chú</rt></ruby><ruby>了<rt>le</rt></ruby>。<ruby>偶<rt>ǒu</rt></ruby><ruby>尔<rt>ěr</rt></ruby><ruby>午<rt>wǔ</rt></ruby><ruby>夜<rt>yè</rt></ruby><ruby>梦<rt>mèng</rt></ruby><ruby>回<rt>huí</rt></ruby>，<ruby>我<rt>wǒ</rt></ruby><ruby>隐<rt>yǐn</rt></ruby><ruby>约<rt>yuē</rt></ruby><ruby>还<rt>hái</rt></ruby><ruby>能<rt>néng</rt></ruby><ruby>听<rt>tīng</rt></ruby><ruby>到<rt>dào</rt></ruby><ruby>那<rt>nà</rt></ruby><ruby>声<rt>shēng</rt></ruby><ruby>悲<rt>bēi</rt></ruby><ruby>楚<rt>chǔ</rt></ruby><ruby>的<rt>de</rt></ruby>“<span class="vocab" data-vocab-id="12"><ruby>喵<rt>miāo</rt></ruby></span>”。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">11</span>A year passed, and our cat never came back. I suppose it was lost, or dead. The guilt I carry for it has not lessened one bit — and I doubt it will be gone from me in this lifetime. Now and then, in the middle of the night, I wake and can still faintly hear that sorrowful &quot;meow.&quot;</div>
+</article></main>
+  <div id="vocab-sheet" class="vocab-sheet" hidden>
+    <button class="vocab-sheet-close" id="vocab-sheet-close" aria-label="Close">×</button>
+    <div class="vocab-sheet-content"></div>
+  </div>
+  <div id="vocab-backdrop" class="vocab-backdrop" hidden></div>
+<script>window.__VOCAB__ = [{"zh": "尤其", "pinyin": "yóu qí", "en": "especially; particularly"}, {"zh": "愧疚", "pinyin": "kuì jiù", "en": "guilt; remorse"}, {"zh": "光泽", "pinyin": "guāng zé", "en": "lustre; sheen"}, {"zh": "懒懒地", "pinyin": "lǎn lǎn de", "en": "lazily; idly"}, {"zh": "妻子", "pinyin": "qī zi", "en": "wife"}, {"zh": "啾啾", "pinyin": "jiū jiū", "en": "chirping (of birds); tweet-tweet"}, {"zh": "仰", "pinyin": "yǎng", "en": "to look up; to tilt one's head back"}, {"zh": "凝望", "pinyin": "níng wàng", "en": "to gaze intently at; to stare fixedly"}, {"zh": "鸟笼", "pinyin": "niǎo lóng", "en": "bird cage"}, {"zh": "隔", "pinyin": "gé", "en": "after (a period); to be separated by"}, {"zh": "愤怒", "pinyin": "fèn nù", "en": "furious; indignant"}, {"zh": "畏罪潜逃", "pinyin": "wèi zuì qián táo", "en": "to flee out of guilt; to run from a crime"}, {"zh": "喵", "pinyin": "miāo", "en": "meow (cat sound)"}, {"zh": "衔", "pinyin": "xián", "en": "to hold in the beak/mouth"}, {"zh": "搞", "pinyin": "gǎo", "en": "to get something wrong; to do (informal)"}, {"zh": "失踪", "pinyin": "shī zōng", "en": "to go missing; to vanish"}, {"zh": "估计", "pinyin": "gū jì", "en": "to estimate; to reckon; to suppose"}];</script>
+<script>
+(function () {
+  const SPEAKER_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>';
+  const STOP_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="5" y="5" width="14" height="14" rx="1"></rect></svg>';
+  const PLAY_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>';
+
+  // Inject speaker icons into all .speaker-btn elements
+  document.querySelectorAll('.speaker-btn').forEach(function(b){ b.innerHTML = SPEAKER_SVG; });
+
+  const togglePy = document.getElementById('toggle-pinyin');
+  const toggleEn = document.getElementById('toggle-english');
+  togglePy && togglePy.addEventListener('change', function(){ document.body.classList.toggle('pinyin-off', !togglePy.checked); });
+  toggleEn && toggleEn.addEventListener('change', function(){ document.body.classList.toggle('english-off', !toggleEn.checked); });
+
+  // ===== Vocab panel toggle =====
+  const vocabPanelToggle = document.getElementById('toggle-vocab-panel');
+  const vocabPanel = document.getElementById('vocab-panel');
+  if (vocabPanelToggle && vocabPanel) {
+    vocabPanelToggle.addEventListener('change', function(){
+      vocabPanel.hidden = !vocabPanelToggle.checked;
+    });
+  }
+
+  // ===== Vocab bottom sheet =====
+  const vocabSheet = document.getElementById('vocab-sheet');
+  const vocabBackdrop = document.getElementById('vocab-backdrop');
+  const vocabSheetClose = document.getElementById('vocab-sheet-close');
+  const vocabData = window.__VOCAB__ || [];
+
+  function buildRuby(zh, pinyinStr) {
+    // Split pinyin by space, line up with chars of zh
+    const chars = Array.from(zh);
+    const syllables = (pinyinStr || '').split(/\s+/).filter(Boolean);
+    let out = '';
+    let si = 0;
+    for (const ch of chars) {
+      // Only attach pinyin to CJK characters
+      if (/[\u4e00-\u9fff]/.test(ch)) {
+        const p = syllables[si++] || '';
+        out += '<ruby>' + ch + '<rt>' + p + '</rt></ruby>';
+      } else {
+        out += ch;
+      }
+    }
+    return out;
+  }
+
+  function openVocabSheet(vocabId) {
+    const v = vocabData[vocabId];
+    if (!v || !vocabSheet || !vocabBackdrop) return;
+    const content = vocabSheet.querySelector('.vocab-sheet-content');
+    content.innerHTML = '<p class="vs-zh chinese">' + buildRuby(v.zh, v.pinyin || '') + '</p>' +
+                        '<p class="vs-en">' + v.en + '</p>';
+    vocabSheet.hidden = false;
+    vocabBackdrop.hidden = false;
+    // allow transition
+    requestAnimationFrame(function(){
+      vocabSheet.classList.add('visible');
+      vocabBackdrop.classList.add('visible');
+    });
+  }
+
+  function closeVocabSheet() {
+    if (!vocabSheet || !vocabBackdrop) return;
+    vocabSheet.classList.remove('visible');
+    vocabBackdrop.classList.remove('visible');
+    setTimeout(function(){
+      vocabSheet.hidden = true;
+      vocabBackdrop.hidden = true;
+    }, 250);
+  }
+
+  // Click handler on any .vocab span
+  document.addEventListener('click', function(e){
+    const vocab = e.target.closest && e.target.closest('.vocab');
+    if (vocab) {
+      e.stopPropagation();
+      const id = parseInt(vocab.getAttribute('data-vocab-id'), 10);
+      openVocabSheet(id);
+      return;
+    }
+    // Click on vocab list row opens the sheet too
+    const vRow = e.target.closest && e.target.closest('.vocab-row');
+    if (vRow) {
+      const id = parseInt(vRow.getAttribute('data-vocab-id'), 10);
+      openVocabSheet(id);
+      return;
+    }
+  });
+
+  vocabSheetClose && vocabSheetClose.addEventListener('click', closeVocabSheet);
+  vocabBackdrop && vocabBackdrop.addEventListener('click', closeVocabSheet);
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeVocabSheet(); });
+
+  const speed = document.getElementById('speed');
+  const speedVal = document.getElementById('speed-val');
+  let rate = speed ? parseFloat(speed.value) : 0.9;
+  if (speed) speed.addEventListener('input', function(){
+    rate = parseFloat(speed.value);
+    speedVal.textContent = rate.toFixed(2).replace(/0$/, '') + '\u00d7';
+  });
+
+  const synth = window.speechSynthesis;
+  let chosenVoice = null;
+  function pickVoice(){
+    if (!synth) return;
+    const voices = synth.getVoices();
+    chosenVoice = voices.find(function(v){ return v.lang && v.lang.toLowerCase().indexOf('zh') === 0; }) || null;
+  }
+  if (synth) { pickVoice(); synth.addEventListener && synth.addEventListener('voiceschanged', pickVoice); }
+
+  function clearActive(){
+    document.querySelectorAll('.speaker-btn.playing').forEach(function(b){ b.classList.remove('playing'); });
+    document.querySelectorAll('.active-passage').forEach(function(p){ p.classList.remove('active-passage'); });
+  }
+
+  const playAllBtn = document.getElementById('play-all-btn');
+  let isPlayingAll = false;
+  let queue = [];
+
+  function setPlayAllState(playing){
+    isPlayingAll = playing;
+    if (!playAllBtn) return;
+    if (playing){
+      playAllBtn.classList.add('playing');
+      playAllBtn.innerHTML = STOP_SVG + '<span>\u505c\u6b62 Stop</span>';
+    } else {
+      playAllBtn.classList.remove('playing');
+      playAllBtn.innerHTML = PLAY_SVG + '<span>\u64ad\u653e\u5168\u6587 Play all</span>';
+      queue = [];
+    }
+  }
+
+  function speakOne(text, onDone){
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'zh-CN'; u.rate = rate;
+    if (chosenVoice) u.voice = chosenVoice;
+    u.onend = onDone; u.onerror = onDone;
+    synth.speak(u);
+  }
+
+  // Individual speaker buttons — each has data-audio attr containing the Chinese to speak,
+  // and data-active-selector saying which parent element to highlight
+  document.querySelectorAll('.speaker-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      if (!synth){ alert('Your browser does not support speech synthesis.'); return; }
+      synth.cancel(); clearActive(); setPlayAllState(false);
+      const text = btn.dataset.audio || '';
+      const activeEl = btn.closest('[data-playable]');
+      btn.classList.add('playing');
+      if (activeEl) activeEl.classList.add('active-passage');
+      speakOne(text, function(){
+        btn.classList.remove('playing');
+        if (activeEl) activeEl.classList.remove('active-passage');
+      });
+    });
+  });
+
+  if (playAllBtn){
+    playAllBtn.addEventListener('click', function(){
+      if (!synth){ alert('Your browser does not support speech synthesis.'); return; }
+      if (isPlayingAll){ synth.cancel(); clearActive(); setPlayAllState(false); return; }
+      synth.cancel(); clearActive();
+      queue = Array.from(document.querySelectorAll('[data-playable]'));
+      setPlayAllState(true);
+      function next(){
+        if (!isPlayingAll || queue.length === 0){ clearActive(); setPlayAllState(false); return; }
+        const el = queue.shift();
+        clearActive(); el.classList.add('active-passage');
+        el.scrollIntoView({behavior:'smooth', block:'center'});
+        const text = el.dataset.audio || el.querySelector('.speaker-btn').dataset.audio;
+        speakOne(text, next);
+      }
+      next();
+    });
+  }
+})();
+</script>
+</body>
+</html>

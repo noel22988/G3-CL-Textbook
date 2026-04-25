@@ -1,0 +1,693 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>人类最糟糕的发明 — 快捷华文</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --ink-muted: #6b7280;
+    --ink-faint: #9ca3af;
+    --accent: #2f7d4f;
+    --accent-soft: #e6f1ea;
+    --accent-dark: #26663f;
+    --rule: #e5e7eb;
+    --bg: #fafaf8;
+    --surface: #ffffff;
+    --bubble-a: #f0f4f2;
+    --bubble-b: #eef3f7;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+  }
+  .chinese { font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Source Han Sans SC", "Noto Sans CJK SC", sans-serif; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  header.top { max-width: 1100px; margin: 0 auto; padding: 2rem 2rem 1rem; }
+  .back-link { font-size: 13px; color: var(--ink-muted); display: inline-block; margin-bottom: 0.75rem; }
+  .back-link:hover { color: var(--accent); }
+  .breadcrumb {
+    font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--ink-muted); margin-bottom: 0.5rem;
+  }
+  .breadcrumb .sep { opacity: 0.5; margin: 0 0.5em; }
+  h1.title {
+    margin: 0; font-weight: 500; font-size: 28px;
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.75rem;
+  }
+  h1.title .zh { color: var(--ink); }
+  h1.title .en { color: var(--ink-muted); font-weight: 400; font-size: 16px; }
+
+  .controls {
+    max-width: 1100px; margin: 0 auto; padding: 1rem 2rem;
+    display: flex; gap: 1.25rem; flex-wrap: wrap; align-items: center;
+    border-bottom: 1px solid var(--rule);
+  }
+  .controls label {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 14px; color: var(--ink-muted); cursor: pointer; user-select: none;
+  }
+  .controls input[type=checkbox] { accent-color: var(--accent); width: 16px; height: 16px; }
+  .controls input[type=checkbox]:checked + span { color: var(--accent); font-weight: 500; }
+  .controls .speed { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ink-muted); }
+  .controls .speed input { width: 100px; accent-color: var(--accent); }
+  .controls .speed .val { min-width: 28px; font-weight: 500; color: var(--ink); }
+  .controls .speed .speed-hint { font-size: 11px; color: var(--ink-faint); font-style: italic; }
+  .controls .spacer { flex: 1; }
+  .controls button.play-all {
+    border: 1px solid var(--accent); background: var(--accent); color: #fff;
+    padding: 7px 14px; font-size: 13px; font-weight: 500; border-radius: 6px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s;
+  }
+  .controls button.play-all:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+  .controls button.play-all.playing { background: #b34545; border-color: #b34545; }
+  .controls button.play-all.playing:hover { background: #933838; border-color: #933838; }
+  .controls button.play-all svg { width: 11px; height: 11px; }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 1.5rem 2rem 5rem; }
+
+  /* Pinyin defaults */
+  ruby { ruby-position: over; }
+  ruby rt {
+    font-size: 11px; color: var(--accent);
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-weight: 400; letter-spacing: 0.02em;
+    padding-bottom: 6px;
+    transition: opacity 0.15s;
+  }
+  body.pinyin-off ruby rt { opacity: 0; }
+
+  .speaker-btn {
+    background: transparent; border: 1px solid var(--rule);
+    width: 28px; height: 28px; padding: 0; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--ink-muted); transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .speaker-btn:hover { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+  .speaker-btn.playing { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .speaker-btn svg { width: 12px; height: 12px; }
+
+  /* PROSE format — two-column */
+  .para {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2.5rem;
+    padding: 1.5rem 0; border-bottom: 1px solid var(--rule); align-items: start;
+  }
+  .para:last-child { border-bottom: none; }
+  .para .zh-col { display: grid; grid-template-columns: 28px 1fr; gap: 12px; align-items: start; }
+  .para .speaker-btn { margin-top: 8px; }
+  .para .zh-text { font-size: 22px; line-height: 2.6; }
+  .para .en-col {
+    font-size: 15px; line-height: 1.75; color: var(--ink-muted); padding-top: 6px;
+    transition: opacity 0.15s;
+  }
+  body.english-off .en-col { opacity: 0; pointer-events: none; }
+  .para-num {
+    color: var(--ink-faint); font-size: 13px; font-weight: 500;
+    margin-bottom: 4px; display: block;
+  }
+  .para.active-passage .zh-text {
+    background: var(--accent-soft); border-radius: 6px; padding: 4px 8px; margin-left: -8px;
+  }
+
+  /* Subheadings inside prose articles */
+  .subheading {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2.5rem;
+    padding: 1rem 0 0; align-items: baseline;
+    margin: 0;
+  }
+  .subheading-zh {
+    font-size: 18px; font-weight: 500; color: var(--accent-dark);
+    padding-left: 40px; line-height: 1.3;
+    margin: 0;
+  }
+  .subheading-en {
+    font-size: 14px; color: var(--ink-muted); font-weight: 500;
+    transition: opacity 0.15s;
+    letter-spacing: 0.02em;
+    line-height: 1.3;
+    margin: 0;
+  }
+  body.english-off .subheading-en { opacity: 0; }
+  /* Tight coupling — subheading sits directly on top of its paragraph */
+  .subheading + .para { border-top: none; padding-top: 0; }
+
+  /* TABLE format — stacked character cards */
+  .profile-card {
+    background: var(--surface); border: 1px solid var(--rule); border-radius: 12px;
+    padding: 1.5rem 1.75rem; margin-bottom: 1.25rem;
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start;
+  }
+  .profile-card:last-child { margin-bottom: 0; }
+  .profile-card .zh-side { display: grid; grid-template-columns: 28px 1fr; gap: 12px; }
+  .profile-card .name {
+    font-size: 24px; font-weight: 500; margin-bottom: 0.75rem;
+    line-height: 2;
+  }
+  .profile-card .traits { font-size: 18px; line-height: 2.4; }
+  .profile-card .trait { margin-bottom: 0.75rem; }
+  .profile-card .trait:last-child { margin-bottom: 0; }
+  .profile-card .trait-label {
+    display: inline-block; background: var(--accent-soft); color: var(--accent);
+    font-size: 14px; font-weight: 500; padding: 2px 12px; border-radius: 12px;
+    margin-right: 8px; vertical-align: baseline;
+    font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
+    position: relative; top: -2px;
+  }
+  .profile-card .trait-label ruby rt { color: var(--accent-dark); }
+  .profile-card .en-side {
+    font-size: 14px; line-height: 1.75; color: var(--ink-muted); padding-top: 8px;
+    transition: opacity 0.15s;
+  }
+  body.english-off .profile-card .en-side { opacity: 0; pointer-events: none; }
+  .profile-card .en-side .en-name { font-weight: 500; color: var(--ink); font-size: 16px; margin-bottom: 0.5rem; }
+  .profile-card .en-side .en-trait { margin-bottom: 0.5rem; }
+  .profile-card .en-side .en-trait-label { font-weight: 500; color: var(--ink); }
+
+  /* DIALOGUE format — chat bubbles */
+  .stage-direction {
+    text-align: center; color: var(--ink-muted);
+    font-size: 15px; padding: 1rem 2rem;
+    font-style: italic;
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start;
+  }
+  .stage-direction .zh-dir { font-style: normal; }
+  .stage-direction .zh-dir .zh-text { line-height: 2.4; }
+  .stage-direction .en-dir { font-size: 14px; }
+
+  .bubble-row {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;
+    margin-bottom: 1rem; align-items: start;
+  }
+  .bubble-zh { display: flex; gap: 10px; align-items: flex-start; }
+  .bubble-zh.align-right { justify-content: flex-end; }
+  .bubble-zh.align-right .bubble { background: var(--accent-soft); }
+  .bubble-zh .speaker-btn { margin-top: 6px; }
+  .bubble {
+    background: var(--bubble-a);
+    border-radius: 16px; padding: 10px 16px;
+    max-width: 85%;
+    line-height: 2.4; font-size: 18px;
+  }
+  .bubble-zh.align-right .bubble { border-bottom-right-radius: 4px; }
+  .bubble-zh.align-left .bubble { border-bottom-left-radius: 4px; }
+  .bubble-zh .speaker-name {
+    display: block; font-size: 12px; font-weight: 500; color: var(--accent-dark);
+    margin-bottom: 2px; letter-spacing: 0.02em;
+  }
+  .bubble-zh.align-right .speaker-name { text-align: right; }
+  .bubble-row.active-passage .bubble { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .bubble-en {
+    font-size: 14px; line-height: 1.6; color: var(--ink-muted); padding-top: 8px;
+    transition: opacity 0.15s;
+  }
+  .bubble-en .en-speaker { font-weight: 500; color: var(--ink); }
+  body.english-off .bubble-en, body.english-off .stage-direction .en-dir { opacity: 0; pointer-events: none; }
+
+  /* ===== Vocab inline highlighting + bottom sheet ===== */
+  .vocab {
+    cursor: pointer;
+    text-underline-offset: 6px;
+    text-decoration: underline dotted var(--accent);
+    text-decoration-thickness: 1.5px;
+    transition: background 0.15s;
+    border-radius: 3px;
+    padding: 0 1px;
+  }
+  .vocab:hover, .vocab:focus { background: var(--accent-soft); outline: none; }
+
+  /* Vocab list panel at top of passage (toggleable) */
+  .vocab-panel {
+    background: var(--surface); border: 1px solid var(--rule);
+    border-radius: 12px; padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .vocab-panel-title {
+    font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--ink-faint); font-weight: 500; margin: 0 0 1rem;
+  }
+  .vocab-list {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem 2rem;
+  }
+  .vocab-row {
+    display: grid; grid-template-columns: minmax(auto, 140px) 1fr; gap: 1rem;
+    padding: 0.5rem 0; border-top: 1px solid var(--rule-soft);
+    align-items: baseline;
+  }
+  .vocab-row:first-child, .vocab-row:nth-child(2) { border-top: none; }
+  .vocab-row-zh { font-size: 18px; font-family: "PingFang SC", "Hiragino Sans GB", sans-serif; line-height: 2; }
+  .vocab-row-en { font-size: 14px; color: var(--ink-muted); line-height: 1.5; }
+
+  /* Bottom sheet for single-word lookup */
+  .vocab-backdrop {
+    position: fixed; inset: 0; background: rgba(0, 0, 0, 0.25);
+    z-index: 100; opacity: 0; transition: opacity 0.2s;
+    pointer-events: none;
+  }
+  .vocab-backdrop.visible { opacity: 1; pointer-events: auto; }
+  .vocab-sheet {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--rule);
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.08);
+    padding: 1.5rem 2rem 2rem;
+    z-index: 101;
+    transform: translateY(100%); transition: transform 0.25s ease-out;
+    max-width: 600px; margin: 0 auto;
+    border-top-left-radius: 16px; border-top-right-radius: 16px;
+  }
+  .vocab-sheet.visible { transform: translateY(0); }
+  .vocab-sheet-close {
+    position: absolute; top: 10px; right: 14px;
+    background: transparent; border: none; font-size: 28px; line-height: 1;
+    color: var(--ink-faint); cursor: pointer; padding: 4px 10px;
+  }
+  .vocab-sheet-close:hover { color: var(--ink); }
+  .vocab-sheet-content .vs-zh {
+    font-size: 32px; font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
+    line-height: 2.2; margin: 0;
+  }
+  .vocab-sheet-content .vs-zh ruby rt { font-size: 14px; }
+  .vocab-sheet-content .vs-en {
+    font-size: 16px; color: var(--ink); line-height: 1.6;
+    margin: 0.5rem 0 0;
+  }
+
+  @media (max-width: 720px) {
+    .para { grid-template-columns: 1fr; gap: 0.75rem; }
+    .para .en-col { padding-top: 0; padding-left: 40px; font-style: italic; }
+    .para .zh-text { font-size: 20px; }
+    .profile-card { grid-template-columns: 1fr; gap: 1rem; padding: 1rem 1.25rem; }
+    .profile-card .en-side { padding-top: 0; padding-left: 40px; font-style: italic; border-top: 1px solid var(--rule); padding-top: 1rem; }
+    .profile-card .name { font-size: 22px; }
+    .profile-card .traits { font-size: 17px; line-height: 2.2; }
+    .bubble-row, .stage-direction { grid-template-columns: 1fr; gap: 0.5rem; }
+    .bubble-en { padding-left: 16px; padding-top: 0; font-style: italic; }
+    .bubble { font-size: 17px; }
+    header.top, .controls, main { padding-left: 1.25rem; padding-right: 1.25rem; }
+    .controls { gap: 0.75rem; }
+    .vocab-list { grid-template-columns: 1fr; gap: 0; }
+    .vocab-row { grid-template-columns: minmax(auto, 120px) 1fr; padding: 0.5rem 0; border-top: 1px solid var(--rule-soft); }
+    .vocab-row:nth-child(2) { border-top: 1px solid var(--rule-soft); }
+    .vocab-row:first-child { border-top: none; }
+    .vocab-sheet { padding: 1.25rem 1.5rem 1.75rem; }
+    .vocab-sheet-content .vs-zh { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+  <header class="top">
+    <a class="back-link" href="../index.html">← 返回 Back to all levels</a>
+    <div class="breadcrumb">Level 2 · Unit 3 · 绿色家园 A Greener Home <span class="sep">·</span> 核心 Core</div>
+    <h1 class="title">
+      <span class="zh chinese">《人类最糟糕的发明》</span>
+      <span class="en">Humanity&#x27;s Worst Invention</span>
+    </h1>
+  </header>
+  <div class="controls">
+    <label><input type="checkbox" id="toggle-pinyin" checked><span>显示汉语拼音 Show pinyin</span></label>
+    <label><input type="checkbox" id="toggle-english" checked><span>显示英文 Show English</span></label>
+    <label><input type="checkbox" id="toggle-vocab-panel"><span>显示生词 Show vocab list</span></label>
+    <div class="speed">
+      <span>语速 Speed</span>
+      <input type="range" min="0.5" max="1.2" step="0.05" value="0.9" id="speed" title="Adjust before playing">
+      <span class="val" id="speed-val">0.9×</span>
+      <span class="speed-hint">(set before play)</span>
+    </div>
+    <div class="spacer"></div>
+    <button class="play-all" id="play-all-btn" type="button">
+      <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>
+      <span>播放全文 Play all</span>
+    </button>
+  </div>
+  <main>
+  <section class="vocab-panel" id="vocab-panel" hidden>
+    <h2 class="vocab-panel-title">生词 Vocabulary · 14 words</h2>
+    <div class="vocab-list">
+      <div class="vocab-row" data-vocab-id="0">
+        <div class="vocab-row-zh chinese"><ruby>媒<rt>méi</rt></ruby><ruby>体<rt>tǐ</rt></ruby></div>
+        <div class="vocab-row-en">media (news, press)</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="1">
+        <div class="vocab-row-zh chinese"><ruby>塑<rt>sù</rt></ruby><ruby>料<rt>liào</rt></ruby></div>
+        <div class="vocab-row-en">plastic</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="2">
+        <div class="vocab-row-zh chinese"><ruby>廉<rt>lián</rt></ruby><ruby>价<rt>jià</rt></ruby></div>
+        <div class="vocab-row-en">cheap; inexpensive</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="3">
+        <div class="vocab-row-zh chinese"><ruby>提<rt>tí</rt></ruby><ruby>供<rt>gōng</rt></ruby></div>
+        <div class="vocab-row-en">to provide; to supply</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="4">
+        <div class="vocab-row-zh chinese"><ruby>铺<rt>pù</rt></ruby></div>
+        <div class="vocab-row-en">to lay out flat; to spread out</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="5">
+        <div class="vocab-row-zh chinese"><ruby>污<rt>wū</rt></ruby><ruby>染<rt>rǎn</rt></ruby></div>
+        <div class="vocab-row-en">pollution; to pollute</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="6">
+        <div class="vocab-row-zh chinese"><ruby>焚<rt>fén</rt></ruby><ruby>烧<rt>shāo</rt></ruby></div>
+        <div class="vocab-row-en">to incinerate; to burn up</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="7">
+        <div class="vocab-row-zh chinese"><ruby>烟<rt>yān</rt></ruby><ruby>尘<rt>chén</rt></ruby></div>
+        <div class="vocab-row-en">smoke and dust; soot</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="8">
+        <div class="vocab-row-zh chinese"><ruby>土<rt>tǔ</rt></ruby><ruby>壤<rt>rǎng</rt></ruby></div>
+        <div class="vocab-row-en">soil; earth</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="9">
+        <div class="vocab-row-zh chinese"><ruby>遏<rt>è</rt></ruby><ruby>制<rt>zhì</rt></ruby></div>
+        <div class="vocab-row-en">to curb; to keep in check</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="10">
+        <div class="vocab-row-zh chinese"><ruby>倡<rt>chàng</rt></ruby><ruby>导<rt>dǎo</rt></ruby></div>
+        <div class="vocab-row-en">to advocate; to promote</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="11">
+        <div class="vocab-row-zh chinese"><ruby>逐<rt>zhú</rt></ruby><ruby>渐<rt>jiàn</rt></ruby></div>
+        <div class="vocab-row-en">gradually; step by step</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="12">
+        <div class="vocab-row-zh chinese"><ruby>威<rt>wēi</rt></ruby><ruby>胁<rt>xié</rt></ruby></div>
+        <div class="vocab-row-en">threat; to threaten</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="13">
+        <div class="vocab-row-zh chinese"><ruby>煞<rt>shà</rt></ruby><ruby>费<rt>fèi</rt></ruby><ruby>苦<rt>kǔ</rt></ruby><ruby>心<rt>xīn</rt></ruby></div>
+        <div class="vocab-row-en">to take great pains over; to rack one&#x27;s brains</div>
+      </div></div>
+  </section>
+<article class="para" data-playable data-audio="英国媒体曾经评出二十世纪人类最糟糕的发明，“得奖”的正是人们每天大量使用的塑料袋。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="英国媒体曾经评出二十世纪人类最糟糕的发明，“得奖”的正是人们每天大量使用的塑料袋。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">1</span>
+      <ruby>英<rt>yīng</rt></ruby><ruby>国<rt>guó</rt></ruby><span class="vocab" data-vocab-id="0"><ruby>媒<rt>méi</rt></ruby><ruby>体<rt>tǐ</rt></ruby></span><ruby>曾<rt>céng</rt></ruby><ruby>经<rt>jīng</rt></ruby><ruby>评<rt>píng</rt></ruby><ruby>出<rt>chū</rt></ruby><ruby>二<rt>èr</rt></ruby><ruby>十<rt>shí</rt></ruby><ruby>世<rt>shì</rt></ruby><ruby>纪<rt>jì</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>类<rt>lèi</rt></ruby><ruby>最<rt>zuì</rt></ruby><ruby>糟<rt>zāo</rt></ruby><ruby>糕<rt>gāo</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>发<rt>fā</rt></ruby><ruby>明<rt>míng</rt></ruby>，“<ruby>得<rt>dé</rt></ruby><ruby>奖<rt>jiǎng</rt></ruby>”<ruby>的<rt>de</rt></ruby><ruby>正<rt>zhèng</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>们<rt>men</rt></ruby><ruby>每<rt>měi</rt></ruby><ruby>天<rt>tiān</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>量<rt>liàng</rt></ruby><ruby>使<rt>shǐ</rt></ruby><ruby>用<rt>yòng</rt></ruby><ruby>的<rt>de</rt></ruby><span class="vocab" data-vocab-id="1"><ruby>塑<rt>sù</rt></ruby><ruby>料<rt>liào</rt></ruby></span><ruby>袋<rt>dài</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">1</span>The British media once ran a poll for the worst human invention of the twentieth century. The &quot;winner&quot; was none other than the plastic bag — the very thing we use every day in vast numbers.</div>
+</article>
+<div class="subheading">
+  <div class="subheading-zh chinese"><span class="vocab" data-vocab-id="1"><ruby>塑<rt>sù</rt></ruby><ruby>料<rt>liào</rt></ruby></span><ruby>袋<rt>dài</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>广<rt>guǎng</rt></ruby><ruby>泛<rt>fàn</rt></ruby><ruby>使<rt>shǐ</rt></ruby><ruby>用<rt>yòng</rt></ruby></div>
+  <div class="subheading-en">Plastic Bags Everywhere</div>
+</div>
+<article class="para" data-playable data-audio="塑料早在一百多年前就发明了，但它的飞速发展是从二十世纪五十年代开始的。自那时起，塑料的产量几乎直线上升。塑料在工业生产和人们的日常生活中，都扮演着重要的角色。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="塑料早在一百多年前就发明了，但它的飞速发展是从二十世纪五十年代开始的。自那时起，塑料的产量几乎直线上升。塑料在工业生产和人们的日常生活中，都扮演着重要的角色。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">2</span>
+      <span class="vocab" data-vocab-id="1"><ruby>塑<rt>sù</rt></ruby><ruby>料<rt>liào</rt></ruby></span><ruby>早<rt>zǎo</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>一<rt>yì</rt></ruby><ruby>百<rt>bǎi</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>年<rt>nián</rt></ruby><ruby>前<rt>qián</rt></ruby><ruby>就<rt>jiù</rt></ruby><ruby>发<rt>fā</rt></ruby><ruby>明<rt>míng</rt></ruby><ruby>了<rt>le</rt></ruby>，<ruby>但<rt>dàn</rt></ruby><ruby>它<rt>tā</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>飞<rt>fēi</rt></ruby><ruby>速<rt>sù</rt></ruby><ruby>发<rt>fā</rt></ruby><ruby>展<rt>zhǎn</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>从<rt>cóng</rt></ruby><ruby>二<rt>èr</rt></ruby><ruby>十<rt>shí</rt></ruby><ruby>世<rt>shì</rt></ruby><ruby>纪<rt>jì</rt></ruby><ruby>五<rt>wǔ</rt></ruby><ruby>十<rt>shí</rt></ruby><ruby>年<rt>nián</rt></ruby><ruby>代<rt>dài</rt></ruby><ruby>开<rt>kāi</rt></ruby><ruby>始<rt>shǐ</rt></ruby><ruby>的<rt>de</rt></ruby>。<ruby>自<rt>zì</rt></ruby><ruby>那<rt>nà</rt></ruby><ruby>时<rt>shí</rt></ruby><ruby>起<rt>qǐ</rt></ruby>，<span class="vocab" data-vocab-id="1"><ruby>塑<rt>sù</rt></ruby><ruby>料<rt>liào</rt></ruby></span><ruby>的<rt>de</rt></ruby><ruby>产<rt>chǎn</rt></ruby><ruby>量<rt>liàng</rt></ruby><ruby>几<rt>jī</rt></ruby><ruby>乎<rt>hū</rt></ruby><ruby>直<rt>zhí</rt></ruby><ruby>线<rt>xiàn</rt></ruby><ruby>上<rt>shàng</rt></ruby><ruby>升<rt>shēng</rt></ruby>。<span class="vocab" data-vocab-id="1"><ruby>塑<rt>sù</rt></ruby><ruby>料<rt>liào</rt></ruby></span><ruby>在<rt>zài</rt></ruby><ruby>工<rt>gōng</rt></ruby><ruby>业<rt>yè</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>产<rt>chǎn</rt></ruby><ruby>和<rt>hé</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>们<rt>men</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>日<rt>rì</rt></ruby><ruby>常<rt>cháng</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>活<rt>huó</rt></ruby><ruby>中<rt>zhōng</rt></ruby>，<ruby>都<rt>dōu</rt></ruby><ruby>扮<rt>bàn</rt></ruby><ruby>演<rt>yǎn</rt></ruby><ruby>着<rt>zhuó</rt></ruby><ruby>重<rt>zhòng</rt></ruby><ruby>要<rt>yào</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>角<rt>jué</rt></ruby><ruby>色<rt>sè</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">2</span>Plastic was invented more than a hundred years ago, but its rapid rise only began in the 1950s. Since then, plastic production has climbed in what is almost a straight line upward. Plastic now plays a major role both in industry and in everyday life.</div>
+</article>
+<article class="para" data-playable data-audio="我们今天所熟悉的一次性塑料袋，也是在上世纪五六十年代开始出现的。这种塑料袋因为廉价、卫生、方便和耐用，很快便得到广泛使用。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="我们今天所熟悉的一次性塑料袋，也是在上世纪五六十年代开始出现的。这种塑料袋因为廉价、卫生、方便和耐用，很快便得到广泛使用。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">3</span>
+      <ruby>我<rt>wǒ</rt></ruby><ruby>们<rt>men</rt></ruby><ruby>今<rt>jīn</rt></ruby><ruby>天<rt>tiān</rt></ruby><ruby>所<rt>suǒ</rt></ruby><ruby>熟<rt>shú</rt></ruby><ruby>悉<rt>xī</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>一<rt>yí</rt></ruby><ruby>次<rt>cì</rt></ruby><ruby>性<rt>xìng</rt></ruby><span class="vocab" data-vocab-id="1"><ruby>塑<rt>sù</rt></ruby><ruby>料<rt>liào</rt></ruby></span><ruby>袋<rt>dài</rt></ruby>，<ruby>也<rt>yě</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>上<rt>shàng</rt></ruby><ruby>世<rt>shì</rt></ruby><ruby>纪<rt>jì</rt></ruby><ruby>五<rt>wǔ</rt></ruby><ruby>六<rt>liù</rt></ruby><ruby>十<rt>shí</rt></ruby><ruby>年<rt>nián</rt></ruby><ruby>代<rt>dài</rt></ruby><ruby>开<rt>kāi</rt></ruby><ruby>始<rt>shǐ</rt></ruby><ruby>出<rt>chū</rt></ruby><ruby>现<rt>xiàn</rt></ruby><ruby>的<rt>de</rt></ruby>。<ruby>这<rt>zhè</rt></ruby><ruby>种<rt>zhǒng</rt></ruby><span class="vocab" data-vocab-id="1"><ruby>塑<rt>sù</rt></ruby><ruby>料<rt>liào</rt></ruby></span><ruby>袋<rt>dài</rt></ruby><ruby>因<rt>yīn</rt></ruby><ruby>为<rt>wèi</rt></ruby><span class="vocab" data-vocab-id="2"><ruby>廉<rt>lián</rt></ruby><ruby>价<rt>jià</rt></ruby></span>、<ruby>卫<rt>wèi</rt></ruby><ruby>生<rt>shēng</rt></ruby>、<ruby>方<rt>fāng</rt></ruby><ruby>便<rt>biàn</rt></ruby><ruby>和<rt>hé</rt></ruby><ruby>耐<rt>nài</rt></ruby><ruby>用<rt>yòng</rt></ruby>，<ruby>很<rt>hěn</rt></ruby><ruby>快<rt>kuài</rt></ruby><ruby>便<rt>biàn</rt></ruby><ruby>得<rt>dé</rt></ruby><ruby>到<rt>dào</rt></ruby><ruby>广<rt>guǎng</rt></ruby><ruby>泛<rt>fàn</rt></ruby><ruby>使<rt>shǐ</rt></ruby><ruby>用<rt>yòng</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">3</span>The disposable plastic bags we all know today also first appeared in the 1950s and 60s. Because they were cheap, hygienic, convenient, and hard-wearing, they quickly came into widespread use.</div>
+</article>
+<article class="para" data-playable data-audio="在我国，大部分人在超市购物时都习惯使用超市提供的塑料袋。根据新加坡环境理事会的调查，去超市购物的人中，使用3至5个塑料袋的人占百分之三十五，有大约一半的人每次使用至少3个塑料袋。本地每年使用的塑料袋达8.2亿个，如果把这些塑料袋铺平开来，面积相当于126个滨海湾花园。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="在我国，大部分人在超市购物时都习惯使用超市提供的塑料袋。根据新加坡环境理事会的调查，去超市购物的人中，使用3至5个塑料袋的人占百分之三十五，有大约一半的人每次使用至少3个塑料袋。本地每年使用的塑料袋达8.2亿个，如果把这些塑料袋铺平开来，面积相当于126个滨海湾花园。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">4</span>
+      <ruby>在<rt>zài</rt></ruby><ruby>我<rt>wǒ</rt></ruby><ruby>国<rt>guó</rt></ruby>，<ruby>大<rt>dà</rt></ruby><ruby>部<rt>bù</rt></ruby><ruby>分<rt>fèn</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>超<rt>chāo</rt></ruby><ruby>市<rt>shì</rt></ruby><ruby>购<rt>gòu</rt></ruby><ruby>物<rt>wù</rt></ruby><ruby>时<rt>shí</rt></ruby><ruby>都<rt>dōu</rt></ruby><ruby>习<rt>xí</rt></ruby><ruby>惯<rt>guàn</rt></ruby><ruby>使<rt>shǐ</rt></ruby><ruby>用<rt>yòng</rt></ruby><ruby>超<rt>chāo</rt></ruby><ruby>市<rt>shì</rt></ruby><span class="vocab" data-vocab-id="3"><ruby>提<rt>tí</rt></ruby><ruby>供<rt>gōng</rt></ruby></span><ruby>的<rt>de</rt></ruby><span class="vocab" data-vocab-id="1"><ruby>塑<rt>sù</rt></ruby><ruby>料<rt>liào</rt></ruby></span><ruby>袋<rt>dài</rt></ruby>。<ruby>根<rt>gēn</rt></ruby><ruby>据<rt>jù</rt></ruby><ruby>新<rt>xīn</rt></ruby><ruby>加<rt>jiā</rt></ruby><ruby>坡<rt>pō</rt></ruby><ruby>环<rt>huán</rt></ruby><ruby>境<rt>jìng</rt></ruby><ruby>理<rt>lǐ</rt></ruby><ruby>事<rt>shì</rt></ruby><ruby>会<rt>huì</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>调<rt>diào</rt></ruby><ruby>查<rt>chá</rt></ruby>，<ruby>去<rt>qù</rt></ruby><ruby>超<rt>chāo</rt></ruby><ruby>市<rt>shì</rt></ruby><ruby>购<rt>gòu</rt></ruby><ruby>物<rt>wù</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>中<rt>zhōng</rt></ruby>，<ruby>使<rt>shǐ</rt></ruby><ruby>用<rt>yòng</rt></ruby>3<ruby>至<rt>zhì</rt></ruby>5<ruby>个<rt>gè</rt></ruby><span class="vocab" data-vocab-id="1"><ruby>塑<rt>sù</rt></ruby><ruby>料<rt>liào</rt></ruby></span><ruby>袋<rt>dài</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>占<rt>zhàn</rt></ruby><ruby>百<rt>bǎi</rt></ruby><ruby>分<rt>fēn</rt></ruby><ruby>之<rt>zhī</rt></ruby><ruby>三<rt>sān</rt></ruby><ruby>十<rt>shí</rt></ruby><ruby>五<rt>wǔ</rt></ruby>，<ruby>有<rt>yǒu</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>约<rt>yuē</rt></ruby><ruby>一<rt>yí</rt></ruby><ruby>半<rt>bàn</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>每<rt>měi</rt></ruby><ruby>次<rt>cì</rt></ruby><ruby>使<rt>shǐ</rt></ruby><ruby>用<rt>yòng</rt></ruby><ruby>至<rt>zhì</rt></ruby><ruby>少<rt>shǎo</rt></ruby>3<ruby>个<rt>gè</rt></ruby><span class="vocab" data-vocab-id="1"><ruby>塑<rt>sù</rt></ruby><ruby>料<rt>liào</rt></ruby></span><ruby>袋<rt>dài</rt></ruby>。<ruby>本<rt>běn</rt></ruby><ruby>地<rt>dì</rt></ruby><ruby>每<rt>měi</rt></ruby><ruby>年<rt>nián</rt></ruby><ruby>使<rt>shǐ</rt></ruby><ruby>用<rt>yòng</rt></ruby><ruby>的<rt>de</rt></ruby><span class="vocab" data-vocab-id="1"><ruby>塑<rt>sù</rt></ruby><ruby>料<rt>liào</rt></ruby></span><ruby>袋<rt>dài</rt></ruby><ruby>达<rt>dá</rt></ruby>8.2<ruby>亿<rt>yì</rt></ruby><ruby>个<rt>gè</rt></ruby>，<ruby>如<rt>rú</rt></ruby><ruby>果<rt>guǒ</rt></ruby><ruby>把<rt>bǎ</rt></ruby><ruby>这<rt>zhè</rt></ruby><ruby>些<rt>xiē</rt></ruby><span class="vocab" data-vocab-id="1"><ruby>塑<rt>sù</rt></ruby><ruby>料<rt>liào</rt></ruby></span><ruby>袋<rt>dài</rt></ruby><span class="vocab" data-vocab-id="4"><ruby>铺<rt>pū</rt></ruby></span><ruby>平<rt>píng</rt></ruby><ruby>开<rt>kāi</rt></ruby><ruby>来<rt>lái</rt></ruby>，<ruby>面<rt>miàn</rt></ruby><ruby>积<rt>jī</rt></ruby><ruby>相<rt>xiāng</rt></ruby><ruby>当<rt>dāng</rt></ruby><ruby>于<rt>yú</rt></ruby>126<ruby>个<rt>gè</rt></ruby><ruby>滨<rt>bīn</rt></ruby><ruby>海<rt>hǎi</rt></ruby><ruby>湾<rt>wān</rt></ruby><ruby>花<rt>huā</rt></ruby><ruby>园<rt>yuán</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">4</span>In Singapore, most people are used to taking the plastic bags provided at supermarkets when they shop. According to a survey by the Singapore Environment Council, 35% of supermarket shoppers use between 3 and 5 plastic bags per trip, and about half use at least 3 each time. Singapore uses 820 million plastic bags a year — spread flat, they would cover an area equivalent to 126 Gardens by the Bay.</div>
+</article>
+<div class="subheading">
+  <div class="subheading-zh chinese"><ruby>人<rt>rén</rt></ruby><ruby>们<rt>men</rt></ruby><ruby>每<rt>měi</rt></ruby><ruby>次<rt>cì</rt></ruby><ruby>上<rt>shàng</rt></ruby><ruby>超<rt>chāo</rt></ruby><ruby>市<rt>shì</rt></ruby><ruby>使<rt>shǐ</rt></ruby><ruby>用<rt>yòng</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>少<rt>shǎo</rt></ruby><ruby>个<rt>gè</rt></ruby><span class="vocab" data-vocab-id="1"><ruby>塑<rt>sù</rt></ruby><ruby>料<rt>liào</rt></ruby></span><ruby>袋<rt>dài</rt></ruby></div>
+  <div class="subheading-en">Bags Per Supermarket Trip</div>
+</div>
+<article class="para" data-playable data-audio="不用塑料袋、自备购物袋 15%；不去超市 3%；1–2个 33%；3–5个 35%；6个或以上 14%。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="不用塑料袋、自备购物袋 15%；不去超市 3%；1–2个 33%；3–5个 35%；6个或以上 14%。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">5</span>
+      <ruby>不<rt>bù</rt></ruby><ruby>用<rt>yòng</rt></ruby><span class="vocab" data-vocab-id="1"><ruby>塑<rt>sù</rt></ruby><ruby>料<rt>liào</rt></ruby></span><ruby>袋<rt>dài</rt></ruby>、<ruby>自<rt>zì</rt></ruby><ruby>备<rt>bèi</rt></ruby><ruby>购<rt>gòu</rt></ruby><ruby>物<rt>wù</rt></ruby><ruby>袋<rt>dài</rt></ruby> 15%；<ruby>不<rt>bù</rt></ruby><ruby>去<rt>qù</rt></ruby><ruby>超<rt>chāo</rt></ruby><ruby>市<rt>shì</rt></ruby> 3%；1–2<ruby>个<rt>gè</rt></ruby> 33%；3–5<ruby>个<rt>gè</rt></ruby> 35%；6<ruby>个<rt>gè</rt></ruby><ruby>或<rt>huò</rt></ruby><ruby>以<rt>yǐ</rt></ruby><ruby>上<rt>shàng</rt></ruby> 14%。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">5</span>None (bring own bags): 15%. Don&#x27;t go to supermarkets: 3%. 1–2 bags: 33%. 3–5 bags: 35%. 6 or more: 14%.</div>
+</article>
+<div class="subheading">
+  <div class="subheading-zh chinese"><span class="vocab" data-vocab-id="1"><ruby>塑<rt>sù</rt></ruby><ruby>料<rt>liào</rt></ruby></span><ruby>垃<rt>lā</rt></ruby><ruby>圾<rt>jī</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>危<rt>wēi</rt></ruby><ruby>害<rt>hài</rt></ruby></div>
+  <div class="subheading-en">The Harm of Plastic Waste</div>
+</div>
+<article class="para" data-playable data-audio="塑料袋给人类带来很多方便，但被丢弃的塑料袋也对环境造成严重的污染。塑料属于不可降解材料，会给环境带来很大危害。此外，人们大多通过填埋或焚烧处理塑料垃圾，而这两种方式都不利于环保。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="塑料袋给人类带来很多方便，但被丢弃的塑料袋也对环境造成严重的污染。塑料属于不可降解材料，会给环境带来很大危害。此外，人们大多通过填埋或焚烧处理塑料垃圾，而这两种方式都不利于环保。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">6</span>
+      <span class="vocab" data-vocab-id="1"><ruby>塑<rt>sù</rt></ruby><ruby>料<rt>liào</rt></ruby></span><ruby>袋<rt>dài</rt></ruby><ruby>给<rt>gěi</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>类<rt>lèi</rt></ruby><ruby>带<rt>dài</rt></ruby><ruby>来<rt>lái</rt></ruby><ruby>很<rt>hěn</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>方<rt>fāng</rt></ruby><ruby>便<rt>biàn</rt></ruby>，<ruby>但<rt>dàn</rt></ruby><ruby>被<rt>bèi</rt></ruby><ruby>丢<rt>diū</rt></ruby><ruby>弃<rt>qì</rt></ruby><ruby>的<rt>de</rt></ruby><span class="vocab" data-vocab-id="1"><ruby>塑<rt>sù</rt></ruby><ruby>料<rt>liào</rt></ruby></span><ruby>袋<rt>dài</rt></ruby><ruby>也<rt>yě</rt></ruby><ruby>对<rt>duì</rt></ruby><ruby>环<rt>huán</rt></ruby><ruby>境<rt>jìng</rt></ruby><ruby>造<rt>zào</rt></ruby><ruby>成<rt>chéng</rt></ruby><ruby>严<rt>yán</rt></ruby><ruby>重<rt>zhòng</rt></ruby><ruby>的<rt>de</rt></ruby><span class="vocab" data-vocab-id="5"><ruby>污<rt>wū</rt></ruby><ruby>染<rt>rǎn</rt></ruby></span>。<span class="vocab" data-vocab-id="1"><ruby>塑<rt>sù</rt></ruby><ruby>料<rt>liào</rt></ruby></span><ruby>属<rt>shǔ</rt></ruby><ruby>于<rt>yú</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>可<rt>kě</rt></ruby><ruby>降<rt>jiàng</rt></ruby><ruby>解<rt>jiě</rt></ruby><ruby>材<rt>cái</rt></ruby><ruby>料<rt>liào</rt></ruby>，<ruby>会<rt>huì</rt></ruby><ruby>给<rt>gěi</rt></ruby><ruby>环<rt>huán</rt></ruby><ruby>境<rt>jìng</rt></ruby><ruby>带<rt>dài</rt></ruby><ruby>来<rt>lái</rt></ruby><ruby>很<rt>hěn</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>危<rt>wēi</rt></ruby><ruby>害<rt>hài</rt></ruby>。<ruby>此<rt>cǐ</rt></ruby><ruby>外<rt>wài</rt></ruby>，<ruby>人<rt>rén</rt></ruby><ruby>们<rt>men</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>通<rt>tōng</rt></ruby><ruby>过<rt>guò</rt></ruby><ruby>填<rt>tián</rt></ruby><ruby>埋<rt>mái</rt></ruby><ruby>或<rt>huò</rt></ruby><span class="vocab" data-vocab-id="6"><ruby>焚<rt>fén</rt></ruby><ruby>烧<rt>shāo</rt></ruby></span><ruby>处<rt>chǔ</rt></ruby><ruby>理<rt>lǐ</rt></ruby><span class="vocab" data-vocab-id="1"><ruby>塑<rt>sù</rt></ruby><ruby>料<rt>liào</rt></ruby></span><ruby>垃<rt>lā</rt></ruby><ruby>圾<rt>jī</rt></ruby>，<ruby>而<rt>ér</rt></ruby><ruby>这<rt>zhè</rt></ruby><ruby>两<rt>liǎng</rt></ruby><ruby>种<rt>zhǒng</rt></ruby><ruby>方<rt>fāng</rt></ruby><ruby>式<rt>shì</rt></ruby><ruby>都<rt>dōu</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>利<rt>lì</rt></ruby><ruby>于<rt>yú</rt></ruby><ruby>环<rt>huán</rt></ruby><ruby>保<rt>bǎo</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">6</span>Plastic bags bring huge convenience — but discarded ones cause serious environmental pollution. Plastic is a non-biodegradable material; it does lasting damage to the environment. On top of that, most plastic waste is dealt with by landfill or incineration, neither of which is good for the environment.</div>
+</article>
+<article class="para" data-playable data-audio="焚烧塑料垃圾产生的有害烟尘和有毒气体，会污染空气。塑料垃圾埋在地里200年也不一定能腐烂、降解，会严重污染土壤。河流和海洋里的塑料垃圾经常被动物当作食物吞食，导致动物因消化道堵塞而死亡。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="焚烧塑料垃圾产生的有害烟尘和有毒气体，会污染空气。塑料垃圾埋在地里200年也不一定能腐烂、降解，会严重污染土壤。河流和海洋里的塑料垃圾经常被动物当作食物吞食，导致动物因消化道堵塞而死亡。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">7</span>
+      <span class="vocab" data-vocab-id="6"><ruby>焚<rt>fén</rt></ruby><ruby>烧<rt>shāo</rt></ruby></span><span class="vocab" data-vocab-id="1"><ruby>塑<rt>sù</rt></ruby><ruby>料<rt>liào</rt></ruby></span><ruby>垃<rt>lā</rt></ruby><ruby>圾<rt>jī</rt></ruby><ruby>产<rt>chǎn</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>害<rt>hài</rt></ruby><span class="vocab" data-vocab-id="7"><ruby>烟<rt>yān</rt></ruby><ruby>尘<rt>chén</rt></ruby></span><ruby>和<rt>hé</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>毒<rt>dú</rt></ruby><ruby>气<rt>qì</rt></ruby><ruby>体<rt>tǐ</rt></ruby>，<ruby>会<rt>huì</rt></ruby><span class="vocab" data-vocab-id="5"><ruby>污<rt>wū</rt></ruby><ruby>染<rt>rǎn</rt></ruby></span><ruby>空<rt>kōng</rt></ruby><ruby>气<rt>qì</rt></ruby>。<span class="vocab" data-vocab-id="1"><ruby>塑<rt>sù</rt></ruby><ruby>料<rt>liào</rt></ruby></span><ruby>垃<rt>lā</rt></ruby><ruby>圾<rt>jī</rt></ruby><ruby>埋<rt>mái</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>地<rt>dì</rt></ruby><ruby>里<rt>lǐ</rt></ruby>200<ruby>年<rt>nián</rt></ruby><ruby>也<rt>yě</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>一<rt>yí</rt></ruby><ruby>定<rt>dìng</rt></ruby><ruby>能<rt>néng</rt></ruby><ruby>腐<rt>fǔ</rt></ruby><ruby>烂<rt>làn</rt></ruby>、<ruby>降<rt>jiàng</rt></ruby><ruby>解<rt>jiě</rt></ruby>，<ruby>会<rt>huì</rt></ruby><ruby>严<rt>yán</rt></ruby><ruby>重<rt>zhòng</rt></ruby><span class="vocab" data-vocab-id="5"><ruby>污<rt>wū</rt></ruby><ruby>染<rt>rǎn</rt></ruby></span><span class="vocab" data-vocab-id="8"><ruby>土<rt>tǔ</rt></ruby><ruby>壤<rt>rǎng</rt></ruby></span>。<ruby>河<rt>hé</rt></ruby><ruby>流<rt>liú</rt></ruby><ruby>和<rt>hé</rt></ruby><ruby>海<rt>hǎi</rt></ruby><ruby>洋<rt>yáng</rt></ruby><ruby>里<rt>lǐ</rt></ruby><ruby>的<rt>de</rt></ruby><span class="vocab" data-vocab-id="1"><ruby>塑<rt>sù</rt></ruby><ruby>料<rt>liào</rt></ruby></span><ruby>垃<rt>lā</rt></ruby><ruby>圾<rt>jī</rt></ruby><ruby>经<rt>jīng</rt></ruby><ruby>常<rt>cháng</rt></ruby><ruby>被<rt>bèi</rt></ruby><ruby>动<rt>dòng</rt></ruby><ruby>物<rt>wù</rt></ruby><ruby>当<rt>dàng</rt></ruby><ruby>作<rt>zuò</rt></ruby><ruby>食<rt>shí</rt></ruby><ruby>物<rt>wù</rt></ruby><ruby>吞<rt>tūn</rt></ruby><ruby>食<rt>shí</rt></ruby>，<ruby>导<rt>dǎo</rt></ruby><ruby>致<rt>zhì</rt></ruby><ruby>动<rt>dòng</rt></ruby><ruby>物<rt>wù</rt></ruby><ruby>因<rt>yīn</rt></ruby><ruby>消<rt>xiāo</rt></ruby><ruby>化<rt>huà</rt></ruby><ruby>道<rt>dào</rt></ruby><ruby>堵<rt>dǔ</rt></ruby><ruby>塞<rt>sè</rt></ruby><ruby>而<rt>ér</rt></ruby><ruby>死<rt>sǐ</rt></ruby><ruby>亡<rt>wáng</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">7</span>Incinerating plastic releases harmful soot and toxic gases that pollute the air. Plastic buried in the ground may not rot or break down even after 200 years, severely contaminating the soil. Plastic in rivers and oceans is often mistaken for food by animals and swallowed, leading to deaths from blocked digestive tracts.</div>
+</article>
+<article class="para" data-playable data-audio="在我国，塑料制品使用量非常大，其中将近一半是塑料袋。这些塑料制品中的绝大部分最后都变成了塑料垃圾。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="在我国，塑料制品使用量非常大，其中将近一半是塑料袋。这些塑料制品中的绝大部分最后都变成了塑料垃圾。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">8</span>
+      <ruby>在<rt>zài</rt></ruby><ruby>我<rt>wǒ</rt></ruby><ruby>国<rt>guó</rt></ruby>，<span class="vocab" data-vocab-id="1"><ruby>塑<rt>sù</rt></ruby><ruby>料<rt>liào</rt></ruby></span><ruby>制<rt>zhì</rt></ruby><ruby>品<rt>pǐn</rt></ruby><ruby>使<rt>shǐ</rt></ruby><ruby>用<rt>yòng</rt></ruby><ruby>量<rt>liàng</rt></ruby><ruby>非<rt>fēi</rt></ruby><ruby>常<rt>cháng</rt></ruby><ruby>大<rt>dà</rt></ruby>，<ruby>其<rt>qí</rt></ruby><ruby>中<rt>zhōng</rt></ruby><ruby>将<rt>jiāng</rt></ruby><ruby>近<rt>jìn</rt></ruby><ruby>一<rt>yí</rt></ruby><ruby>半<rt>bàn</rt></ruby><ruby>是<rt>shì</rt></ruby><span class="vocab" data-vocab-id="1"><ruby>塑<rt>sù</rt></ruby><ruby>料<rt>liào</rt></ruby></span><ruby>袋<rt>dài</rt></ruby>。<ruby>这<rt>zhè</rt></ruby><ruby>些<rt>xiē</rt></ruby><span class="vocab" data-vocab-id="1"><ruby>塑<rt>sù</rt></ruby><ruby>料<rt>liào</rt></ruby></span><ruby>制<rt>zhì</rt></ruby><ruby>品<rt>pǐn</rt></ruby><ruby>中<rt>zhōng</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>绝<rt>jué</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>部<rt>bù</rt></ruby><ruby>分<rt>fèn</rt></ruby><ruby>最<rt>zuì</rt></ruby><ruby>后<rt>hòu</rt></ruby><ruby>都<rt>dōu</rt></ruby><ruby>变<rt>biàn</rt></ruby><ruby>成<rt>chéng</rt></ruby><ruby>了<rt>le</rt></ruby><span class="vocab" data-vocab-id="1"><ruby>塑<rt>sù</rt></ruby><ruby>料<rt>liào</rt></ruby></span><ruby>垃<rt>lā</rt></ruby><ruby>圾<rt>jī</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">8</span>Singapore uses a huge amount of plastic products — nearly half of which are plastic bags. The vast majority of these ultimately end up as plastic waste.</div>
+</article>
+<div class="subheading">
+  <div class="subheading-zh chinese"><ruby>减<rt>jiǎn</rt></ruby><ruby>少<rt>shǎo</rt></ruby><span class="vocab" data-vocab-id="1"><ruby>塑<rt>sù</rt></ruby><ruby>料<rt>liào</rt></ruby></span><ruby>袋<rt>dài</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>使<rt>shǐ</rt></ruby><ruby>用<rt>yòng</rt></ruby></div>
+  <div class="subheading-en">Cutting Down on Plastic Bags</div>
+</div>
+<article class="para" data-playable data-audio="为了减少塑料袋的危害，一些国家纷纷采取措施，遏制塑料袋的大量使用。这些措施包括让消费者付费购买塑料袋、不提供塑料袋等。此外，许多国家开始使用可降解材料制造塑料袋，以减少环境污染。我国也倡导人们爱护环境，逐渐减少塑料袋的使用。许多机构采用各种方式鼓励国人购物时自备购物袋。一些超市、餐馆也通过收费的方式，引导顾客少用一次性塑料袋。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="为了减少塑料袋的危害，一些国家纷纷采取措施，遏制塑料袋的大量使用。这些措施包括让消费者付费购买塑料袋、不提供塑料袋等。此外，许多国家开始使用可降解材料制造塑料袋，以减少环境污染。我国也倡导人们爱护环境，逐渐减少塑料袋的使用。许多机构采用各种方式鼓励国人购物时自备购物袋。一些超市、餐馆也通过收费的方式，引导顾客少用一次性塑料袋。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">9</span>
+      <ruby>为<rt>wèi</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>减<rt>jiǎn</rt></ruby><ruby>少<rt>shǎo</rt></ruby><span class="vocab" data-vocab-id="1"><ruby>塑<rt>sù</rt></ruby><ruby>料<rt>liào</rt></ruby></span><ruby>袋<rt>dài</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>危<rt>wēi</rt></ruby><ruby>害<rt>hài</rt></ruby>，<ruby>一<rt>yì</rt></ruby><ruby>些<rt>xiē</rt></ruby><ruby>国<rt>guó</rt></ruby><ruby>家<rt>jiā</rt></ruby><ruby>纷<rt>fēn</rt></ruby><ruby>纷<rt>fēn</rt></ruby><ruby>采<rt>cǎi</rt></ruby><ruby>取<rt>qǔ</rt></ruby><ruby>措<rt>cuò</rt></ruby><ruby>施<rt>shī</rt></ruby>，<span class="vocab" data-vocab-id="9"><ruby>遏<rt>è</rt></ruby><ruby>制<rt>zhì</rt></ruby></span><span class="vocab" data-vocab-id="1"><ruby>塑<rt>sù</rt></ruby><ruby>料<rt>liào</rt></ruby></span><ruby>袋<rt>dài</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>量<rt>liàng</rt></ruby><ruby>使<rt>shǐ</rt></ruby><ruby>用<rt>yòng</rt></ruby>。<ruby>这<rt>zhè</rt></ruby><ruby>些<rt>xiē</rt></ruby><ruby>措<rt>cuò</rt></ruby><ruby>施<rt>shī</rt></ruby><ruby>包<rt>bāo</rt></ruby><ruby>括<rt>kuò</rt></ruby><ruby>让<rt>ràng</rt></ruby><ruby>消<rt>xiāo</rt></ruby><ruby>费<rt>fèi</rt></ruby><ruby>者<rt>zhě</rt></ruby><ruby>付<rt>fù</rt></ruby><ruby>费<rt>fèi</rt></ruby><ruby>购<rt>gòu</rt></ruby><ruby>买<rt>mǎi</rt></ruby><span class="vocab" data-vocab-id="1"><ruby>塑<rt>sù</rt></ruby><ruby>料<rt>liào</rt></ruby></span><ruby>袋<rt>dài</rt></ruby>、<ruby>不<rt>bù</rt></ruby><span class="vocab" data-vocab-id="3"><ruby>提<rt>tí</rt></ruby><ruby>供<rt>gōng</rt></ruby></span><span class="vocab" data-vocab-id="1"><ruby>塑<rt>sù</rt></ruby><ruby>料<rt>liào</rt></ruby></span><ruby>袋<rt>dài</rt></ruby><ruby>等<rt>děng</rt></ruby>。<ruby>此<rt>cǐ</rt></ruby><ruby>外<rt>wài</rt></ruby>，<ruby>许<rt>xǔ</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>国<rt>guó</rt></ruby><ruby>家<rt>jiā</rt></ruby><ruby>开<rt>kāi</rt></ruby><ruby>始<rt>shǐ</rt></ruby><ruby>使<rt>shǐ</rt></ruby><ruby>用<rt>yòng</rt></ruby><ruby>可<rt>kě</rt></ruby><ruby>降<rt>jiàng</rt></ruby><ruby>解<rt>jiě</rt></ruby><ruby>材<rt>cái</rt></ruby><ruby>料<rt>liào</rt></ruby><ruby>制<rt>zhì</rt></ruby><ruby>造<rt>zào</rt></ruby><span class="vocab" data-vocab-id="1"><ruby>塑<rt>sù</rt></ruby><ruby>料<rt>liào</rt></ruby></span><ruby>袋<rt>dài</rt></ruby>，<ruby>以<rt>yǐ</rt></ruby><ruby>减<rt>jiǎn</rt></ruby><ruby>少<rt>shǎo</rt></ruby><ruby>环<rt>huán</rt></ruby><ruby>境<rt>jìng</rt></ruby><span class="vocab" data-vocab-id="5"><ruby>污<rt>wū</rt></ruby><ruby>染<rt>rǎn</rt></ruby></span>。<ruby>我<rt>wǒ</rt></ruby><ruby>国<rt>guó</rt></ruby><ruby>也<rt>yě</rt></ruby><span class="vocab" data-vocab-id="10"><ruby>倡<rt>chàng</rt></ruby><ruby>导<rt>dǎo</rt></ruby></span><ruby>人<rt>rén</rt></ruby><ruby>们<rt>men</rt></ruby><ruby>爱<rt>ài</rt></ruby><ruby>护<rt>hù</rt></ruby><ruby>环<rt>huán</rt></ruby><ruby>境<rt>jìng</rt></ruby>，<span class="vocab" data-vocab-id="11"><ruby>逐<rt>zhú</rt></ruby><ruby>渐<rt>jiàn</rt></ruby></span><ruby>减<rt>jiǎn</rt></ruby><ruby>少<rt>shǎo</rt></ruby><span class="vocab" data-vocab-id="1"><ruby>塑<rt>sù</rt></ruby><ruby>料<rt>liào</rt></ruby></span><ruby>袋<rt>dài</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>使<rt>shǐ</rt></ruby><ruby>用<rt>yòng</rt></ruby>。<ruby>许<rt>xǔ</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>机<rt>jī</rt></ruby><ruby>构<rt>gòu</rt></ruby><ruby>采<rt>cǎi</rt></ruby><ruby>用<rt>yòng</rt></ruby><ruby>各<rt>gè</rt></ruby><ruby>种<rt>zhǒng</rt></ruby><ruby>方<rt>fāng</rt></ruby><ruby>式<rt>shì</rt></ruby><ruby>鼓<rt>gǔ</rt></ruby><ruby>励<rt>lì</rt></ruby><ruby>国<rt>guó</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>购<rt>gòu</rt></ruby><ruby>物<rt>wù</rt></ruby><ruby>时<rt>shí</rt></ruby><ruby>自<rt>zì</rt></ruby><ruby>备<rt>bèi</rt></ruby><ruby>购<rt>gòu</rt></ruby><ruby>物<rt>wù</rt></ruby><ruby>袋<rt>dài</rt></ruby>。<ruby>一<rt>yì</rt></ruby><ruby>些<rt>xiē</rt></ruby><ruby>超<rt>chāo</rt></ruby><ruby>市<rt>shì</rt></ruby>、<ruby>餐<rt>cān</rt></ruby><ruby>馆<rt>guǎn</rt></ruby><ruby>也<rt>yě</rt></ruby><ruby>通<rt>tōng</rt></ruby><ruby>过<rt>guò</rt></ruby><ruby>收<rt>shōu</rt></ruby><ruby>费<rt>fèi</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>方<rt>fāng</rt></ruby><ruby>式<rt>shì</rt></ruby>，<ruby>引<rt>yǐn</rt></ruby><ruby>导<rt>dǎo</rt></ruby><ruby>顾<rt>gù</rt></ruby><ruby>客<rt>kè</rt></ruby><ruby>少<rt>shǎo</rt></ruby><ruby>用<rt>yòng</rt></ruby><ruby>一<rt>yí</rt></ruby><ruby>次<rt>cì</rt></ruby><ruby>性<rt>xìng</rt></ruby><span class="vocab" data-vocab-id="1"><ruby>塑<rt>sù</rt></ruby><ruby>料<rt>liào</rt></ruby></span><ruby>袋<rt>dài</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">9</span>To reduce the harm of plastic bags, a number of countries have taken steps to curb their heavy use. These include charging consumers for bags, or not providing them at all. Many countries are now also using biodegradable materials to make plastic bags, cutting down on environmental pollution. Singapore, too, advocates caring for the environment and gradually reducing plastic bag use. Many organisations encourage Singaporeans to bring their own shopping bags, and some supermarkets and restaurants have introduced charges to steer customers away from disposable plastic bags.</div>
+</article>
+<article class="para" data-playable data-audio="塑料袋的问世，给人们的生活带来极大的便利。然而，随处丢弃的塑料袋，也给环境造成严重的威胁。如今，当人们为如何处理塑料袋问题而煞费苦心时，心里不禁会问：将来还会出现这样的发明吗？">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="塑料袋的问世，给人们的生活带来极大的便利。然而，随处丢弃的塑料袋，也给环境造成严重的威胁。如今，当人们为如何处理塑料袋问题而煞费苦心时，心里不禁会问：将来还会出现这样的发明吗？"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">10</span>
+      <span class="vocab" data-vocab-id="1"><ruby>塑<rt>sù</rt></ruby><ruby>料<rt>liào</rt></ruby></span><ruby>袋<rt>dài</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>问<rt>wèn</rt></ruby><ruby>世<rt>shì</rt></ruby>，<ruby>给<rt>gěi</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>们<rt>men</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>活<rt>huó</rt></ruby><ruby>带<rt>dài</rt></ruby><ruby>来<rt>lái</rt></ruby><ruby>极<rt>jí</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>便<rt>biàn</rt></ruby><ruby>利<rt>lì</rt></ruby>。<ruby>然<rt>rán</rt></ruby><ruby>而<rt>ér</rt></ruby>，<ruby>随<rt>suí</rt></ruby><ruby>处<rt>chù</rt></ruby><ruby>丢<rt>diū</rt></ruby><ruby>弃<rt>qì</rt></ruby><ruby>的<rt>de</rt></ruby><span class="vocab" data-vocab-id="1"><ruby>塑<rt>sù</rt></ruby><ruby>料<rt>liào</rt></ruby></span><ruby>袋<rt>dài</rt></ruby>，<ruby>也<rt>yě</rt></ruby><ruby>给<rt>gěi</rt></ruby><ruby>环<rt>huán</rt></ruby><ruby>境<rt>jìng</rt></ruby><ruby>造<rt>zào</rt></ruby><ruby>成<rt>chéng</rt></ruby><ruby>严<rt>yán</rt></ruby><ruby>重<rt>zhòng</rt></ruby><ruby>的<rt>de</rt></ruby><span class="vocab" data-vocab-id="12"><ruby>威<rt>wēi</rt></ruby><ruby>胁<rt>xié</rt></ruby></span>。<ruby>如<rt>rú</rt></ruby><ruby>今<rt>jīn</rt></ruby>，<ruby>当<rt>dāng</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>们<rt>men</rt></ruby><ruby>为<rt>wèi</rt></ruby><ruby>如<rt>rú</rt></ruby><ruby>何<rt>hé</rt></ruby><ruby>处<rt>chǔ</rt></ruby><ruby>理<rt>lǐ</rt></ruby><span class="vocab" data-vocab-id="1"><ruby>塑<rt>sù</rt></ruby><ruby>料<rt>liào</rt></ruby></span><ruby>袋<rt>dài</rt></ruby><ruby>问<rt>wèn</rt></ruby><ruby>题<rt>tí</rt></ruby><ruby>而<rt>ér</rt></ruby><span class="vocab" data-vocab-id="13"><ruby>煞<rt>shà</rt></ruby><ruby>费<rt>fèi</rt></ruby><ruby>苦<rt>kǔ</rt></ruby><ruby>心<rt>xīn</rt></ruby></span><ruby>时<rt>shí</rt></ruby>，<ruby>心<rt>xīn</rt></ruby><ruby>里<rt>lǐ</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>禁<rt>jīn</rt></ruby><ruby>会<rt>huì</rt></ruby><ruby>问<rt>wèn</rt></ruby>：<ruby>将<rt>jiāng</rt></ruby><ruby>来<rt>lái</rt></ruby><ruby>还<rt>hái</rt></ruby><ruby>会<rt>huì</rt></ruby><ruby>出<rt>chū</rt></ruby><ruby>现<rt>xiàn</rt></ruby><ruby>这<rt>zhè</rt></ruby><ruby>样<rt>yàng</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>发<rt>fā</rt></ruby><ruby>明<rt>míng</rt></ruby><ruby>吗<rt>ma</rt></ruby>？
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">10</span>The arrival of the plastic bag brought great convenience to daily life. Yet discarded plastic bags, thrown everywhere, also pose a serious threat to the environment. Today, as people rack their brains for how to deal with the plastic bag problem, one can&#x27;t help but wonder: will the future bring more inventions like this one?</div>
+</article></main>
+  <div id="vocab-sheet" class="vocab-sheet" hidden>
+    <button class="vocab-sheet-close" id="vocab-sheet-close" aria-label="Close">×</button>
+    <div class="vocab-sheet-content"></div>
+  </div>
+  <div id="vocab-backdrop" class="vocab-backdrop" hidden></div>
+<script>window.__VOCAB__ = [{"zh": "媒体", "pinyin": "méi tǐ", "en": "media (news, press)"}, {"zh": "塑料", "pinyin": "sù liào", "en": "plastic"}, {"zh": "廉价", "pinyin": "lián jià", "en": "cheap; inexpensive"}, {"zh": "提供", "pinyin": "tí gōng", "en": "to provide; to supply"}, {"zh": "铺", "pinyin": "pū", "en": "to lay out flat; to spread out"}, {"zh": "污染", "pinyin": "wū rǎn", "en": "pollution; to pollute"}, {"zh": "焚烧", "pinyin": "fén shāo", "en": "to incinerate; to burn up"}, {"zh": "烟尘", "pinyin": "yān chén", "en": "smoke and dust; soot"}, {"zh": "土壤", "pinyin": "tǔ rǎng", "en": "soil; earth"}, {"zh": "遏制", "pinyin": "è zhì", "en": "to curb; to keep in check"}, {"zh": "倡导", "pinyin": "chàng dǎo", "en": "to advocate; to promote"}, {"zh": "逐渐", "pinyin": "zhú jiàn", "en": "gradually; step by step"}, {"zh": "威胁", "pinyin": "wēi xié", "en": "threat; to threaten"}, {"zh": "煞费苦心", "pinyin": "shà fèi kǔ xīn", "en": "to take great pains over; to rack one's brains"}];</script>
+<script>
+(function () {
+  const SPEAKER_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>';
+  const STOP_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="5" y="5" width="14" height="14" rx="1"></rect></svg>';
+  const PLAY_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>';
+
+  // Inject speaker icons into all .speaker-btn elements
+  document.querySelectorAll('.speaker-btn').forEach(function(b){ b.innerHTML = SPEAKER_SVG; });
+
+  const togglePy = document.getElementById('toggle-pinyin');
+  const toggleEn = document.getElementById('toggle-english');
+  togglePy && togglePy.addEventListener('change', function(){ document.body.classList.toggle('pinyin-off', !togglePy.checked); });
+  toggleEn && toggleEn.addEventListener('change', function(){ document.body.classList.toggle('english-off', !toggleEn.checked); });
+
+  // ===== Vocab panel toggle =====
+  const vocabPanelToggle = document.getElementById('toggle-vocab-panel');
+  const vocabPanel = document.getElementById('vocab-panel');
+  if (vocabPanelToggle && vocabPanel) {
+    vocabPanelToggle.addEventListener('change', function(){
+      vocabPanel.hidden = !vocabPanelToggle.checked;
+    });
+  }
+
+  // ===== Vocab bottom sheet =====
+  const vocabSheet = document.getElementById('vocab-sheet');
+  const vocabBackdrop = document.getElementById('vocab-backdrop');
+  const vocabSheetClose = document.getElementById('vocab-sheet-close');
+  const vocabData = window.__VOCAB__ || [];
+
+  function buildRuby(zh, pinyinStr) {
+    // Split pinyin by space, line up with chars of zh
+    const chars = Array.from(zh);
+    const syllables = (pinyinStr || '').split(/\s+/).filter(Boolean);
+    let out = '';
+    let si = 0;
+    for (const ch of chars) {
+      // Only attach pinyin to CJK characters
+      if (/[\u4e00-\u9fff]/.test(ch)) {
+        const p = syllables[si++] || '';
+        out += '<ruby>' + ch + '<rt>' + p + '</rt></ruby>';
+      } else {
+        out += ch;
+      }
+    }
+    return out;
+  }
+
+  function openVocabSheet(vocabId) {
+    const v = vocabData[vocabId];
+    if (!v || !vocabSheet || !vocabBackdrop) return;
+    const content = vocabSheet.querySelector('.vocab-sheet-content');
+    content.innerHTML = '<p class="vs-zh chinese">' + buildRuby(v.zh, v.pinyin || '') + '</p>' +
+                        '<p class="vs-en">' + v.en + '</p>';
+    vocabSheet.hidden = false;
+    vocabBackdrop.hidden = false;
+    // allow transition
+    requestAnimationFrame(function(){
+      vocabSheet.classList.add('visible');
+      vocabBackdrop.classList.add('visible');
+    });
+  }
+
+  function closeVocabSheet() {
+    if (!vocabSheet || !vocabBackdrop) return;
+    vocabSheet.classList.remove('visible');
+    vocabBackdrop.classList.remove('visible');
+    setTimeout(function(){
+      vocabSheet.hidden = true;
+      vocabBackdrop.hidden = true;
+    }, 250);
+  }
+
+  // Click handler on any .vocab span
+  document.addEventListener('click', function(e){
+    const vocab = e.target.closest && e.target.closest('.vocab');
+    if (vocab) {
+      e.stopPropagation();
+      const id = parseInt(vocab.getAttribute('data-vocab-id'), 10);
+      openVocabSheet(id);
+      return;
+    }
+    // Click on vocab list row opens the sheet too
+    const vRow = e.target.closest && e.target.closest('.vocab-row');
+    if (vRow) {
+      const id = parseInt(vRow.getAttribute('data-vocab-id'), 10);
+      openVocabSheet(id);
+      return;
+    }
+  });
+
+  vocabSheetClose && vocabSheetClose.addEventListener('click', closeVocabSheet);
+  vocabBackdrop && vocabBackdrop.addEventListener('click', closeVocabSheet);
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeVocabSheet(); });
+
+  const speed = document.getElementById('speed');
+  const speedVal = document.getElementById('speed-val');
+  let rate = speed ? parseFloat(speed.value) : 0.9;
+  if (speed) speed.addEventListener('input', function(){
+    rate = parseFloat(speed.value);
+    speedVal.textContent = rate.toFixed(2).replace(/0$/, '') + '\u00d7';
+  });
+
+  const synth = window.speechSynthesis;
+  let chosenVoice = null;
+  function pickVoice(){
+    if (!synth) return;
+    const voices = synth.getVoices();
+    chosenVoice = voices.find(function(v){ return v.lang && v.lang.toLowerCase().indexOf('zh') === 0; }) || null;
+  }
+  if (synth) { pickVoice(); synth.addEventListener && synth.addEventListener('voiceschanged', pickVoice); }
+
+  function clearActive(){
+    document.querySelectorAll('.speaker-btn.playing').forEach(function(b){ b.classList.remove('playing'); });
+    document.querySelectorAll('.active-passage').forEach(function(p){ p.classList.remove('active-passage'); });
+  }
+
+  const playAllBtn = document.getElementById('play-all-btn');
+  let isPlayingAll = false;
+  let queue = [];
+
+  function setPlayAllState(playing){
+    isPlayingAll = playing;
+    if (!playAllBtn) return;
+    if (playing){
+      playAllBtn.classList.add('playing');
+      playAllBtn.innerHTML = STOP_SVG + '<span>\u505c\u6b62 Stop</span>';
+    } else {
+      playAllBtn.classList.remove('playing');
+      playAllBtn.innerHTML = PLAY_SVG + '<span>\u64ad\u653e\u5168\u6587 Play all</span>';
+      queue = [];
+    }
+  }
+
+  function speakOne(text, onDone){
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'zh-CN'; u.rate = rate;
+    if (chosenVoice) u.voice = chosenVoice;
+    u.onend = onDone; u.onerror = onDone;
+    synth.speak(u);
+  }
+
+  // Individual speaker buttons — each has data-audio attr containing the Chinese to speak,
+  // and data-active-selector saying which parent element to highlight
+  document.querySelectorAll('.speaker-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      if (!synth){ alert('Your browser does not support speech synthesis.'); return; }
+      synth.cancel(); clearActive(); setPlayAllState(false);
+      const text = btn.dataset.audio || '';
+      const activeEl = btn.closest('[data-playable]');
+      btn.classList.add('playing');
+      if (activeEl) activeEl.classList.add('active-passage');
+      speakOne(text, function(){
+        btn.classList.remove('playing');
+        if (activeEl) activeEl.classList.remove('active-passage');
+      });
+    });
+  });
+
+  if (playAllBtn){
+    playAllBtn.addEventListener('click', function(){
+      if (!synth){ alert('Your browser does not support speech synthesis.'); return; }
+      if (isPlayingAll){ synth.cancel(); clearActive(); setPlayAllState(false); return; }
+      synth.cancel(); clearActive();
+      queue = Array.from(document.querySelectorAll('[data-playable]'));
+      setPlayAllState(true);
+      function next(){
+        if (!isPlayingAll || queue.length === 0){ clearActive(); setPlayAllState(false); return; }
+        const el = queue.shift();
+        clearActive(); el.classList.add('active-passage');
+        el.scrollIntoView({behavior:'smooth', block:'center'});
+        const text = el.dataset.audio || el.querySelector('.speaker-btn').dataset.audio;
+        speakOne(text, next);
+      }
+      next();
+    });
+  }
+})();
+</script>
+</body>
+</html>
