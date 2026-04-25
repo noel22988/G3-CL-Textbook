@@ -1,0 +1,645 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>狼鹿效应 — 快捷华文</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --ink-muted: #6b7280;
+    --ink-faint: #9ca3af;
+    --accent: #2f7d4f;
+    --accent-soft: #e6f1ea;
+    --accent-dark: #26663f;
+    --rule: #e5e7eb;
+    --bg: #fafaf8;
+    --surface: #ffffff;
+    --bubble-a: #f0f4f2;
+    --bubble-b: #eef3f7;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+  }
+  .chinese { font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Source Han Sans SC", "Noto Sans CJK SC", sans-serif; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  header.top { max-width: 1100px; margin: 0 auto; padding: 2rem 2rem 1rem; }
+  .back-link { font-size: 13px; color: var(--ink-muted); display: inline-block; margin-bottom: 0.75rem; }
+  .back-link:hover { color: var(--accent); }
+  .breadcrumb {
+    font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--ink-muted); margin-bottom: 0.5rem;
+  }
+  .breadcrumb .sep { opacity: 0.5; margin: 0 0.5em; }
+  h1.title {
+    margin: 0; font-weight: 500; font-size: 28px;
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.75rem;
+  }
+  h1.title .zh { color: var(--ink); }
+  h1.title .en { color: var(--ink-muted); font-weight: 400; font-size: 16px; }
+
+  .controls {
+    max-width: 1100px; margin: 0 auto; padding: 1rem 2rem;
+    display: flex; gap: 1.25rem; flex-wrap: wrap; align-items: center;
+    border-bottom: 1px solid var(--rule);
+  }
+  .controls label {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 14px; color: var(--ink-muted); cursor: pointer; user-select: none;
+  }
+  .controls input[type=checkbox] { accent-color: var(--accent); width: 16px; height: 16px; }
+  .controls input[type=checkbox]:checked + span { color: var(--accent); font-weight: 500; }
+  .controls .speed { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ink-muted); }
+  .controls .speed input { width: 100px; accent-color: var(--accent); }
+  .controls .speed .val { min-width: 28px; font-weight: 500; color: var(--ink); }
+  .controls .speed .speed-hint { font-size: 11px; color: var(--ink-faint); font-style: italic; }
+  .controls .spacer { flex: 1; }
+  .controls button.play-all {
+    border: 1px solid var(--accent); background: var(--accent); color: #fff;
+    padding: 7px 14px; font-size: 13px; font-weight: 500; border-radius: 6px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s;
+  }
+  .controls button.play-all:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+  .controls button.play-all.playing { background: #b34545; border-color: #b34545; }
+  .controls button.play-all.playing:hover { background: #933838; border-color: #933838; }
+  .controls button.play-all svg { width: 11px; height: 11px; }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 1.5rem 2rem 5rem; }
+
+  /* Pinyin defaults */
+  ruby { ruby-position: over; }
+  ruby rt {
+    font-size: 11px; color: var(--accent);
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-weight: 400; letter-spacing: 0.02em;
+    padding-bottom: 6px;
+    transition: opacity 0.15s;
+  }
+  body.pinyin-off ruby rt { opacity: 0; }
+
+  .speaker-btn {
+    background: transparent; border: 1px solid var(--rule);
+    width: 28px; height: 28px; padding: 0; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--ink-muted); transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .speaker-btn:hover { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+  .speaker-btn.playing { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .speaker-btn svg { width: 12px; height: 12px; }
+
+  /* PROSE format — two-column */
+  .para {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2.5rem;
+    padding: 1.5rem 0; border-bottom: 1px solid var(--rule); align-items: start;
+  }
+  .para:last-child { border-bottom: none; }
+  .para .zh-col { display: grid; grid-template-columns: 28px 1fr; gap: 12px; align-items: start; }
+  .para .speaker-btn { margin-top: 8px; }
+  .para .zh-text { font-size: 22px; line-height: 2.6; }
+  .para .en-col {
+    font-size: 15px; line-height: 1.75; color: var(--ink-muted); padding-top: 6px;
+    transition: opacity 0.15s;
+  }
+  body.english-off .en-col { opacity: 0; pointer-events: none; }
+  .para-num {
+    color: var(--ink-faint); font-size: 13px; font-weight: 500;
+    margin-bottom: 4px; display: block;
+  }
+  .para.active-passage .zh-text {
+    background: var(--accent-soft); border-radius: 6px; padding: 4px 8px; margin-left: -8px;
+  }
+
+  /* Subheadings inside prose articles */
+  .subheading {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2.5rem;
+    padding: 1rem 0 0; align-items: baseline;
+    margin: 0;
+  }
+  .subheading-zh {
+    font-size: 18px; font-weight: 500; color: var(--accent-dark);
+    padding-left: 40px; line-height: 1.3;
+    margin: 0;
+  }
+  .subheading-en {
+    font-size: 14px; color: var(--ink-muted); font-weight: 500;
+    transition: opacity 0.15s;
+    letter-spacing: 0.02em;
+    line-height: 1.3;
+    margin: 0;
+  }
+  body.english-off .subheading-en { opacity: 0; }
+  /* Tight coupling — subheading sits directly on top of its paragraph */
+  .subheading + .para { border-top: none; padding-top: 0; }
+
+  /* TABLE format — stacked character cards */
+  .profile-card {
+    background: var(--surface); border: 1px solid var(--rule); border-radius: 12px;
+    padding: 1.5rem 1.75rem; margin-bottom: 1.25rem;
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start;
+  }
+  .profile-card:last-child { margin-bottom: 0; }
+  .profile-card .zh-side { display: grid; grid-template-columns: 28px 1fr; gap: 12px; }
+  .profile-card .name {
+    font-size: 24px; font-weight: 500; margin-bottom: 0.75rem;
+    line-height: 2;
+  }
+  .profile-card .traits { font-size: 18px; line-height: 2.4; }
+  .profile-card .trait { margin-bottom: 0.75rem; }
+  .profile-card .trait:last-child { margin-bottom: 0; }
+  .profile-card .trait-label {
+    display: inline-block; background: var(--accent-soft); color: var(--accent);
+    font-size: 14px; font-weight: 500; padding: 2px 12px; border-radius: 12px;
+    margin-right: 8px; vertical-align: baseline;
+    font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
+    position: relative; top: -2px;
+  }
+  .profile-card .trait-label ruby rt { color: var(--accent-dark); }
+  .profile-card .en-side {
+    font-size: 14px; line-height: 1.75; color: var(--ink-muted); padding-top: 8px;
+    transition: opacity 0.15s;
+  }
+  body.english-off .profile-card .en-side { opacity: 0; pointer-events: none; }
+  .profile-card .en-side .en-name { font-weight: 500; color: var(--ink); font-size: 16px; margin-bottom: 0.5rem; }
+  .profile-card .en-side .en-trait { margin-bottom: 0.5rem; }
+  .profile-card .en-side .en-trait-label { font-weight: 500; color: var(--ink); }
+
+  /* DIALOGUE format — chat bubbles */
+  .stage-direction {
+    text-align: center; color: var(--ink-muted);
+    font-size: 15px; padding: 1rem 2rem;
+    font-style: italic;
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start;
+  }
+  .stage-direction .zh-dir { font-style: normal; }
+  .stage-direction .zh-dir .zh-text { line-height: 2.4; }
+  .stage-direction .en-dir { font-size: 14px; }
+
+  .bubble-row {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;
+    margin-bottom: 1rem; align-items: start;
+  }
+  .bubble-zh { display: flex; gap: 10px; align-items: flex-start; }
+  .bubble-zh.align-right { justify-content: flex-end; }
+  .bubble-zh.align-right .bubble { background: var(--accent-soft); }
+  .bubble-zh .speaker-btn { margin-top: 6px; }
+  .bubble {
+    background: var(--bubble-a);
+    border-radius: 16px; padding: 10px 16px;
+    max-width: 85%;
+    line-height: 2.4; font-size: 18px;
+  }
+  .bubble-zh.align-right .bubble { border-bottom-right-radius: 4px; }
+  .bubble-zh.align-left .bubble { border-bottom-left-radius: 4px; }
+  .bubble-zh .speaker-name {
+    display: block; font-size: 12px; font-weight: 500; color: var(--accent-dark);
+    margin-bottom: 2px; letter-spacing: 0.02em;
+  }
+  .bubble-zh.align-right .speaker-name { text-align: right; }
+  .bubble-row.active-passage .bubble { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .bubble-en {
+    font-size: 14px; line-height: 1.6; color: var(--ink-muted); padding-top: 8px;
+    transition: opacity 0.15s;
+  }
+  .bubble-en .en-speaker { font-weight: 500; color: var(--ink); }
+  body.english-off .bubble-en, body.english-off .stage-direction .en-dir { opacity: 0; pointer-events: none; }
+
+  /* ===== Vocab inline highlighting + bottom sheet ===== */
+  .vocab {
+    cursor: pointer;
+    text-underline-offset: 6px;
+    text-decoration: underline dotted var(--accent);
+    text-decoration-thickness: 1.5px;
+    transition: background 0.15s;
+    border-radius: 3px;
+    padding: 0 1px;
+  }
+  .vocab:hover, .vocab:focus { background: var(--accent-soft); outline: none; }
+
+  /* Vocab list panel at top of passage (toggleable) */
+  .vocab-panel {
+    background: var(--surface); border: 1px solid var(--rule);
+    border-radius: 12px; padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .vocab-panel-title {
+    font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--ink-faint); font-weight: 500; margin: 0 0 1rem;
+  }
+  .vocab-list {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem 2rem;
+  }
+  .vocab-row {
+    display: grid; grid-template-columns: minmax(auto, 140px) 1fr; gap: 1rem;
+    padding: 0.5rem 0; border-top: 1px solid var(--rule-soft);
+    align-items: baseline;
+  }
+  .vocab-row:first-child, .vocab-row:nth-child(2) { border-top: none; }
+  .vocab-row-zh { font-size: 18px; font-family: "PingFang SC", "Hiragino Sans GB", sans-serif; line-height: 2; }
+  .vocab-row-en { font-size: 14px; color: var(--ink-muted); line-height: 1.5; }
+
+  /* Bottom sheet for single-word lookup */
+  .vocab-backdrop {
+    position: fixed; inset: 0; background: rgba(0, 0, 0, 0.25);
+    z-index: 100; opacity: 0; transition: opacity 0.2s;
+    pointer-events: none;
+  }
+  .vocab-backdrop.visible { opacity: 1; pointer-events: auto; }
+  .vocab-sheet {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--rule);
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.08);
+    padding: 1.5rem 2rem 2rem;
+    z-index: 101;
+    transform: translateY(100%); transition: transform 0.25s ease-out;
+    max-width: 600px; margin: 0 auto;
+    border-top-left-radius: 16px; border-top-right-radius: 16px;
+  }
+  .vocab-sheet.visible { transform: translateY(0); }
+  .vocab-sheet-close {
+    position: absolute; top: 10px; right: 14px;
+    background: transparent; border: none; font-size: 28px; line-height: 1;
+    color: var(--ink-faint); cursor: pointer; padding: 4px 10px;
+  }
+  .vocab-sheet-close:hover { color: var(--ink); }
+  .vocab-sheet-content .vs-zh {
+    font-size: 32px; font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
+    line-height: 2.2; margin: 0;
+  }
+  .vocab-sheet-content .vs-zh ruby rt { font-size: 14px; }
+  .vocab-sheet-content .vs-en {
+    font-size: 16px; color: var(--ink); line-height: 1.6;
+    margin: 0.5rem 0 0;
+  }
+
+  @media (max-width: 720px) {
+    .para { grid-template-columns: 1fr; gap: 0.75rem; }
+    .para .en-col { padding-top: 0; padding-left: 40px; font-style: italic; }
+    .para .zh-text { font-size: 20px; }
+    .profile-card { grid-template-columns: 1fr; gap: 1rem; padding: 1rem 1.25rem; }
+    .profile-card .en-side { padding-top: 0; padding-left: 40px; font-style: italic; border-top: 1px solid var(--rule); padding-top: 1rem; }
+    .profile-card .name { font-size: 22px; }
+    .profile-card .traits { font-size: 17px; line-height: 2.2; }
+    .bubble-row, .stage-direction { grid-template-columns: 1fr; gap: 0.5rem; }
+    .bubble-en { padding-left: 16px; padding-top: 0; font-style: italic; }
+    .bubble { font-size: 17px; }
+    header.top, .controls, main { padding-left: 1.25rem; padding-right: 1.25rem; }
+    .controls { gap: 0.75rem; }
+    .vocab-list { grid-template-columns: 1fr; gap: 0; }
+    .vocab-row { grid-template-columns: minmax(auto, 120px) 1fr; padding: 0.5rem 0; border-top: 1px solid var(--rule-soft); }
+    .vocab-row:nth-child(2) { border-top: 1px solid var(--rule-soft); }
+    .vocab-row:first-child { border-top: none; }
+    .vocab-sheet { padding: 1.25rem 1.5rem 1.75rem; }
+    .vocab-sheet-content .vs-zh { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+  <header class="top">
+    <a class="back-link" href="../index.html">← 返回 Back to all levels</a>
+    <div class="breadcrumb">Level 4 · Unit 3 · 大自然 The Natural World <span class="sep">·</span> 巩固 Consolidation</div>
+    <h1 class="title">
+      <span class="zh chinese">《狼鹿效应》</span>
+      <span class="en">The Wolf-Deer Effect</span>
+    </h1>
+  </header>
+  <div class="controls">
+    <label><input type="checkbox" id="toggle-pinyin" checked><span>显示汉语拼音 Show pinyin</span></label>
+    <label><input type="checkbox" id="toggle-english" checked><span>显示英文 Show English</span></label>
+    <label><input type="checkbox" id="toggle-vocab-panel"><span>显示生词 Show vocab list</span></label>
+    <div class="speed">
+      <span>语速 Speed</span>
+      <input type="range" min="0.5" max="1.2" step="0.05" value="0.9" id="speed" title="Adjust before playing">
+      <span class="val" id="speed-val">0.9×</span>
+      <span class="speed-hint">(set before play)</span>
+    </div>
+    <div class="spacer"></div>
+    <button class="play-all" id="play-all-btn" type="button">
+      <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>
+      <span>播放全文 Play all</span>
+    </button>
+  </div>
+  <main>
+  <section class="vocab-panel" id="vocab-panel" hidden>
+    <h2 class="vocab-panel-title">生词 Vocabulary · 11 words</h2>
+    <div class="vocab-list">
+      <div class="vocab-row" data-vocab-id="0">
+        <div class="vocab-row-zh chinese"><ruby>窥<rt>kuī</rt></ruby><ruby>视<rt>shì</rt></ruby></div>
+        <div class="vocab-row-en">to peer at; to watch furtively</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="1">
+        <div class="vocab-row-zh chinese"><ruby>宣<rt>xuān</rt></ruby><ruby>布<rt>bù</rt></ruby></div>
+        <div class="vocab-row-en">to declare; to announce</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="2">
+        <div class="vocab-row-zh chinese"><ruby>狩<rt>shòu</rt></ruby><ruby>猎<rt>liè</rt></ruby></div>
+        <div class="vocab-row-en">to hunt; hunting</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="3">
+        <div class="vocab-row-zh chinese"><ruby>饥<rt>jī</rt></ruby><ruby>饿<rt>è</rt></ruby></div>
+        <div class="vocab-row-en">hunger; starving</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="4">
+        <div class="vocab-row-zh chinese"><ruby>糟<rt>zāo</rt></ruby><ruby>蹋<rt>tà</rt></ruby></div>
+        <div class="vocab-row-en">to ruin; to spoil; to lay to waste</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="5">
+        <div class="vocab-row-zh chinese"><ruby>毁<rt>huǐ</rt></ruby><ruby>灭<rt>miè</rt></ruby></div>
+        <div class="vocab-row-en">to destroy; destruction</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="6">
+        <div class="vocab-row-zh chinese"><ruby>罪<rt>zuì</rt></ruby><ruby>魁<rt>kuí</rt></ruby><ruby>祸<rt>huò</rt></ruby><ruby>首<rt>shǒu</rt></ruby></div>
+        <div class="vocab-row-en">the chief culprit; ringleader of evil</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="7">
+        <div class="vocab-row-zh chinese"><ruby>竞<rt>jìng</rt></ruby><ruby>争<rt>zhēng</rt></ruby></div>
+        <div class="vocab-row-en">competition; to compete</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="8">
+        <div class="vocab-row-zh chinese"><ruby>袭<rt>xí</rt></ruby><ruby>击<rt>jī</rt></ruby></div>
+        <div class="vocab-row-en">to attack; to launch a raid</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="9">
+        <div class="vocab-row-zh chinese"><ruby>违<rt>wéi</rt></ruby><ruby>背<rt>bèi</rt></ruby></div>
+        <div class="vocab-row-en">to violate; to go against (rules, principles)</div>
+      </div>
+      <div class="vocab-row" data-vocab-id="10">
+        <div class="vocab-row-zh chinese"><ruby>拼<rt>pīn</rt></ruby><ruby>搏<rt>bó</rt></ruby></div>
+        <div class="vocab-row-en">to strive; the will to fight</div>
+      </div></div>
+  </section>
+<article class="para" data-playable data-audio="20世纪初，美国亚利桑那州北部有大片茂密的森林，4000只左右的鹿在林间出没，然而，鹿群周围往往会有凶恶的狼在一旁窥视，许多鹿都命丧狼口。美国总统西奥多·罗斯福为了保护鹿，宣布该森林为全国狩猎保护区，由政府聘请猎人到那里去灭狼。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="20世纪初，美国亚利桑那州北部有大片茂密的森林，4000只左右的鹿在林间出没，然而，鹿群周围往往会有凶恶的狼在一旁窥视，许多鹿都命丧狼口。美国总统西奥多·罗斯福为了保护鹿，宣布该森林为全国狩猎保护区，由政府聘请猎人到那里去灭狼。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">1</span>
+      20<ruby>世<rt>shì</rt></ruby><ruby>纪<rt>jì</rt></ruby><ruby>初<rt>chū</rt></ruby>，<ruby>美<rt>měi</rt></ruby><ruby>国<rt>guó</rt></ruby><ruby>亚<rt>yà</rt></ruby><ruby>利<rt>lì</rt></ruby><ruby>桑<rt>sāng</rt></ruby><ruby>那<rt>nà</rt></ruby><ruby>州<rt>zhōu</rt></ruby><ruby>北<rt>běi</rt></ruby><ruby>部<rt>bù</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>片<rt>piàn</rt></ruby><ruby>茂<rt>mào</rt></ruby><ruby>密<rt>mì</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>森<rt>sēn</rt></ruby><ruby>林<rt>lín</rt></ruby>，4000<ruby>只<rt>zhǐ</rt></ruby><ruby>左<rt>zuǒ</rt></ruby><ruby>右<rt>yòu</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>鹿<rt>lù</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>林<rt>lín</rt></ruby><ruby>间<rt>jiān</rt></ruby><ruby>出<rt>chū</rt></ruby><ruby>没<rt>mò</rt></ruby>，<ruby>然<rt>rán</rt></ruby><ruby>而<rt>ér</rt></ruby>，<ruby>鹿<rt>lù</rt></ruby><ruby>群<rt>qún</rt></ruby><ruby>周<rt>zhōu</rt></ruby><ruby>围<rt>wéi</rt></ruby><ruby>往<rt>wǎng</rt></ruby><ruby>往<rt>wǎng</rt></ruby><ruby>会<rt>huì</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>凶<rt>xiōng</rt></ruby><ruby>恶<rt>è</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>狼<rt>láng</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>旁<rt>páng</rt></ruby><span class="vocab" data-vocab-id="0"><ruby>窥<rt>kuī</rt></ruby><ruby>视<rt>shì</rt></ruby></span>，<ruby>许<rt>xǔ</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>鹿<rt>lù</rt></ruby><ruby>都<rt>dōu</rt></ruby><ruby>命<rt>mìng</rt></ruby><ruby>丧<rt>sàng</rt></ruby><ruby>狼<rt>láng</rt></ruby><ruby>口<rt>kǒu</rt></ruby>。<ruby>美<rt>měi</rt></ruby><ruby>国<rt>guó</rt></ruby><ruby>总<rt>zǒng</rt></ruby><ruby>统<rt>tǒng</rt></ruby><ruby>西<rt>xī</rt></ruby><ruby>奥<rt>ào</rt></ruby><ruby>多<rt>duō</rt></ruby>·<ruby>罗<rt>luó</rt></ruby><ruby>斯<rt>sī</rt></ruby><ruby>福<rt>fú</rt></ruby><ruby>为<rt>wèi</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>保<rt>bǎo</rt></ruby><ruby>护<rt>hù</rt></ruby><ruby>鹿<rt>lù</rt></ruby>，<span class="vocab" data-vocab-id="1"><ruby>宣<rt>xuān</rt></ruby><ruby>布<rt>bù</rt></ruby></span><ruby>该<rt>gāi</rt></ruby><ruby>森<rt>sēn</rt></ruby><ruby>林<rt>lín</rt></ruby><ruby>为<rt>wèi</rt></ruby><ruby>全<rt>quán</rt></ruby><ruby>国<rt>guó</rt></ruby><span class="vocab" data-vocab-id="2"><ruby>狩<rt>shòu</rt></ruby><ruby>猎<rt>liè</rt></ruby></span><ruby>保<rt>bǎo</rt></ruby><ruby>护<rt>hù</rt></ruby><ruby>区<rt>qū</rt></ruby>，<ruby>由<rt>yóu</rt></ruby><ruby>政<rt>zhèng</rt></ruby><ruby>府<rt>fǔ</rt></ruby><ruby>聘<rt>pìn</rt></ruby><ruby>请<rt>qǐng</rt></ruby><ruby>猎<rt>liè</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>到<rt>dào</rt></ruby><ruby>那<rt>nà</rt></ruby><ruby>里<rt>lǐ</rt></ruby><ruby>去<rt>qù</rt></ruby><ruby>灭<rt>miè</rt></ruby><ruby>狼<rt>láng</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">1</span>In the early 20th century, northern Arizona was covered in vast, dense forests. Around 4,000 deer roamed among the trees. But fierce wolves were always watching the deer from the edges, and many deer fell prey to them. US President Theodore Roosevelt, wanting to protect the deer, declared the forest a national hunting reserve, and the government hired hunters to wipe out the wolves.</div>
+</article>
+<article class="para" data-playable data-audio="经过25年的猎捕，6000多只狼被杀死。由于得到特别的保护，森林中鹿的数量急剧上升，总数高达10万。在这些鹿的啃食下，森林中的绿色植物一天天减少，大地露出的枯黄一天天扩大。终于，灾难降临了。饥饿、疾病使鹿的数量在两年内锐减到4万只。到1942年，整个森林只剩下8000只病鹿。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="经过25年的猎捕，6000多只狼被杀死。由于得到特别的保护，森林中鹿的数量急剧上升，总数高达10万。在这些鹿的啃食下，森林中的绿色植物一天天减少，大地露出的枯黄一天天扩大。终于，灾难降临了。饥饿、疾病使鹿的数量在两年内锐减到4万只。到1942年，整个森林只剩下8000只病鹿。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">2</span>
+      <ruby>经<rt>jīng</rt></ruby><ruby>过<rt>guò</rt></ruby>25<ruby>年<rt>nián</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>猎<rt>liè</rt></ruby><ruby>捕<rt>bǔ</rt></ruby>，6000<ruby>多<rt>duō</rt></ruby><ruby>只<rt>zhǐ</rt></ruby><ruby>狼<rt>láng</rt></ruby><ruby>被<rt>bèi</rt></ruby><ruby>杀<rt>shā</rt></ruby><ruby>死<rt>sǐ</rt></ruby>。<ruby>由<rt>yóu</rt></ruby><ruby>于<rt>yú</rt></ruby><ruby>得<rt>dé</rt></ruby><ruby>到<rt>dào</rt></ruby><ruby>特<rt>tè</rt></ruby><ruby>别<rt>bié</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>保<rt>bǎo</rt></ruby><ruby>护<rt>hù</rt></ruby>，<ruby>森<rt>sēn</rt></ruby><ruby>林<rt>lín</rt></ruby><ruby>中<rt>zhōng</rt></ruby><ruby>鹿<rt>lù</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>数<rt>shù</rt></ruby><ruby>量<rt>liàng</rt></ruby><ruby>急<rt>jí</rt></ruby><ruby>剧<rt>jù</rt></ruby><ruby>上<rt>shàng</rt></ruby><ruby>升<rt>shēng</rt></ruby>，<ruby>总<rt>zǒng</rt></ruby><ruby>数<rt>shù</rt></ruby><ruby>高<rt>gāo</rt></ruby><ruby>达<rt>dá</rt></ruby>10<ruby>万<rt>wàn</rt></ruby>。<ruby>在<rt>zài</rt></ruby><ruby>这<rt>zhè</rt></ruby><ruby>些<rt>xiē</rt></ruby><ruby>鹿<rt>lù</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>啃<rt>kěn</rt></ruby><ruby>食<rt>shí</rt></ruby><ruby>下<rt>xià</rt></ruby>，<ruby>森<rt>sēn</rt></ruby><ruby>林<rt>lín</rt></ruby><ruby>中<rt>zhōng</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>绿<rt>lǜ</rt></ruby><ruby>色<rt>sè</rt></ruby><ruby>植<rt>zhí</rt></ruby><ruby>物<rt>wù</rt></ruby><ruby>一<rt>yì</rt></ruby><ruby>天<rt>tiān</rt></ruby><ruby>天<rt>tiān</rt></ruby><ruby>减<rt>jiǎn</rt></ruby><ruby>少<rt>shǎo</rt></ruby>，<ruby>大<rt>dà</rt></ruby><ruby>地<rt>dì</rt></ruby><ruby>露<rt>lù</rt></ruby><ruby>出<rt>chū</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>枯<rt>kū</rt></ruby><ruby>黄<rt>huáng</rt></ruby><ruby>一<rt>yì</rt></ruby><ruby>天<rt>tiān</rt></ruby><ruby>天<rt>tiān</rt></ruby><ruby>扩<rt>kuò</rt></ruby><ruby>大<rt>dà</rt></ruby>。<ruby>终<rt>zhōng</rt></ruby><ruby>于<rt>yú</rt></ruby>，<ruby>灾<rt>zāi</rt></ruby><ruby>难<rt>nàn</rt></ruby><ruby>降<rt>jiàng</rt></ruby><ruby>临<rt>lín</rt></ruby><ruby>了<rt>le</rt></ruby>。<span class="vocab" data-vocab-id="3"><ruby>饥<rt>jī</rt></ruby><ruby>饿<rt>è</rt></ruby></span>、<ruby>疾<rt>jí</rt></ruby><ruby>病<rt>bìng</rt></ruby><ruby>使<rt>shǐ</rt></ruby><ruby>鹿<rt>lù</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>数<rt>shù</rt></ruby><ruby>量<rt>liàng</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>两<rt>liǎng</rt></ruby><ruby>年<rt>nián</rt></ruby><ruby>内<rt>nèi</rt></ruby><ruby>锐<rt>ruì</rt></ruby><ruby>减<rt>jiǎn</rt></ruby><ruby>到<rt>dào</rt></ruby>4<ruby>万<rt>wàn</rt></ruby><ruby>只<rt>zhǐ</rt></ruby>。<ruby>到<rt>dào</rt></ruby>1942<ruby>年<rt>nián</rt></ruby>，<ruby>整<rt>zhěng</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>森<rt>sēn</rt></ruby><ruby>林<rt>lín</rt></ruby><ruby>只<rt>zhǐ</rt></ruby><ruby>剩<rt>shèng</rt></ruby><ruby>下<rt>xià</rt></ruby>8000<ruby>只<rt>zhǐ</rt></ruby><ruby>病<rt>bìng</rt></ruby><ruby>鹿<rt>lù</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">2</span>After 25 years of hunting, more than 6,000 wolves had been killed. With special protection, the deer population in the forest skyrocketed to as many as 100,000. Under all that grazing, the greenery in the forest dwindled day by day, and the bare, withered earth grew larger and larger. Eventually, disaster struck. Hunger and disease cut the deer population down to 40,000 in just two years. By 1942, only 8,000 sick deer remained in the entire forest.</div>
+</article>
+<article class="para" data-playable data-audio="罗斯福的护鹿形同杀鹿。他下令捕杀的恶狼，其实也是森林的保护者。尽管狼吃鹿，但它有助于保持鹿群的种群稳定。因为狼吃掉一些鹿后，就可以将森林中鹿的总数控制在一个合理的程度，森林也就不会被鹿群糟蹋得面目全非。同时，狼吃掉的多数是病鹿，这能有效控制疾病对鹿群的威胁。鹿的数量一旦超过森林可以承受的程度，就会破坏生态系统的平衡，给森林带来巨大的灾难。也就是说，过多的鹿会成为毁灭森林的罪魁祸首。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="罗斯福的护鹿形同杀鹿。他下令捕杀的恶狼，其实也是森林的保护者。尽管狼吃鹿，但它有助于保持鹿群的种群稳定。因为狼吃掉一些鹿后，就可以将森林中鹿的总数控制在一个合理的程度，森林也就不会被鹿群糟蹋得面目全非。同时，狼吃掉的多数是病鹿，这能有效控制疾病对鹿群的威胁。鹿的数量一旦超过森林可以承受的程度，就会破坏生态系统的平衡，给森林带来巨大的灾难。也就是说，过多的鹿会成为毁灭森林的罪魁祸首。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">3</span>
+      <ruby>罗<rt>luó</rt></ruby><ruby>斯<rt>sī</rt></ruby><ruby>福<rt>fú</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>护<rt>hù</rt></ruby><ruby>鹿<rt>lù</rt></ruby><ruby>形<rt>xíng</rt></ruby><ruby>同<rt>tóng</rt></ruby><ruby>杀<rt>shā</rt></ruby><ruby>鹿<rt>lù</rt></ruby>。<ruby>他<rt>tā</rt></ruby><ruby>下<rt>xià</rt></ruby><ruby>令<rt>lìng</rt></ruby><ruby>捕<rt>bǔ</rt></ruby><ruby>杀<rt>shā</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>恶<rt>è</rt></ruby><ruby>狼<rt>láng</rt></ruby>，<ruby>其<rt>qí</rt></ruby><ruby>实<rt>shí</rt></ruby><ruby>也<rt>yě</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>森<rt>sēn</rt></ruby><ruby>林<rt>lín</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>保<rt>bǎo</rt></ruby><ruby>护<rt>hù</rt></ruby><ruby>者<rt>zhě</rt></ruby>。<ruby>尽<rt>jǐn</rt></ruby><ruby>管<rt>guǎn</rt></ruby><ruby>狼<rt>láng</rt></ruby><ruby>吃<rt>chī</rt></ruby><ruby>鹿<rt>lù</rt></ruby>，<ruby>但<rt>dàn</rt></ruby><ruby>它<rt>tā</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>助<rt>zhù</rt></ruby><ruby>于<rt>yú</rt></ruby><ruby>保<rt>bǎo</rt></ruby><ruby>持<rt>chí</rt></ruby><ruby>鹿<rt>lù</rt></ruby><ruby>群<rt>qún</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>种<rt>zhǒng</rt></ruby><ruby>群<rt>qún</rt></ruby><ruby>稳<rt>wěn</rt></ruby><ruby>定<rt>dìng</rt></ruby>。<ruby>因<rt>yīn</rt></ruby><ruby>为<rt>wèi</rt></ruby><ruby>狼<rt>láng</rt></ruby><ruby>吃<rt>chī</rt></ruby><ruby>掉<rt>diào</rt></ruby><ruby>一<rt>yì</rt></ruby><ruby>些<rt>xiē</rt></ruby><ruby>鹿<rt>lù</rt></ruby><ruby>后<rt>hòu</rt></ruby>，<ruby>就<rt>jiù</rt></ruby><ruby>可<rt>kě</rt></ruby><ruby>以<rt>yǐ</rt></ruby><ruby>将<rt>jiāng</rt></ruby><ruby>森<rt>sēn</rt></ruby><ruby>林<rt>lín</rt></ruby><ruby>中<rt>zhōng</rt></ruby><ruby>鹿<rt>lù</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>总<rt>zǒng</rt></ruby><ruby>数<rt>shù</rt></ruby><ruby>控<rt>kòng</rt></ruby><ruby>制<rt>zhì</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>一<rt>yí</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>合<rt>hé</rt></ruby><ruby>理<rt>lǐ</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>程<rt>chéng</rt></ruby><ruby>度<rt>dù</rt></ruby>，<ruby>森<rt>sēn</rt></ruby><ruby>林<rt>lín</rt></ruby><ruby>也<rt>yě</rt></ruby><ruby>就<rt>jiù</rt></ruby><ruby>不<rt>bú</rt></ruby><ruby>会<rt>huì</rt></ruby><ruby>被<rt>bèi</rt></ruby><ruby>鹿<rt>lù</rt></ruby><ruby>群<rt>qún</rt></ruby><span class="vocab" data-vocab-id="4"><ruby>糟<rt>zāo</rt></ruby><ruby>蹋<rt>tà</rt></ruby></span><ruby>得<rt>dé</rt></ruby><ruby>面<rt>miàn</rt></ruby><ruby>目<rt>mù</rt></ruby><ruby>全<rt>quán</rt></ruby><ruby>非<rt>fēi</rt></ruby>。<ruby>同<rt>tóng</rt></ruby><ruby>时<rt>shí</rt></ruby>，<ruby>狼<rt>láng</rt></ruby><ruby>吃<rt>chī</rt></ruby><ruby>掉<rt>diào</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>数<rt>shù</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>病<rt>bìng</rt></ruby><ruby>鹿<rt>lù</rt></ruby>，<ruby>这<rt>zhè</rt></ruby><ruby>能<rt>néng</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>效<rt>xiào</rt></ruby><ruby>控<rt>kòng</rt></ruby><ruby>制<rt>zhì</rt></ruby><ruby>疾<rt>jí</rt></ruby><ruby>病<rt>bìng</rt></ruby><ruby>对<rt>duì</rt></ruby><ruby>鹿<rt>lù</rt></ruby><ruby>群<rt>qún</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>威<rt>wēi</rt></ruby><ruby>胁<rt>xié</rt></ruby>。<ruby>鹿<rt>lù</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>数<rt>shù</rt></ruby><ruby>量<rt>liàng</rt></ruby><ruby>一<rt>yí</rt></ruby><ruby>旦<rt>dàn</rt></ruby><ruby>超<rt>chāo</rt></ruby><ruby>过<rt>guò</rt></ruby><ruby>森<rt>sēn</rt></ruby><ruby>林<rt>lín</rt></ruby><ruby>可<rt>kě</rt></ruby><ruby>以<rt>yǐ</rt></ruby><ruby>承<rt>chéng</rt></ruby><ruby>受<rt>shòu</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>程<rt>chéng</rt></ruby><ruby>度<rt>dù</rt></ruby>，<ruby>就<rt>jiù</rt></ruby><ruby>会<rt>huì</rt></ruby><ruby>破<rt>pò</rt></ruby><ruby>坏<rt>huài</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>态<rt>tài</rt></ruby><ruby>系<rt>xì</rt></ruby><ruby>统<rt>tǒng</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>平<rt>píng</rt></ruby><ruby>衡<rt>héng</rt></ruby>，<ruby>给<rt>gěi</rt></ruby><ruby>森<rt>sēn</rt></ruby><ruby>林<rt>lín</rt></ruby><ruby>带<rt>dài</rt></ruby><ruby>来<rt>lái</rt></ruby><ruby>巨<rt>jù</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>灾<rt>zāi</rt></ruby><ruby>难<rt>nàn</rt></ruby>。<ruby>也<rt>yě</rt></ruby><ruby>就<rt>jiù</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>说<rt>shuō</rt></ruby>，<ruby>过<rt>guò</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>鹿<rt>lù</rt></ruby><ruby>会<rt>huì</rt></ruby><ruby>成<rt>chéng</rt></ruby><ruby>为<rt>wéi</rt></ruby><span class="vocab" data-vocab-id="5"><ruby>毁<rt>huǐ</rt></ruby><ruby>灭<rt>miè</rt></ruby></span><ruby>森<rt>sēn</rt></ruby><ruby>林<rt>lín</rt></ruby><ruby>的<rt>de</rt></ruby><span class="vocab" data-vocab-id="6"><ruby>罪<rt>zuì</rt></ruby><ruby>魁<rt>kuí</rt></ruby><ruby>祸<rt>huò</rt></ruby><ruby>首<rt>shǒu</rt></ruby></span>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">3</span>Roosevelt&#x27;s protection of the deer ended up amounting to their slaughter. The &quot;vicious&quot; wolves he ordered killed had actually been the forest&#x27;s protectors. Yes, wolves eat deer — but in doing so, they help keep deer populations stable. Each deer a wolf takes helps keep the total population at a sustainable level, so the forest doesn&#x27;t get gnawed to ruin. What&#x27;s more, the deer wolves take are mostly sick ones, which effectively limits the spread of disease through the herd. Once the deer population exceeds what the forest can sustain, the ecosystem&#x27;s balance breaks down, and disaster strikes. In other words, too many deer become the very thing that destroys the forest.</div>
+</article>
+<article class="para" data-playable data-audio="动物学家把这种与天敌共荣的现象称之为狼鹿效应。那么，为什么会产生狼鹿效应呢？">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="动物学家把这种与天敌共荣的现象称之为狼鹿效应。那么，为什么会产生狼鹿效应呢？"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">4</span>
+      <ruby>动<rt>dòng</rt></ruby><ruby>物<rt>wù</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>家<rt>jiā</rt></ruby><ruby>把<rt>bǎ</rt></ruby><ruby>这<rt>zhè</rt></ruby><ruby>种<rt>zhǒng</rt></ruby><ruby>与<rt>yǔ</rt></ruby><ruby>天<rt>tiān</rt></ruby><ruby>敌<rt>dí</rt></ruby><ruby>共<rt>gòng</rt></ruby><ruby>荣<rt>róng</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>现<rt>xiàn</rt></ruby><ruby>象<rt>xiàng</rt></ruby><ruby>称<rt>chēng</rt></ruby><ruby>之<rt>zhī</rt></ruby><ruby>为<rt>wèi</rt></ruby><ruby>狼<rt>láng</rt></ruby><ruby>鹿<rt>lù</rt></ruby><ruby>效<rt>xiào</rt></ruby><ruby>应<rt>yìng</rt></ruby>。<ruby>那<rt>nà</rt></ruby><ruby>么<rt>me</rt></ruby>，<ruby>为<rt>wèi</rt></ruby><ruby>什<rt>shén</rt></ruby><ruby>么<rt>me</rt></ruby><ruby>会<rt>huì</rt></ruby><ruby>产<rt>chǎn</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>狼<rt>láng</rt></ruby><ruby>鹿<rt>lù</rt></ruby><ruby>效<rt>xiào</rt></ruby><ruby>应<rt>yìng</rt></ruby><ruby>呢<rt>ne</rt></ruby>？
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">4</span>Zoologists call this phenomenon — thriving alongside one&#x27;s natural predator — the &quot;wolf-deer effect.&quot; So why does the wolf-deer effect happen?</div>
+</article>
+<article class="para" data-playable data-audio="因为狼和鹿是生态链上紧密相连的两环，两者之间通过竞争、冲突与周围的生态环境取得平衡。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="因为狼和鹿是生态链上紧密相连的两环，两者之间通过竞争、冲突与周围的生态环境取得平衡。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">5</span>
+      <ruby>因<rt>yīn</rt></ruby><ruby>为<rt>wèi</rt></ruby><ruby>狼<rt>láng</rt></ruby><ruby>和<rt>hé</rt></ruby><ruby>鹿<rt>lù</rt></ruby><ruby>是<rt>shì</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>态<rt>tài</rt></ruby><ruby>链<rt>liàn</rt></ruby><ruby>上<rt>shàng</rt></ruby><ruby>紧<rt>jǐn</rt></ruby><ruby>密<rt>mì</rt></ruby><ruby>相<rt>xiāng</rt></ruby><ruby>连<rt>lián</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>两<rt>liǎng</rt></ruby><ruby>环<rt>huán</rt></ruby>，<ruby>两<rt>liǎng</rt></ruby><ruby>者<rt>zhě</rt></ruby><ruby>之<rt>zhī</rt></ruby><ruby>间<rt>jiān</rt></ruby><ruby>通<rt>tōng</rt></ruby><ruby>过<rt>guò</rt></ruby><span class="vocab" data-vocab-id="7"><ruby>竞<rt>jìng</rt></ruby><ruby>争<rt>zhēng</rt></ruby></span>、<ruby>冲<rt>chōng</rt></ruby><ruby>突<rt>tū</rt></ruby><ruby>与<rt>yǔ</rt></ruby><ruby>周<rt>zhōu</rt></ruby><ruby>围<rt>wéi</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>态<rt>tài</rt></ruby><ruby>环<rt>huán</rt></ruby><ruby>境<rt>jìng</rt></ruby><ruby>取<rt>qǔ</rt></ruby><ruby>得<rt>dé</rt></ruby><ruby>平<rt>píng</rt></ruby><ruby>衡<rt>héng</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">5</span>Because wolves and deer are two tightly-linked rings of the ecological chain. Through competition and conflict between them, both find equilibrium with the wider ecosystem.</div>
+</article>
+<article class="para" data-playable data-audio="为了证实这个原理，美国生物学家在一个小岛上进行了长达32年的考察研究。在那里，他亲眼目睹了这两种动物和森林间的生态平衡关系。作为鹿的天敌，狼一有机会就发动袭击。老弱的鹿难以逃脱，往往被狼猎杀，身躯强壮的鹿则有更多机会生存下来。没有了狼，鹿虽能在短时间内迅速繁殖，最终却会因饥饿和疾病大批死去。反之，如果少了鹿，狼也会因得不到足够的食物而无法生存。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="为了证实这个原理，美国生物学家在一个小岛上进行了长达32年的考察研究。在那里，他亲眼目睹了这两种动物和森林间的生态平衡关系。作为鹿的天敌，狼一有机会就发动袭击。老弱的鹿难以逃脱，往往被狼猎杀，身躯强壮的鹿则有更多机会生存下来。没有了狼，鹿虽能在短时间内迅速繁殖，最终却会因饥饿和疾病大批死去。反之，如果少了鹿，狼也会因得不到足够的食物而无法生存。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">6</span>
+      <ruby>为<rt>wèi</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>证<rt>zhèng</rt></ruby><ruby>实<rt>shí</rt></ruby><ruby>这<rt>zhè</rt></ruby><ruby>个<rt>ge</rt></ruby><ruby>原<rt>yuán</rt></ruby><ruby>理<rt>lǐ</rt></ruby>，<ruby>美<rt>měi</rt></ruby><ruby>国<rt>guó</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>物<rt>wù</rt></ruby><ruby>学<rt>xué</rt></ruby><ruby>家<rt>jiā</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>一<rt>yí</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>小<rt>xiǎo</rt></ruby><ruby>岛<rt>dǎo</rt></ruby><ruby>上<rt>shàng</rt></ruby><ruby>进<rt>jìn</rt></ruby><ruby>行<rt>xíng</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>长<rt>zhǎng</rt></ruby><ruby>达<rt>dá</rt></ruby>32<ruby>年<rt>nián</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>考<rt>kǎo</rt></ruby><ruby>察<rt>chá</rt></ruby><ruby>研<rt>yán</rt></ruby><ruby>究<rt>jiū</rt></ruby>。<ruby>在<rt>zài</rt></ruby><ruby>那<rt>nà</rt></ruby><ruby>里<rt>lǐ</rt></ruby>，<ruby>他<rt>tā</rt></ruby><ruby>亲<rt>qīn</rt></ruby><ruby>眼<rt>yǎn</rt></ruby><ruby>目<rt>mù</rt></ruby><ruby>睹<rt>dǔ</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>这<rt>zhè</rt></ruby><ruby>两<rt>liǎng</rt></ruby><ruby>种<rt>zhǒng</rt></ruby><ruby>动<rt>dòng</rt></ruby><ruby>物<rt>wù</rt></ruby><ruby>和<rt>hé</rt></ruby><ruby>森<rt>sēn</rt></ruby><ruby>林<rt>lín</rt></ruby><ruby>间<rt>jiān</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>态<rt>tài</rt></ruby><ruby>平<rt>píng</rt></ruby><ruby>衡<rt>héng</rt></ruby><ruby>关<rt>guān</rt></ruby><ruby>系<rt>xì</rt></ruby>。<ruby>作<rt>zuò</rt></ruby><ruby>为<rt>wéi</rt></ruby><ruby>鹿<rt>lù</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>天<rt>tiān</rt></ruby><ruby>敌<rt>dí</rt></ruby>，<ruby>狼<rt>láng</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>机<rt>jī</rt></ruby><ruby>会<rt>huì</rt></ruby><ruby>就<rt>jiù</rt></ruby><ruby>发<rt>fā</rt></ruby><ruby>动<rt>dòng</rt></ruby><span class="vocab" data-vocab-id="8"><ruby>袭<rt>xí</rt></ruby><ruby>击<rt>jī</rt></ruby></span>。<ruby>老<rt>lǎo</rt></ruby><ruby>弱<rt>ruò</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>鹿<rt>lù</rt></ruby><ruby>难<rt>nán</rt></ruby><ruby>以<rt>yǐ</rt></ruby><ruby>逃<rt>táo</rt></ruby><ruby>脱<rt>tuō</rt></ruby>，<ruby>往<rt>wǎng</rt></ruby><ruby>往<rt>wǎng</rt></ruby><ruby>被<rt>bèi</rt></ruby><ruby>狼<rt>láng</rt></ruby><ruby>猎<rt>liè</rt></ruby><ruby>杀<rt>shā</rt></ruby>，<ruby>身<rt>shēn</rt></ruby><ruby>躯<rt>qū</rt></ruby><ruby>强<rt>qiáng</rt></ruby><ruby>壮<rt>zhuàng</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>鹿<rt>lù</rt></ruby><ruby>则<rt>zé</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>更<rt>gèng</rt></ruby><ruby>多<rt>duō</rt></ruby><ruby>机<rt>jī</rt></ruby><ruby>会<rt>huì</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>存<rt>cún</rt></ruby><ruby>下<rt>xià</rt></ruby><ruby>来<rt>lái</rt></ruby>。<ruby>没<rt>méi</rt></ruby><ruby>有<rt>yǒu</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>狼<rt>láng</rt></ruby>，<ruby>鹿<rt>lù</rt></ruby><ruby>虽<rt>suī</rt></ruby><ruby>能<rt>néng</rt></ruby><ruby>在<rt>zài</rt></ruby><ruby>短<rt>duǎn</rt></ruby><ruby>时<rt>shí</rt></ruby><ruby>间<rt>jiān</rt></ruby><ruby>内<rt>nèi</rt></ruby><ruby>迅<rt>xùn</rt></ruby><ruby>速<rt>sù</rt></ruby><ruby>繁<rt>fán</rt></ruby><ruby>殖<rt>zhí</rt></ruby>，<ruby>最<rt>zuì</rt></ruby><ruby>终<rt>zhōng</rt></ruby><ruby>却<rt>què</rt></ruby><ruby>会<rt>huì</rt></ruby><ruby>因<rt>yīn</rt></ruby><span class="vocab" data-vocab-id="3"><ruby>饥<rt>jī</rt></ruby><ruby>饿<rt>è</rt></ruby></span><ruby>和<rt>hé</rt></ruby><ruby>疾<rt>jí</rt></ruby><ruby>病<rt>bìng</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>批<rt>pī</rt></ruby><ruby>死<rt>sǐ</rt></ruby><ruby>去<rt>qù</rt></ruby>。<ruby>反<rt>fǎn</rt></ruby><ruby>之<rt>zhī</rt></ruby>，<ruby>如<rt>rú</rt></ruby><ruby>果<rt>guǒ</rt></ruby><ruby>少<rt>shǎo</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>鹿<rt>lù</rt></ruby>，<ruby>狼<rt>láng</rt></ruby><ruby>也<rt>yě</rt></ruby><ruby>会<rt>huì</rt></ruby><ruby>因<rt>yīn</rt></ruby><ruby>得<rt>dé</rt></ruby><ruby>不<rt>bú</rt></ruby><ruby>到<rt>dào</rt></ruby><ruby>足<rt>zú</rt></ruby><ruby>够<rt>gòu</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>食<rt>shí</rt></ruby><ruby>物<rt>wù</rt></ruby><ruby>而<rt>ér</rt></ruby><ruby>无<rt>wú</rt></ruby><ruby>法<rt>fǎ</rt></ruby><ruby>生<rt>shēng</rt></ruby><ruby>存<rt>cún</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">6</span>To confirm this principle, an American biologist conducted a 32-year-long study on a small island. There, he saw with his own eyes the ecological balance between these two animals and their forest. As the deer&#x27;s natural predator, the wolf attacks whenever it gets the chance. The old and weak struggle to escape and are often hunted down, while the strong have a better chance of surviving. Without wolves, deer can multiply rapidly in the short term — but eventually large numbers die off from hunger and disease. Conversely, if there are too few deer, the wolves can&#x27;t get enough food and cannot survive either.</div>
+</article>
+<article class="para" data-playable data-audio="“灭狼护鹿”的举措违背了自然界的法则，最终给鹿群带来了更大的灾难。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="“灭狼护鹿”的举措违背了自然界的法则，最终给鹿群带来了更大的灾难。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">7</span>
+      “<ruby>灭<rt>miè</rt></ruby><ruby>狼<rt>láng</rt></ruby><ruby>护<rt>hù</rt></ruby><ruby>鹿<rt>lù</rt></ruby>”<ruby>的<rt>de</rt></ruby><ruby>举<rt>jǔ</rt></ruby><ruby>措<rt>cuò</rt></ruby><span class="vocab" data-vocab-id="9"><ruby>违<rt>wéi</rt></ruby><ruby>背<rt>bèi</rt></ruby></span><ruby>了<rt>le</rt></ruby><ruby>自<rt>zì</rt></ruby><ruby>然<rt>rán</rt></ruby><ruby>界<rt>jiè</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>法<rt>fǎ</rt></ruby><ruby>则<rt>zé</rt></ruby>，<ruby>最<rt>zuì</rt></ruby><ruby>终<rt>zhōng</rt></ruby><ruby>给<rt>gěi</rt></ruby><ruby>鹿<rt>lù</rt></ruby><ruby>群<rt>qún</rt></ruby><ruby>带<rt>dài</rt></ruby><ruby>来<rt>lái</rt></ruby><ruby>了<rt>le</rt></ruby><ruby>更<rt>gèng</rt></ruby><ruby>大<rt>dà</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>灾<rt>zāi</rt></ruby><ruby>难<rt>nàn</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">7</span>The strategy of &quot;killing wolves to protect deer&quot; violated nature&#x27;s own laws — and in the end, brought the deer themselves a far greater disaster.</div>
+</article>
+<article class="para" data-playable data-audio="狼鹿效应不仅适用于自然界，也同样适用于人类社会。在现今这个充满竞争的社会，追求成功的人非常需要强劲的竞争对手。竞争对手的存在，会激发一个人的拼搏意识。双方的关系如同狼鹿一样，互相依存，缺一不可。">
+  <div class="zh-col">
+    <button class="speaker-btn" type="button" aria-label="Play audio" data-audio="狼鹿效应不仅适用于自然界，也同样适用于人类社会。在现今这个充满竞争的社会，追求成功的人非常需要强劲的竞争对手。竞争对手的存在，会激发一个人的拼搏意识。双方的关系如同狼鹿一样，互相依存，缺一不可。"></button>
+    <div class="zh-text chinese">
+      <span class="para-num">8</span>
+      <ruby>狼<rt>láng</rt></ruby><ruby>鹿<rt>lù</rt></ruby><ruby>效<rt>xiào</rt></ruby><ruby>应<rt>yìng</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>仅<rt>jǐn</rt></ruby><ruby>适<rt>shì</rt></ruby><ruby>用<rt>yòng</rt></ruby><ruby>于<rt>yú</rt></ruby><ruby>自<rt>zì</rt></ruby><ruby>然<rt>rán</rt></ruby><ruby>界<rt>jiè</rt></ruby>，<ruby>也<rt>yě</rt></ruby><ruby>同<rt>tóng</rt></ruby><ruby>样<rt>yàng</rt></ruby><ruby>适<rt>shì</rt></ruby><ruby>用<rt>yòng</rt></ruby><ruby>于<rt>yú</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>类<rt>lèi</rt></ruby><ruby>社<rt>shè</rt></ruby><ruby>会<rt>huì</rt></ruby>。<ruby>在<rt>zài</rt></ruby><ruby>现<rt>xiàn</rt></ruby><ruby>今<rt>jīn</rt></ruby><ruby>这<rt>zhè</rt></ruby><ruby>个<rt>ge</rt></ruby><ruby>充<rt>chōng</rt></ruby><ruby>满<rt>mǎn</rt></ruby><span class="vocab" data-vocab-id="7"><ruby>竞<rt>jìng</rt></ruby><ruby>争<rt>zhēng</rt></ruby></span><ruby>的<rt>de</rt></ruby><ruby>社<rt>shè</rt></ruby><ruby>会<rt>huì</rt></ruby>，<ruby>追<rt>zhuī</rt></ruby><ruby>求<rt>qiú</rt></ruby><ruby>成<rt>chéng</rt></ruby><ruby>功<rt>gōng</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>非<rt>fēi</rt></ruby><ruby>常<rt>cháng</rt></ruby><ruby>需<rt>xū</rt></ruby><ruby>要<rt>yào</rt></ruby><ruby>强<rt>qiáng</rt></ruby><ruby>劲<rt>jìng</rt></ruby><ruby>的<rt>de</rt></ruby><span class="vocab" data-vocab-id="7"><ruby>竞<rt>jìng</rt></ruby><ruby>争<rt>zhēng</rt></ruby></span><ruby>对<rt>duì</rt></ruby><ruby>手<rt>shǒu</rt></ruby>。<span class="vocab" data-vocab-id="7"><ruby>竞<rt>jìng</rt></ruby><ruby>争<rt>zhēng</rt></ruby></span><ruby>对<rt>duì</rt></ruby><ruby>手<rt>shǒu</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>存<rt>cún</rt></ruby><ruby>在<rt>zài</rt></ruby>，<ruby>会<rt>huì</rt></ruby><ruby>激<rt>jī</rt></ruby><ruby>发<rt>fā</rt></ruby><ruby>一<rt>yí</rt></ruby><ruby>个<rt>gè</rt></ruby><ruby>人<rt>rén</rt></ruby><ruby>的<rt>de</rt></ruby><span class="vocab" data-vocab-id="10"><ruby>拼<rt>pīn</rt></ruby><ruby>搏<rt>bó</rt></ruby></span><ruby>意<rt>yì</rt></ruby><ruby>识<rt>shí</rt></ruby>。<ruby>双<rt>shuāng</rt></ruby><ruby>方<rt>fāng</rt></ruby><ruby>的<rt>de</rt></ruby><ruby>关<rt>guān</rt></ruby><ruby>系<rt>xì</rt></ruby><ruby>如<rt>rú</rt></ruby><ruby>同<rt>tóng</rt></ruby><ruby>狼<rt>láng</rt></ruby><ruby>鹿<rt>lù</rt></ruby><ruby>一<rt>yí</rt></ruby><ruby>样<rt>yàng</rt></ruby>，<ruby>互<rt>hù</rt></ruby><ruby>相<rt>xiāng</rt></ruby><ruby>依<rt>yī</rt></ruby><ruby>存<rt>cún</rt></ruby>，<ruby>缺<rt>quē</rt></ruby><ruby>一<rt>yī</rt></ruby><ruby>不<rt>bù</rt></ruby><ruby>可<rt>kě</rt></ruby>。
+    </div>
+  </div>
+  <div class="en-col"><span class="para-num">8</span>The wolf-deer effect applies not just to the natural world, but to human society as well. In today&#x27;s intensely competitive society, those who pursue success badly need formidable rivals. The presence of a competitor sparks the will to fight in the other person. The two are like wolf and deer — mutually dependent, neither one able to do without the other.</div>
+</article></main>
+  <div id="vocab-sheet" class="vocab-sheet" hidden>
+    <button class="vocab-sheet-close" id="vocab-sheet-close" aria-label="Close">×</button>
+    <div class="vocab-sheet-content"></div>
+  </div>
+  <div id="vocab-backdrop" class="vocab-backdrop" hidden></div>
+<script>window.__VOCAB__ = [{"zh": "窥视", "pinyin": "kuī shì", "en": "to peer at; to watch furtively"}, {"zh": "宣布", "pinyin": "xuān bù", "en": "to declare; to announce"}, {"zh": "狩猎", "pinyin": "shòu liè", "en": "to hunt; hunting"}, {"zh": "饥饿", "pinyin": "jī è", "en": "hunger; starving"}, {"zh": "糟蹋", "pinyin": "zāo ta", "en": "to ruin; to spoil; to lay to waste"}, {"zh": "毁灭", "pinyin": "huǐ miè", "en": "to destroy; destruction"}, {"zh": "罪魁祸首", "pinyin": "zuì kuí huò shǒu", "en": "the chief culprit; ringleader of evil"}, {"zh": "竞争", "pinyin": "jìng zhēng", "en": "competition; to compete"}, {"zh": "袭击", "pinyin": "xí jī", "en": "to attack; to launch a raid"}, {"zh": "违背", "pinyin": "wéi bèi", "en": "to violate; to go against (rules, principles)"}, {"zh": "拼搏", "pinyin": "pīn bó", "en": "to strive; the will to fight"}];</script>
+<script>
+(function () {
+  const SPEAKER_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>';
+  const STOP_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="5" y="5" width="14" height="14" rx="1"></rect></svg>';
+  const PLAY_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>';
+
+  // Inject speaker icons into all .speaker-btn elements
+  document.querySelectorAll('.speaker-btn').forEach(function(b){ b.innerHTML = SPEAKER_SVG; });
+
+  const togglePy = document.getElementById('toggle-pinyin');
+  const toggleEn = document.getElementById('toggle-english');
+  togglePy && togglePy.addEventListener('change', function(){ document.body.classList.toggle('pinyin-off', !togglePy.checked); });
+  toggleEn && toggleEn.addEventListener('change', function(){ document.body.classList.toggle('english-off', !toggleEn.checked); });
+
+  // ===== Vocab panel toggle =====
+  const vocabPanelToggle = document.getElementById('toggle-vocab-panel');
+  const vocabPanel = document.getElementById('vocab-panel');
+  if (vocabPanelToggle && vocabPanel) {
+    vocabPanelToggle.addEventListener('change', function(){
+      vocabPanel.hidden = !vocabPanelToggle.checked;
+    });
+  }
+
+  // ===== Vocab bottom sheet =====
+  const vocabSheet = document.getElementById('vocab-sheet');
+  const vocabBackdrop = document.getElementById('vocab-backdrop');
+  const vocabSheetClose = document.getElementById('vocab-sheet-close');
+  const vocabData = window.__VOCAB__ || [];
+
+  function buildRuby(zh, pinyinStr) {
+    // Split pinyin by space, line up with chars of zh
+    const chars = Array.from(zh);
+    const syllables = (pinyinStr || '').split(/\s+/).filter(Boolean);
+    let out = '';
+    let si = 0;
+    for (const ch of chars) {
+      // Only attach pinyin to CJK characters
+      if (/[\u4e00-\u9fff]/.test(ch)) {
+        const p = syllables[si++] || '';
+        out += '<ruby>' + ch + '<rt>' + p + '</rt></ruby>';
+      } else {
+        out += ch;
+      }
+    }
+    return out;
+  }
+
+  function openVocabSheet(vocabId) {
+    const v = vocabData[vocabId];
+    if (!v || !vocabSheet || !vocabBackdrop) return;
+    const content = vocabSheet.querySelector('.vocab-sheet-content');
+    content.innerHTML = '<p class="vs-zh chinese">' + buildRuby(v.zh, v.pinyin || '') + '</p>' +
+                        '<p class="vs-en">' + v.en + '</p>';
+    vocabSheet.hidden = false;
+    vocabBackdrop.hidden = false;
+    // allow transition
+    requestAnimationFrame(function(){
+      vocabSheet.classList.add('visible');
+      vocabBackdrop.classList.add('visible');
+    });
+  }
+
+  function closeVocabSheet() {
+    if (!vocabSheet || !vocabBackdrop) return;
+    vocabSheet.classList.remove('visible');
+    vocabBackdrop.classList.remove('visible');
+    setTimeout(function(){
+      vocabSheet.hidden = true;
+      vocabBackdrop.hidden = true;
+    }, 250);
+  }
+
+  // Click handler on any .vocab span
+  document.addEventListener('click', function(e){
+    const vocab = e.target.closest && e.target.closest('.vocab');
+    if (vocab) {
+      e.stopPropagation();
+      const id = parseInt(vocab.getAttribute('data-vocab-id'), 10);
+      openVocabSheet(id);
+      return;
+    }
+    // Click on vocab list row opens the sheet too
+    const vRow = e.target.closest && e.target.closest('.vocab-row');
+    if (vRow) {
+      const id = parseInt(vRow.getAttribute('data-vocab-id'), 10);
+      openVocabSheet(id);
+      return;
+    }
+  });
+
+  vocabSheetClose && vocabSheetClose.addEventListener('click', closeVocabSheet);
+  vocabBackdrop && vocabBackdrop.addEventListener('click', closeVocabSheet);
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeVocabSheet(); });
+
+  const speed = document.getElementById('speed');
+  const speedVal = document.getElementById('speed-val');
+  let rate = speed ? parseFloat(speed.value) : 0.9;
+  if (speed) speed.addEventListener('input', function(){
+    rate = parseFloat(speed.value);
+    speedVal.textContent = rate.toFixed(2).replace(/0$/, '') + '\u00d7';
+  });
+
+  const synth = window.speechSynthesis;
+  let chosenVoice = null;
+  function pickVoice(){
+    if (!synth) return;
+    const voices = synth.getVoices();
+    chosenVoice = voices.find(function(v){ return v.lang && v.lang.toLowerCase().indexOf('zh') === 0; }) || null;
+  }
+  if (synth) { pickVoice(); synth.addEventListener && synth.addEventListener('voiceschanged', pickVoice); }
+
+  function clearActive(){
+    document.querySelectorAll('.speaker-btn.playing').forEach(function(b){ b.classList.remove('playing'); });
+    document.querySelectorAll('.active-passage').forEach(function(p){ p.classList.remove('active-passage'); });
+  }
+
+  const playAllBtn = document.getElementById('play-all-btn');
+  let isPlayingAll = false;
+  let queue = [];
+
+  function setPlayAllState(playing){
+    isPlayingAll = playing;
+    if (!playAllBtn) return;
+    if (playing){
+      playAllBtn.classList.add('playing');
+      playAllBtn.innerHTML = STOP_SVG + '<span>\u505c\u6b62 Stop</span>';
+    } else {
+      playAllBtn.classList.remove('playing');
+      playAllBtn.innerHTML = PLAY_SVG + '<span>\u64ad\u653e\u5168\u6587 Play all</span>';
+      queue = [];
+    }
+  }
+
+  function speakOne(text, onDone){
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'zh-CN'; u.rate = rate;
+    if (chosenVoice) u.voice = chosenVoice;
+    u.onend = onDone; u.onerror = onDone;
+    synth.speak(u);
+  }
+
+  // Individual speaker buttons — each has data-audio attr containing the Chinese to speak,
+  // and data-active-selector saying which parent element to highlight
+  document.querySelectorAll('.speaker-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      if (!synth){ alert('Your browser does not support speech synthesis.'); return; }
+      synth.cancel(); clearActive(); setPlayAllState(false);
+      const text = btn.dataset.audio || '';
+      const activeEl = btn.closest('[data-playable]');
+      btn.classList.add('playing');
+      if (activeEl) activeEl.classList.add('active-passage');
+      speakOne(text, function(){
+        btn.classList.remove('playing');
+        if (activeEl) activeEl.classList.remove('active-passage');
+      });
+    });
+  });
+
+  if (playAllBtn){
+    playAllBtn.addEventListener('click', function(){
+      if (!synth){ alert('Your browser does not support speech synthesis.'); return; }
+      if (isPlayingAll){ synth.cancel(); clearActive(); setPlayAllState(false); return; }
+      synth.cancel(); clearActive();
+      queue = Array.from(document.querySelectorAll('[data-playable]'));
+      setPlayAllState(true);
+      function next(){
+        if (!isPlayingAll || queue.length === 0){ clearActive(); setPlayAllState(false); return; }
+        const el = queue.shift();
+        clearActive(); el.classList.add('active-passage');
+        el.scrollIntoView({behavior:'smooth', block:'center'});
+        const text = el.dataset.audio || el.querySelector('.speaker-btn').dataset.audio;
+        speakOne(text, next);
+      }
+      next();
+    });
+  }
+})();
+</script>
+</body>
+</html>
